@@ -1,4 +1,4 @@
-import { global } from "../main.js";
+import { global } from "./main.js";
 import { Chunk } from "./tile/Chunk.js";
 
 export class Level {
@@ -89,3 +89,4 @@ export class Level {
 
     refresh
 }
+
