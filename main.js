@@ -1,8 +1,8 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
+// import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
 // import { Entity } from "./entity/Entity.js";
-import { Player } from "./entity/Player.js";
-import { Level } from "./Level.js";
-import { Tile } from "./tile/Tile.js";
+// import { Player } from "./entity/Player.js";
+// import { Level } from "./Level.js";
+// import { Tile } from "./tile/Tile.js";
 
 export const global = {
 	scene: new THREE.Scene(),
@@ -84,3 +84,4 @@ function loadAssets() {
 }
 
 start();
+
