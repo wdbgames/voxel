@@ -3,11 +3,23 @@ export class Tile {
     stone;
     dirt;
     grass;
+    sand;
+    mud;
+    negeritre;
+    water;
+    leaves;
+    log;
     tiles = [];
-    tileIndex;
+    culling = true;
+    opaque = true;
 
-    constructor(tileIndex) {
-        this.tileIndex = tileIndex;
+    constructor(tileIndices) {
+        this.tileIndices = tileIndices;
+        if(Array.isArray(tileIndices)) {
+            this.tileIndices = tileIndices;
+        } else {
+            this.tileIndices= new Array(6).fill(tileIndices);
+        }
     }
 
     initializeTiles() {
@@ -17,36 +29,48 @@ export class Tile {
         this.dirt = 2;
         this.grass = 3;
         this.wood = 4;
+        this.stoneDeep = 5;
+        this.sand = 6;
+        this.mud = 7;
+        this.negeritre = 8;
+        this.water = 9;
+        this.leaves = 10;
+        this.log = 12;
 
         // tile classes
-        this.tiles[this.void] = new TileVoid(0);
-        this.tiles[this.stone] = new TileStone(1);
-        this.tiles[this.dirt] = new TileDirt(2);
-        this.tiles[this.grass] = new TileGrass(3);
+        this.tiles[this.void] = new TileVoid(0, false);
+        this.tiles[this.stone] = new Tile(5);
+        this.tiles[this.dirt] = new Tile(2);
+        this.tiles[this.grass] = new Tile([6, 6, 3, 2, 6, 6]);
         this.tiles[this.wood] = new Tile(4);
+        this.tiles[this.stoneDeep] = new Tile(1);
+        this.tiles[this.sand] = new Tile(7);
+        this.tiles[this.mud] = new Tile(8);
+        this.tiles[this.negeritre] = new Tile(9);
+        this.tiles[this.water] = new TileWater(10, false);
+        this.tiles[this.leaves] = new TileLeaves(11, false, false);
+        this.tiles[this.log] = new Tile(12);
     }
 }
 
 class TileVoid extends Tile {
-    constructor(tileIndex) {
-        super(tileIndex);
+    constructor(tileIndices, opaque) {
+        super(tileIndices);
+        this.opaque = opaque;
     }
 }
 
-class TileStone extends Tile {
-    constructor(tileIndex) {
-        super(tileIndex);
+class TileWater extends Tile {
+    constructor(tileIndices, opaque) {
+        super(tileIndices);
+        this.opaque = opaque;
     }
 }
 
-class TileDirt extends Tile {
-    constructor(tileIndex) {
-        super(tileIndex);
-    }
-}
-
-class TileGrass extends Tile {
-    constructor(tileIndex) {
-        super(tileIndex);
+class TileLeaves extends Tile {
+    constructor(tileIndices, culling, opaque) {
+        super(tileIndices);
+        this.culling = culling;
+        this.opaque = opaque;
     }
 }

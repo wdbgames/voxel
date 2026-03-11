@@ -10,9 +10,10 @@ export const global = {
 	renderer: new THREE.WebGLRenderer({canvas: document.getElementById("canvas")}),
 	player: null,
 	level: null,
+	tile: null,
 	materials: [],
 	chunkSize: 16,
-	tile: null
+	DEBUG: false
 }
 
 window.addEventListener("keydown", function(event) {
@@ -59,17 +60,18 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	Promise.all([loadAssets()]).then(() => {
-		global.level = new Level(64, 64, 64);
-		global.level.generate();
-		global.player = new Player(global.level.width / 2, global.level.height + 1.5, global.level.depth / 2);
-		loop();
-	});
+	global.level = new Level(128, 64, 128);
+	global.level.generate();
+	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
+	loop();
 }
 
 function loadAssets() {
+	const assetCount = 12;
+	const alphaTest = [11];
+	const opacity = [10];
 	return new Promise((resolve) => {
-		for(let i = 0; i < 5; ++i) {
+		for(let i = 0; i < assetCount + 1; ++i) {
 			global.materials[i] = new THREE.MeshStandardMaterial();
 			const loader = new THREE.TextureLoader();
 			loader.load(`./asset/${i}.png`, (texture) => {
@@ -77,10 +79,20 @@ function loadAssets() {
 				texture.magFilter = THREE.NearestFilter;
 				global.materials[i].map = texture;
 				global.materials[i].needsUpdate = true;
+				if(alphaTest.includes(i)) {
+					global.materials[i].alphaTest = 0.5;
+				}
+				if(opacity.includes(i)) {
+					global.materials[i].transparent = true;
+					global.materials[i].opacity = 0.5;
+				}
 			});
 		}
 		resolve();
 	});
 }
 
-start();
+Promise.all([loadAssets()]).then(() => {
+	start();
+});
+

@@ -4,6 +4,8 @@ export class Entity {
     positionZ;
     rotationX = 0;
     rotationY = 0;
+    sizeX = 1;
+    sizeY = 1;
 
     constructor(x, y, z) {
         this.positionX = x;

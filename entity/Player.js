@@ -9,6 +9,9 @@ export class Player extends Entity {
 
 	constructor(x, y, z) {
 		super(x, y, z);
+		this.sizeX = 0.5;
+		this.sizeY = 1.5;
+		this.sizeZ = 0.5;
 	}
 
 	update() {
@@ -39,6 +42,10 @@ export class Player extends Entity {
 
 		if (this.keys["e"]) {
 			this.positionY += 1 * speed;
+		}
+
+		if (this.keys[" "]) {
+			global.level.setTileWithUpdate(Math.floor(this.positionX), Math.floor(this.positionY - 2.5), Math.floor(this.positionZ), 1)
 		}
 
 		global.camera.position.x = this.positionX;
