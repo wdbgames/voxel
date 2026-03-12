@@ -1,5 +1,6 @@
 import { global } from "./main.js";
 import { Chunk } from "./tile/Chunk.js";
+import { AABB } from "./AABB.js";
 
 export class Level {
     chunkWidth;
@@ -192,5 +193,42 @@ export class Level {
 
         const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
         chunk.updateGeometry();
+    }
+
+    getTileAABBs(box) {
+        const tilesAABBs = [];
+        const tiles = [];
+        const AABBs = [];
+
+        let x0 = Math.floor(box.x0);
+        let y0 = Math.floor(box.y0);
+        let z0 = Math.floor(box.z0);
+        let x1 = Math.ceil(box.x1);
+        let y1 = Math.ceil(box.y1);
+        let z1 = Math.ceil(box.z1);
+
+        x0 = Math.max(0, x0);
+        y0 = Math.max(0, y0);
+        z0 = Math.max(0, z0);
+        x1 = Math.min(this.width, x1);
+        y1 = Math.min(this.height, y1);
+        z1 = Math.min(this.depth, z1);
+
+        for (let x = x0; x < x1; ++x) {
+            for (let y = y0; y < y1; ++y) {
+                for (let z = z0; z < z1; ++z) {
+                    const tile = this.getTile(x, y, z);
+                    if (global.tile.tiles[tile].viscosity == 1) {
+                        AABBs.push(new AABB(x, y, z, x + 1, y + 1, z + 1));
+                    }
+                    tiles.push(tile);
+                }
+            }
+        }
+
+        tilesAABBs[0] = tiles;
+        tilesAABBs[1] = AABBs;
+
+        return tilesAABBs;
     }
 }

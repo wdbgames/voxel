@@ -7,6 +7,8 @@ import { Tile } from "./tile/Tile.js";
 export const global = {
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
+	uiScene: new THREE.Scene(),
+	uiCamera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 10),
 	renderer: new THREE.WebGLRenderer({canvas: document.getElementById("canvas")}),
 	player: null,
 	level: null,
@@ -26,7 +28,7 @@ window.addEventListener("keyup", function(event) {
 
 window.addEventListener("mousemove", function(event) {
 	if (document.pointerLockElement) {
-		const sensitivity = 0.01;
+		const sensitivity = 0.005;
 		global.player.rotationY -= event.movementX * sensitivity;
 		global.player.rotationX -= event.movementY * sensitivity;
 	}
@@ -41,7 +43,11 @@ function update() {
 }
 
 function render() {
+	global.renderer.clear();
     global.renderer.render(global.scene, global.camera);
+
+	global.renderer.clearDepth();
+	global.renderer.render(global.uiScene, global.uiCamera);
 }
 
 function loop() {
@@ -51,6 +57,23 @@ function loop() {
 }
 
 function start() {
+	global.uiCamera.position.z = 1;
+	const uiCanvas = document.createElement("canvas");
+	uiCanvas.width = 1024;
+	uiCanvas.height = 1024;
+	const ctx = uiCanvas.getContext("2d");
+	const uiTexture = new THREE.CanvasTexture(uiCanvas);
+	const uiMaterial = new THREE.MeshBasicMaterial({ map: uiTexture, transparent: true });
+	const uiPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerHeight, window.innerHeight), uiMaterial);
+	global.uiScene.add(uiPlane);
+
+	const size = 0.01;
+	ctx.fillRect(512 - 512 * size, 512 - 512 * size, 1024 * size, 1024 * size);
+    ctx.font = "48px serif";
+    ctx.fillText("Voxel 0.1.0", 10, 50);
+	uiTexture.needsUpdate = true;
+
+	global.renderer.autoClear = false;
 	global.camera.rotation.order = 'YXZ';
 	global.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -59,7 +82,6 @@ function start() {
 
 	global.tile = new Tile();
 	global.tile.initializeTiles();
-
 	global.level = new Level(128, 64, 128);
 	global.level.generate();
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
