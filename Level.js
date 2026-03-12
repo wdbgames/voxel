@@ -1,5 +1,5 @@
 import { global } from "./main.js";
-import { Chunk } from "./tile/Chunk.js";
+import { Chunk } from "./level/Chunk.js";
 import { AABB } from "./AABB.js";
 
 export class Level {
@@ -118,7 +118,7 @@ export class Level {
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {
-                    this.setTile(houseX + x, houseY, houseZ + z, global.tile.stone);
+                    this.setTile(houseX + x, houseY, houseZ + z, global.tile.stoneDeep);
                 }
             }
 

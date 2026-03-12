@@ -1,21 +1,35 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
-// import { Entity } from "./entity/Entity.js";
 import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
-import { Tile } from "./tile/Tile.js";
+import { Tile } from "./level/Tile.js";
 
 export const global = {
+	// TODO: sort better
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
-	uiScene: new THREE.Scene(),
-	uiCamera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 10),
 	renderer: new THREE.WebGLRenderer({canvas: document.getElementById("canvas")}),
+
 	player: null,
 	level: null,
 	tile: null,
+
 	materials: [],
+	assetCount: 14,
 	chunkSize: 16,
-	DEBUG: false
+	DEBUG: false,
+
+	UI: {
+		scene: new THREE.Scene(),
+		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 10),
+		ctx: null,
+		texture: null
+	},
+
+	other: {
+		versionMajor: 0,
+		versionMinor: 1,
+		versionPatch: 1
+	}
 }
 
 window.addEventListener("keydown", function(event) {
@@ -47,7 +61,20 @@ function render() {
     global.renderer.render(global.scene, global.camera);
 
 	global.renderer.clearDepth();
-	global.renderer.render(global.uiScene, global.uiCamera);
+	global.renderer.render(global.UI.scene, global.UI.camera);
+}
+
+function renderUI() {
+	const size = 0.01;
+	const x0 = window.innerWidth / 2 - window.innerWidth / 2 * size;
+	const y0 = window.innerHeight / 2 - window.innerHeight / 2 * size;
+	const x1 = window.innerHeight * size;
+	const y1 = window.innerHeight * size;
+	global.UI.ctx.fillRect(x0, y0, x1, y1);
+
+    global.UI.ctx.font = "16px arial";
+    global.UI.ctx.fillText(`Voxel ${global.other.versionMajor}.${global.other.versionMinor}.${global.other.versionPatch}`, 4, 16);
+	global.UI.texture.needsUpdate = true;
 }
 
 function loop() {
@@ -57,21 +84,17 @@ function loop() {
 }
 
 function start() {
-	global.uiCamera.position.z = 1;
-	const uiCanvas = document.createElement("canvas");
-	uiCanvas.width = 1024;
-	uiCanvas.height = 1024;
-	const ctx = uiCanvas.getContext("2d");
-	const uiTexture = new THREE.CanvasTexture(uiCanvas);
-	const uiMaterial = new THREE.MeshBasicMaterial({ map: uiTexture, transparent: true });
-	const uiPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerHeight, window.innerHeight), uiMaterial);
-	global.uiScene.add(uiPlane);
+	global.UI.camera.position.z = 1;
+	const UICanvas = document.createElement("canvas");
+	UICanvas.width = window.innerWidth;
+	UICanvas.height = window.innerHeight;
+	global.UI.ctx = UICanvas.getContext("2d");
+	global.UI.texture = new THREE.CanvasTexture(UICanvas);
+	const UIMaterial = new THREE.MeshBasicMaterial({ map: global.UI.texture, transparent: true });
+	const UIPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), UIMaterial);
+	global.UI.scene.add(UIPlane);
 
-	const size = 0.01;
-	ctx.fillRect(512 - 512 * size, 512 - 512 * size, 1024 * size, 1024 * size);
-    ctx.font = "48px serif";
-    ctx.fillText("Voxel 0.1.0", 10, 50);
-	uiTexture.needsUpdate = true;
+	renderUI();
 
 	global.renderer.autoClear = false;
 	global.camera.rotation.order = 'YXZ';
@@ -89,14 +112,13 @@ function start() {
 }
 
 function loadAssets() {
-	const assetCount = 12;
 	const alphaTest = [11];
 	const opacity = [10];
 	return new Promise((resolve) => {
-		for(let i = 0; i < assetCount + 1; ++i) {
+		for(let i = 0; i < global.assetCount + 1; ++i) {
 			global.materials[i] = new THREE.MeshStandardMaterial();
 			const loader = new THREE.TextureLoader();
-			loader.load(`./asset/${i}.png`, (texture) => {
+			loader.load(`./assets/${i}.png`, (texture) => {
 				texture.colorSpace = THREE.SRGBColorSpace;
 				texture.magFilter = THREE.NearestFilter;
 				global.materials[i].map = texture;
