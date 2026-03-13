@@ -1,4 +1,5 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
+
 import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
 import { Tile } from "./level/Tile.js";
@@ -20,15 +21,16 @@ export const global = {
 
 	UI: {
 		scene: new THREE.Scene(),
-		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 10),
+		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000),
 		ctx: null,
-		texture: null
+		texture: null,
+		tile: null
 	},
 
 	other: {
 		versionMajor: 0,
 		versionMinor: 1,
-		versionPatch: 1
+		versionPatch: 2
 	}
 }
 
@@ -40,20 +42,48 @@ window.addEventListener("keyup", function(event) {
 	global.player.keys[event.key] = false;
 });
 
+window.addEventListener('mousedown', (event) => {
+    global.player.mouse[event.button] = true;
+	global.player.mouseOnce[event.button] = true;
+});
+
+window.addEventListener('mouseup', (event) => {
+    global.player.mouse[event.button] = false;
+	global.player.mouseOnce[event.button] = false;
+});
+
 window.addEventListener("mousemove", function(event) {
 	if (document.pointerLockElement) {
-		const sensitivity = 0.005;
+		const sensitivity = 0.004;
 		global.player.rotationY -= event.movementX * sensitivity;
 		global.player.rotationX -= event.movementY * sensitivity;
 	}
 });
 
+window.addEventListener("wheel", function(event) {
+	global.player.selectedTile += Math.floor(event.deltaY / 100);
+
+	if(global.player.selectedTile < 0) {
+		global.player.selectedTile = global.tile.tileAmount - 1;
+	}
+
+	if(global.player.selectedTile > global.tile.tileAmount - 1) {
+		global.player.selectedTile = 0;
+	}
+
+	global.level.renderUITile();
+});
+
 canvas.addEventListener("click", async () => {
-	await canvas.requestPointerLock();
+	if(!document.pointerLockElement) {
+		await canvas.requestPointerLock();
+	}
 });
 
 function update() {
 	global.player.update();
+    global.UI.tile.rotation.x += 0.01;
+    global.UI.tile.rotation.y += 0.01;
 }
 
 function render() {
@@ -64,19 +94,6 @@ function render() {
 	global.renderer.render(global.UI.scene, global.UI.camera);
 }
 
-function renderUI() {
-	const size = 0.01;
-	const x0 = window.innerWidth / 2 - window.innerWidth / 2 * size;
-	const y0 = window.innerHeight / 2 - window.innerHeight / 2 * size;
-	const x1 = window.innerHeight * size;
-	const y1 = window.innerHeight * size;
-	global.UI.ctx.fillRect(x0, y0, x1, y1);
-
-    global.UI.ctx.font = "16px arial";
-    global.UI.ctx.fillText(`Voxel ${global.other.versionMajor}.${global.other.versionMinor}.${global.other.versionPatch}`, 4, 16);
-	global.UI.texture.needsUpdate = true;
-}
-
 function loop() {
 	update();
 	render();
@@ -84,7 +101,7 @@ function loop() {
 }
 
 function start() {
-	global.UI.camera.position.z = 1;
+	global.UI.camera.position.z = 10;
 	const UICanvas = document.createElement("canvas");
 	UICanvas.width = window.innerWidth;
 	UICanvas.height = window.innerHeight;
@@ -94,20 +111,21 @@ function start() {
 	const UIPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), UIMaterial);
 	global.UI.scene.add(UIPlane);
 
-	renderUI();
-
 	global.renderer.autoClear = false;
 	global.camera.rotation.order = 'YXZ';
 	global.renderer.setSize(window.innerWidth, window.innerHeight);
 
-	const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+	const ambientLight = new THREE.AmbientLight(0x87CEEB, 2);
 	global.scene.add(ambientLight);
+
+	global.scene.background = new THREE.Color(0xa0d9ef);
 
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 	global.level = new Level(128, 64, 128);
 	global.level.generate();
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
+	global.level.renderUI();
 	loop();
 }
 

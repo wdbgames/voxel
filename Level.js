@@ -1,3 +1,5 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
+
 import { global } from "./main.js";
 import { Chunk } from "./level/Chunk.js";
 import { AABB } from "./AABB.js";
@@ -181,9 +183,36 @@ export class Level {
             return -1;
         }
 
-        const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
-        chunk.tiles[(y % global.chunkSize) + ((z % global.chunkSize) * global.chunkSize) + ((x % global.chunkSize) * global.chunkSize * global.chunkSize)] = tileId;
+        const chunkX = Math.floor(x / global.chunkSize);
+        const chunkZ = Math.floor(z / global.chunkSize);
+        const chunkY = Math.floor(y / global.chunkSize);
+        const chunk = this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY];
+        
+        const tileX = x % global.chunkSize;
+        const tileY = y % global.chunkSize;
+        const tileZ = z % global.chunkSize;
+        chunk.tiles[tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize)] = tileId;
+        
         chunk.updateGeometry();
+        
+        if(tileX == 0) {
+            this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+        }
+        if(tileX == 15) {
+            this.chunks[(chunkX + 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+        }
+        if(tileY == 0) {
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY - 1)].updateGeometry();
+        }
+        if(tileY == 15) {
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY + 1)].updateGeometry();
+        }
+        if(tileZ == 0) {
+            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+        }
+        if(tileZ == 15) {
+            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+        }
     }
 
     update(x, y, z) {
@@ -230,5 +259,48 @@ export class Level {
         tilesAABBs[1] = AABBs;
 
         return tilesAABBs;
+    }
+
+    renderUI() {
+        const light = new THREE.AmbientLight(0xffffff, 1);
+        global.UI.scene.add(light); 
+
+        const size = 0.01;
+        const x0 = window.innerWidth / 2 - window.innerWidth / 2 * size;
+        const y0 = window.innerHeight / 2 - window.innerHeight / 2 * size;
+        const x1 = window.innerHeight * size;
+        const y1 = window.innerHeight * size;
+        global.UI.ctx.fillRect(x0, y0, x1, y1);
+
+        global.UI.ctx.font = "16px arial";
+        global.UI.ctx.fillText(`Voxel ${global.other.versionMajor}.${global.other.versionMinor}.${global.other.versionPatch}`, 4, 16);
+        global.UI.texture.needsUpdate = true;
+
+        const tileSize = 32;
+        const geometry = new THREE.BoxGeometry(tileSize, tileSize, tileSize);
+        const tile = global.player.selectedTile;
+        const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
+        global.UI.tile = new THREE.Mesh(geometry, material);
+        global.UI.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, 0);
+        global.UI.tile.position.z = -18;
+        global.UI.scene.add(global.UI.tile);
+    }
+
+    renderUITile() {
+        const tile = global.player.selectedTile;
+        if(tile == 0) {
+            const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
+            global.UI.tile.material = material;
+        } else {
+            const materials = []
+            
+            for(let i = 0; i < 6; ++i) {
+                materials[i] = global.materials[global.tile.tiles[tile].tileIndices[i]];
+            }
+
+            global.UI.tile.material = materials;
+        }
+        
+        global.UI.tile.needsUpdate = true;
     }
 }

@@ -6,7 +6,11 @@ export class Chunk {
     x;
     y;
     z;
+    chunkX;
+    chunkY;
+    chunkZ;
     tiles;
+    mesh;
     #CULLING = true;
 
     constructor(x, y, z) {
@@ -95,7 +99,6 @@ export class Chunk {
         const indicesByTexture = [];
         const uvs = [];
         let indexOffset = 0;
-        let groupStart = 0;
 
         const faceVertices = new Float32Array([
             0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, // front
@@ -106,15 +109,9 @@ export class Chunk {
             0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0  // left
         ]);
 
-        const faceUvs = new Float32Array([
-            0, 0, 1, 0, 1, 1, 0, 1, // front
-            0, 0, 1, 0, 1, 1, 0, 1, // back
-            0, 0, 1, 0, 1, 1, 0, 1, // top
-            0, 0, 1, 0, 1, 1, 0, 1, // bottom
-            0, 0, 1, 0, 1, 1, 0, 1, // right
-            0, 0, 1, 0, 1, 1, 0, 1  // left
+        const faceUVs = new Float32Array([
+            0, 0, 1, 0, 1, 1, 0, 1, // front, back, top, bottom, right, left
         ]);
-        
 
         for (let i = 0; i <= global.assetCount; i++) {
             indicesByTexture.push([]);
@@ -129,6 +126,7 @@ export class Chunk {
                     if(this.tiles[i] != 0) {
                         for (let f = 0; f < 6; ++f) {
                             const tile = global.tile.tiles[this.tiles[i]];
+                            // OPTIMIZE CULLING
                             if(tile.culling && this.#CULLING) {
                                 let nx = x;
                                 let ny = y;
@@ -153,11 +151,9 @@ export class Chunk {
                                     case 5:
                                         nx = x - 1
                                         break;                             
-                                }   
-
+                                }
                                 
                                 const neighbor = this.getTile(nx, ny, nz);
-
                                 if(tile.opaque) {
                                     if (neighbor !== 0 && global.tile.tiles[neighbor].opaque) {
                                         continue;
@@ -173,8 +169,9 @@ export class Chunk {
                                 positions.push(faceVertices[j] + this.x + x, faceVertices[j + 1] + this.y + y, faceVertices[j + 2] + this.z + z);
                             }
 
+                            // OPTIMIZE THIS
                             for (let j = f << 3; j < (f << 3) + 8; ++j) {
-                                uvs.push(faceUvs[j]);
+                                uvs.push(faceUVs[j % 8]);
                             }
 
                             const offset = indexOffset + (facesRendered << 2);

@@ -13,7 +13,9 @@ export class Tile {
     culling = true;
     opaque = true;
     viscosity = 1;
+    tileAmount;
 
+    // REPLACE TILEINDICES WITH TILEMATERIALS
     constructor(tileIndices) {
         this.tileIndices = tileIndices;
         if(Array.isArray(tileIndices)) {
@@ -24,6 +26,8 @@ export class Tile {
     }
 
     initializeTiles() {
+        this.tileAmount = 13;
+
         // tile id
         this.void = 0;
         this.stone = 1;
@@ -51,7 +55,7 @@ export class Tile {
         this.tiles[this.negeritre] = new Tile(9);
         this.tiles[this.water] = new TileWater(10, false, 0.8);
         this.tiles[this.leaves] = new TileLeaves(11, false, false, 0.6);
-        this.tiles[this.log] = new Tile([12, 12, 3, 2, 12, 12]);
+        this.tiles[this.log] = new Tile([12, 12, 13, 13, 12, 12]);
         this.tiles[this.flesh] = new Tile(14);
     }
 }
