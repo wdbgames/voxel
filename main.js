@@ -45,7 +45,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 7
+		patch: 8
 	},
 
 	DT: {
@@ -129,7 +129,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(64, 64, 64);
+	global.level = new Level(128, 64, 128);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);

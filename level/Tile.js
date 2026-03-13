@@ -142,16 +142,16 @@ class TileWater extends Tile {
     }
 
     // CHANGE TO TICK INSTEAD OF UPDATE
-
     update(x, y, z) {
+        /*
+        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.water);
+        }
         if(global.level.getTile(x - 1, y, z) == global.tile.void) {
             global.level.setTileWithUpdate(x - 1, y, z, global.tile.water);
         }
         if(global.level.getTile(x + 1, y, z) == global.tile.void) {
             global.level.setTileWithUpdate(x + 1, y, z, global.tile.water);
-        }
-        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y - 1, z, global.tile.water);
         }
         if(global.level.getTile(x, y, z - 1) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z - 1, global.tile.water);
@@ -159,9 +159,35 @@ class TileWater extends Tile {
         if(global.level.getTile(x, y, z + 1) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z + 1, global.tile.water);
         }
+        */
+
+        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.water);
+            return;
+        }
+        if(global.level.getTile(x - 1, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x - 1, y - 1, z, global.tile.water);
+            return;
+        }
+        if(global.level.getTile(x + 1, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x + 1, y - 1, z, global.tile.water);
+            return;
+        }
+        if(global.level.getTile(x, y - 1, z - 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z - 1, global.tile.water);
+            return;
+        }
+        if(global.level.getTile(x, y - 1, z + 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z + 1, global.tile.water);
+            return;
+        }
     }
 
-    // eek
     added(x, y, z) { 
         this.update(x, y, z);
     }
@@ -173,6 +199,44 @@ class TileLeaves extends Tile {
         this.culling = culling;
         this.opaque = opaque;
         this.viscosity = viscosity;
+    }
+
+    update(x, y, z) {
+        let neighbor = false;
+
+        const tile0 = global.level.getTile(x - 1, y, z);
+        const tile1 = global.level.getTile(x + 1, y, z);
+        const tile2 = global.level.getTile(x, y - 1, z);
+        const tile3 = global.level.getTile(x, y - 1, z);
+        const tile4 = global.level.getTile(x, y, z - 1);
+        const tile5 = global.level.getTile(x, y, z + 1);
+
+        if(tile0 != global.tile.void) {
+            neighbor = true;
+        }
+        if(tile1 != global.tile.void) {
+            neighbor = true;
+        }
+        if(tile2 != global.tile.void) {
+            neighbor = true;
+        }
+        if(tile3 != global.tile.void) {
+            neighbor = true;
+        }
+        if(tile4 != global.tile.void) {
+            neighbor = true;
+        }
+        if(tile5 != global.tile.void) {
+            neighbor = true;
+        }
+        
+        if(!neighbor) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
     }
 }
 
