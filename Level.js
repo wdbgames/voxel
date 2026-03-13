@@ -16,6 +16,7 @@ export class Level {
     spawnX;
     spawnY;
     spawnZ;
+    time;
 
     constructor(width, height, depth) {
         this.width = width;
@@ -29,6 +30,7 @@ export class Level {
         this.depthCeil = this.chunkDepth * global.chunkSize; 
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
+        this.time = 0;
     }
 
     seedRandom(seed) {
@@ -262,7 +264,7 @@ export class Level {
     }
 
     renderUI() {
-        const light = new THREE.AmbientLight(0xffffff, 1);
+        const light = new THREE.AmbientLight(0xffffff, 4);
         global.UI.scene.add(light); 
 
         const size = 0.01;

@@ -26,7 +26,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 13;
+        this.tileAmount = 14;
 
         // tile id
         this.void = 0;
@@ -42,6 +42,7 @@ export class Tile {
         this.leaves = 10;
         this.log = 11;
         this.flesh = 12;
+        this.metal = 13;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
@@ -57,6 +58,7 @@ export class Tile {
         this.tiles[this.leaves] = new TileLeaves(11, false, false, 0.6);
         this.tiles[this.log] = new Tile([12, 12, 13, 13, 12, 12]);
         this.tiles[this.flesh] = new Tile(14);
+        this.tiles[this.metal] = new Tile(15);
     }
 }
 

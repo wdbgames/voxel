@@ -15,7 +15,7 @@ export const global = {
 	tile: null,
 
 	materials: [],
-	assetCount: 14,
+	assetCount: 15,
 	chunkSize: 16,
 	DEBUG: false,
 
@@ -30,7 +30,7 @@ export const global = {
 	other: {
 		versionMajor: 0,
 		versionMinor: 1,
-		versionPatch: 2
+		versionPatch: 3
 	}
 }
 
@@ -115,10 +115,15 @@ function start() {
 	global.camera.rotation.order = 'YXZ';
 	global.renderer.setSize(window.innerWidth, window.innerHeight);
 
-	const ambientLight = new THREE.AmbientLight(0x87CEEB, 2);
-	global.scene.add(ambientLight);
+	global.scene.background = new THREE.Color();
+	const time = 0.6;
+	const r = 0x87 / 255 * time;
+	const g = 0xCE / 255 * time;
+	const b = 0xEB / 255 * time;
+	global.scene.background.setRGB(r, g, b);
 
-	global.scene.background = new THREE.Color(0xa0d9ef);
+	const ambientLight = new THREE.AmbientLight(0xffffff, time * 2);
+	global.scene.add(ambientLight);
 
 	global.tile = new Tile();
 	global.tile.initializeTiles();
@@ -127,6 +132,8 @@ function start() {
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
 	global.level.renderUI();
 	loop();
+
+
 }
 
 function loadAssets() {
