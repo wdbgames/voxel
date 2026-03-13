@@ -163,8 +163,15 @@ export class Level {
     }
 
     getTile(x, y, z) {
-        if (x < 0 || x >= this.widthCeil || y < 0 || y >= this.heightCeil || z < 0 || z >= this.depthCeil) {
-            return 0;
+        // side void wall
+        if (x < 0 || x >= this.width || z < 0 || z >= this.depth) {
+            return global.tile.voidWall;
+            
+        }
+
+        // so bottom faces render
+        if(y < 0 || y >= this.height) {
+            return global.tile.void;
         }
 
         const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
@@ -218,22 +225,22 @@ export class Level {
         chunk.updateGeometry();
         
         // update neighbor chunks
-        if(tileX == 0) {
+        if(tileX == 0 && x != 0) {
             this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
-        if(tileX == 15) {
+        if(tileX == 15 && x != this.width - 1) {
             this.chunks[(chunkX + 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
-        if(tileY == 0) {
+        if(tileY == 0 && y != 0) {
             this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY - 1)].updateGeometry();
         }
-        if(tileY == 15) {
+        if(tileY == 15 && y != this.height - 1) {
             this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY + 1)].updateGeometry();
         }
-        if(tileZ == 0) {
+        if(tileZ == 0 && z != 0) {
             this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
-        if(tileZ == 15) {
+        if(tileZ == 15 && z != this.depth - 1) {
             this.chunks[chunkX + this.chunkWidth * (chunkZ + 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
     }
@@ -259,12 +266,8 @@ export class Level {
         let y1 = Math.ceil(box.y1);
         let z1 = Math.ceil(box.z1);
 
-        x0 = Math.max(0, x0);
         y0 = Math.max(0, y0);
-        z0 = Math.max(0, z0);
-        x1 = Math.min(this.width, x1);
         y1 = Math.min(this.height, y1);
-        z1 = Math.min(this.depth, z1);
 
         for (let x = x0; x < x1; ++x) {
             for (let y = y0; y < y1; ++y) {
@@ -319,7 +322,7 @@ export class Level {
             const materials = []
             
             for(let i = 0; i < 6; ++i) {
-                materials[i] = global.materials[global.tile.tiles[tile].tileIndices[i]];
+                materials[i] = global.materials[global.tile.tiles[tile].tileMaterials[i]];
             }
 
             global.UI.tile.material = materials;

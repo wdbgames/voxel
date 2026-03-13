@@ -121,7 +121,7 @@ export class Chunk {
         for(let x = 0; x < global.chunkSize; ++x) {
             for(let z = 0; z < global.chunkSize; ++z) {
                 for(let y = 0; y < global.chunkSize; ++y) {
-                    let tileIndices = global.tile.tiles[this.tiles[i]].tileIndices;
+                    let tileMaterials = global.tile.tiles[this.tiles[i]].tileMaterials;
                     let facesRendered = 0;
                     if(this.tiles[i] != 0) {
                         for (let f = 0; f < 6; ++f) {
@@ -175,7 +175,7 @@ export class Chunk {
                             }
 
                             const offset = indexOffset + (facesRendered << 2);
-                            indicesByTexture[tileIndices[f]].push(offset, offset + 1, offset + 2, offset, offset + 2, offset + 3);
+                            indicesByTexture[tileMaterials[f]].push(offset, offset + 1, offset + 2, offset, offset + 2, offset + 3);
                             ++facesRendered;
                         }
                     }

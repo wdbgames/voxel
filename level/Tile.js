@@ -17,18 +17,17 @@ export class Tile {
     viscosity = 1;
     tileAmount;
 
-    // REPLACE TILEINDICES WITH TILEMATERIALS
-    constructor(tileIndices) {
-        this.tileIndices = tileIndices;
-        if(Array.isArray(tileIndices)) {
-            this.tileIndices = tileIndices;
+    constructor(tileMaterials) {
+        this.tileMaterials = tileMaterials;
+        if(Array.isArray(tileMaterials)) {
+            this.tileMaterials = tileMaterials;
         } else {
-            this.tileIndices= new Array(6).fill(tileIndices);
+            this.tileMaterials= new Array(6).fill(tileMaterials);
         }
     }
 
     initializeTiles() {
-        this.tileAmount = 14;
+        this.tileAmount = 15;
 
         // tile id
         this.void = 0;
@@ -45,6 +44,7 @@ export class Tile {
         this.log = 11;
         this.flesh = 12;
         this.metal = 13;
+        this.voidWall = 14;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
@@ -61,6 +61,7 @@ export class Tile {
         this.tiles[this.log] = new Tile([12, 12, 13, 13, 12, 12]);
         this.tiles[this.flesh] = new Tile(14);
         this.tiles[this.metal] = new Tile(15);
+        this.tiles[this.voidWall] = new Tile(0);
     }
 
     update(x, y, z) {
@@ -69,16 +70,16 @@ export class Tile {
 }
 
 class TileVoid extends Tile {
-    constructor(tileIndices, opaque, viscosity) {
-        super(tileIndices);
+    constructor(tileMaterials, opaque, viscosity) {
+        super(tileMaterials);
         this.opaque = opaque;
         this.viscosity = viscosity;
     }
 }
 
 class TileWater extends Tile {
-    constructor(tileIndices, opaque, viscosity) {
-        super(tileIndices);
+    constructor(tileMaterials, opaque, viscosity) {
+        super(tileMaterials);
         this.opaque = opaque;
         this.viscosity = viscosity;
     }
@@ -103,8 +104,8 @@ class TileWater extends Tile {
 }
 
 class TileLeaves extends Tile {
-    constructor(tileIndices, culling, opaque, viscosity) {
-        super(tileIndices);
+    constructor(tileMaterials, culling, opaque, viscosity) {
+        super(tileMaterials);
         this.culling = culling;
         this.opaque = opaque;
         this.viscosity = viscosity;
@@ -112,8 +113,8 @@ class TileLeaves extends Tile {
 }
 
 class TileSand extends Tile {
-    constructor(tileIndices) {
-        super(tileIndices);
+    constructor(tileMaterials) {
+        super(tileMaterials);
     }
 
     update(x, y, z) {

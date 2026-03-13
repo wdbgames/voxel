@@ -25,7 +25,6 @@ export class Entity {
     }
 
     update() {
-        // this.velocityY -= 0.01;
     }
 
     render() {
@@ -46,7 +45,7 @@ export class Entity {
         let ya = y;
         let za = z;
 
-        const  tilesAABBs = global.level.getTileAABBs(this.box.expand(x, y, z));
+        const tilesAABBs = global.level.getTileAABBs(this.box.expand(x, y, z));
 
         for (let i = 0; i < tilesAABBs[1].length; ++i) {
             xa = this.box.clipXCollide(tilesAABBs[1][i], xa);

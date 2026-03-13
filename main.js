@@ -8,6 +8,13 @@ import { Tile } from "./level/Tile.js";
 // ticking
 // time
 // entities
+// debug
+// camera limits
+// aabb fixes
+// water visuals
+// water faces
+// blocks in entities
+// sand and water void
 // dirt, metal, grass side textures  
 
 export const global = {
@@ -23,6 +30,7 @@ export const global = {
 	assetCount: 15,
 	chunkSize: 16,
 	DEBUG: false,
+	tickRate: 16,
 
 	UI: {
 		scene: new THREE.Scene(),
@@ -35,7 +43,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 5
+		patch: 6
 	},
 
 	DT: {
@@ -145,7 +153,7 @@ function start() {
 
 	global.tile = new Tile();
 	global.tile.initializeTiles();
-	global.level = new Level(128, 64, 128);
+	global.level = new Level(16, 32, 16);
 	global.level.generate();
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
 	global.level.renderUI();
