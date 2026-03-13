@@ -31,8 +31,11 @@ export const global = {
 	assetCount: 15,
 	chunkSize: 16,
 	DEBUG: false,
-	tickRate: 16,
-	ambientLight: 0xffffff,
+
+	tick: {
+		tickRate: 1000 / 64,
+		tickAccumulator: 0
+	},
 
 	UI: {
 		scene: new THREE.Scene(),
@@ -45,12 +48,12 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 8
+		patch: 9
 	},
 
 	DT: {
 		delta: 0,
-		deltaTemp: 0
+		deltaTemp: performance.now(),
 	}
 }
 
@@ -104,28 +107,31 @@ canvas.addEventListener("click", async () => {
 function update(dt) {
 	global.player.update(dt);
 	global.renderer.update(dt);
-
-    global.UI.tile.rotation.x += 0.01 * dt;
-    global.UI.tile.rotation.y += 0.01 * dt;
 }
 
-function render() {
-	global.renderer.render();
+function tick() {
+	global.level.tick();
 }
 
 function loop() {
-	// delta time
-	let temp = performance.now();
-	global.DT.delta = temp - global.DT.deltaTemp;
-	global.DT.deltaTemp = temp;
+    let temp = performance.now();
+    global.DT.delta = temp - global.DT.deltaTemp;
+    global.DT.deltaTemp = temp;
 
-	// main loop
-	update(global.DT.delta / 14);
-	render();
-	requestAnimationFrame(loop);
+    global.tick.tickAccumulator += global.DT.delta;
+    while(global.tick.tickAccumulator >= global.tick.tickRate) {
+        tick();
+        global.tick.tickAccumulator -= global.tick.tickRate;
+    }
+
+    update(global.DT.delta / 14);
+    global.renderer.render();
+
+    requestAnimationFrame(loop);
 }
 
 function start() {
+	// MOVE FUNCTIONS TO THEIR THINGS
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 

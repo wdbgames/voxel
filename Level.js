@@ -16,7 +16,7 @@ export class Level {
     spawnX;
     spawnY;
     spawnZ;
-    time = 2;
+    time;
 
     constructor(width, height, depth) {
         this.width = width;
@@ -30,7 +30,28 @@ export class Level {
         this.depthCeil = this.chunkDepth * global.chunkSize; 
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
-        this.time = 0.6;
+        this.time = 0;
+    }
+
+    update() {
+    }
+
+    tick() {
+        const cycleLength = 24000;
+        const brightness = Math.max(Math.min(Math.sin((this.time / cycleLength) * 2 * Math.PI), 0.9), 0.1);
+
+        const r = 0x87 / 255 * brightness;
+        const g = 0xCE / 255 * brightness;
+        const b = 0xEB / 255 * brightness;
+        global.scene.background.setRGB(r, g, b);
+
+        global.renderer.ambientLight.intensity = brightness * 2;
+
+        // > for future logic
+        ++this.time;
+        if(this.time > cycleLength) {
+            this.time = 0;
+        }
     }
 
     seedRandom(seed) {
@@ -249,6 +270,7 @@ export class Level {
         }
     }
 
+    /*
     update(x, y, z) {
         if (x < 0 || x >= this.widthCeil || y < 0 || y >= this.heightCeil || z < 0 || z >= this.depthCeil) {
             return -1;
@@ -257,6 +279,7 @@ export class Level {
         const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
         chunk.updateGeometry();
     }
+    */
 
     getTileAABBs(box) {
         const tilesAABBs = [];
@@ -290,4 +313,72 @@ export class Level {
 
         return tilesAABBs;
     }
+
+	rayTraceTiles(positionX, positionY, positionZ, directionX, directionY, directionZ, limit) {
+		let floorX = Math.floor(positionX);
+		let floorY = Math.floor(positionY);
+		let floorZ = Math.floor(positionZ);
+
+		let previousX = floorX;
+		let previousY = floorY;
+		let previousZ = floorZ;
+
+		const stepX = Math.sign(directionX);
+		const stepY = Math.sign(directionY);
+		const stepZ = Math.sign(directionZ);
+
+		const tDeltaX = Math.abs(1 / directionX);
+		const tDeltaY = Math.abs(1 / directionY);
+		const tDeltaZ = Math.abs(1 / directionZ);
+
+		let tMaxX;
+		if(stepX > 0) {
+			tMaxX = (floorX + 1 - positionX) * tDeltaX;
+		} else {
+			tMaxX = (positionX - floorX) * tDeltaX
+		}
+
+		let tMaxY;
+		if(stepY > 0) {
+			tMaxY = (floorY + 1 - positionY) * tDeltaY;
+		} else {
+			tMaxY = (positionY - floorY) * tDeltaY;
+		}
+	
+		let tMaxZ;
+		if(stepZ > 0) {
+			tMaxZ = (floorZ + 1 - positionZ) * tDeltaZ;
+		} else {
+			tMaxZ = (positionZ - floorZ) * tDeltaZ;
+		}
+
+		for(let i = 0; i < limit * 3; ++i) {
+			if(global.tile.tiles[global.level.getTile(floorX, floorY, floorZ)].opaque) {
+				return [floorX, floorY, floorZ, previousX, previousY, previousZ];
+			}
+
+			previousX = floorX;
+			previousY = floorY;
+			previousZ = floorZ;
+
+			if(tMaxX < tMaxY) {
+				if (tMaxX < tMaxZ) {
+					floorX += stepX;
+					tMaxX += tDeltaX;
+				} else {
+					floorZ += stepZ;
+					tMaxZ += tDeltaZ;
+				}
+			} else {
+				if (tMaxY < tMaxZ) {
+					floorY += stepY;
+					tMaxY += tDeltaY;
+				} else {
+					floorZ += stepZ;
+					tMaxZ += tDeltaZ;
+				}
+			}
+		}
+		return -1;
+	}
 }

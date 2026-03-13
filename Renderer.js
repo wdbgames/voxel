@@ -4,6 +4,7 @@ import { global } from "./main.js";
 
 export class Renderer {
     renderer = new THREE.WebGLRenderer({canvas: document.getElementById("canvas")});
+    ambientLight = new THREE.AmbientLight(0xffffff, 0);
 
     constructor() {
     }
@@ -24,27 +25,12 @@ export class Renderer {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         global.scene.background = new THREE.Color();
-        const time = global.level.seed;
-        const r = 0x87 / 255 * time;
-        const g = 0xCE / 255 * time;
-        const b = 0xEB / 255 * time;
-        global.scene.background.setRGB(r, g, b);
-
-        const ambientLight = new THREE.AmbientLight(global.ambientLight, time * 2);
-        global.scene.add(ambientLight);
+         global.scene.add(this.ambientLight);
     }
 
     update(dt) {
-        // TODO: time
-        /*
-        global.level.time += dt;
-        const time = global.level.time / 10000;
-        if(Math.floor(time))
-        const r = 0x87 / 255 * time;
-        const g = 0xCE / 255 * time;
-        const b = 0xEB / 255 * time;
-        global.scene.background.setRGB(r, g, b);
-        */
+        global.UI.tile.rotation.x += 0.01 * dt;
+        global.UI.tile.rotation.y += 0.01 * dt;
     }
 
     render() {
