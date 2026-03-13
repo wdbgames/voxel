@@ -4,8 +4,13 @@ import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
 import { Tile } from "./level/Tile.js";
 
+// TODO
+// ticking
+// time
+// entities
+// dirt, metal, grass side textures  
+
 export const global = {
-	// TODO: sort better
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
 	renderer: new THREE.WebGLRenderer({canvas: document.getElementById("canvas")}),
@@ -27,10 +32,15 @@ export const global = {
 		tile: null
 	},
 
-	other: {
-		versionMajor: 0,
-		versionMinor: 1,
-		versionPatch: 4
+	version: {
+		major: 0,
+		minor: 1,
+		patch: 5
+	},
+
+	DT: {
+		delta: 0,
+		deltaTemp: 0
 	}
 }
 
@@ -52,11 +62,12 @@ window.addEventListener('mouseup', (event) => {
 	global.player.mouseOnce[event.button] = false;
 });
 
+// bad performance
 window.addEventListener("mousemove", function(event) {
 	if (document.pointerLockElement) {
 		const sensitivity = 0.004;
-		global.player.rotationY -= event.movementX * sensitivity;
-		global.player.rotationX -= event.movementY * sensitivity;
+		global.player.rotationY -= event.movementX * sensitivity * (global.DT.delta / 14);
+		global.player.rotationX -= event.movementY * sensitivity * (global.DT.delta / 14);
 	}
 });
 
@@ -80,10 +91,10 @@ canvas.addEventListener("click", async () => {
 	}
 });
 
-function update() {
-	global.player.update();
-    global.UI.tile.rotation.x += 0.01;
-    global.UI.tile.rotation.y += 0.01;
+function update(dt) {
+	global.player.update(dt);
+    global.UI.tile.rotation.x += 0.01 * dt;
+    global.UI.tile.rotation.y += 0.01 * dt;
 }
 
 function render() {
@@ -95,12 +106,19 @@ function render() {
 }
 
 function loop() {
-	update();
+	// delta time
+	let temp = performance.now();
+	global.DT.delta = temp - global.DT.deltaTemp;
+	global.DT.deltaTemp = temp;
+
+	// main loop
+	update(global.DT.delta / 14);
 	render();
 	requestAnimationFrame(loop);
 }
 
 function start() {
+	// MOVE TO a render class idk
 	global.UI.camera.position.z = 10;
 	const UICanvas = document.createElement("canvas");
 	UICanvas.width = window.innerWidth;

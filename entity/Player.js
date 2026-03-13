@@ -93,7 +93,7 @@ export class Player extends Entity {
 		return -1;
 	}
 
-	update() {
+	update(dt) {
 		if (this.keys["w"]) {
 			this.velocityX += -Math.sin(this.rotationY) * this.acceleration;
 			this.velocityZ += -Math.cos(this.rotationY) * this.acceleration;
@@ -146,6 +146,7 @@ export class Player extends Entity {
 			}
 		}
 
+		// stick to ceilings
 		if (this.keys[" "]) {
 			if(this.inWater) {
 				this.velocityY += 0.01;
@@ -167,7 +168,7 @@ export class Player extends Entity {
 			this.velocityZ *= 0.5;
 		}
 
-		this.move(this.velocityX, this.velocityY, this.velocityZ);
+		this.move(this.velocityX * dt, this.velocityY * dt, this.velocityZ * dt);
 
 		global.camera.position.x = this.positionX;
 		global.camera.position.y = this.positionY - this.sizeY / 2 + this.cameraHeight;

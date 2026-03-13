@@ -284,6 +284,7 @@ export class Level {
         return tilesAABBs;
     }
 
+    // add debug
     renderUI() {
         const light = new THREE.AmbientLight(0xffffff, 4);
         global.UI.scene.add(light); 
@@ -296,7 +297,7 @@ export class Level {
         global.UI.ctx.fillRect(x0, y0, x1, y1);
 
         global.UI.ctx.font = "16px arial";
-        global.UI.ctx.fillText(`Voxel ${global.other.versionMajor}.${global.other.versionMinor}.${global.other.versionPatch}`, 4, 16);
+        global.UI.ctx.fillText(`Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 4, 16);
         global.UI.texture.needsUpdate = true;
 
         const tileSize = 32;
