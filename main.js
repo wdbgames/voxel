@@ -3,16 +3,17 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.mod
 import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
 import { Tile } from "./level/Tile.js";
+import { Renderer } from "./Renderer.js";
 
-// TODO
+// TODO:
 // ticking
 // time
 // entities
+// make crosshair a CUBE
 // debug
 // camera limits
 // aabb fixes
 // water visuals
-// water faces
 // blocks in entities
 // sand and water void
 // dirt, metal, grass side textures  
@@ -20,8 +21,8 @@ import { Tile } from "./level/Tile.js";
 export const global = {
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
-	renderer: new THREE.WebGLRenderer({canvas: document.getElementById("canvas")}),
 
+	renderer: null,
 	player: null,
 	level: null,
 	tile: null,
@@ -31,6 +32,7 @@ export const global = {
 	chunkSize: 16,
 	DEBUG: false,
 	tickRate: 16,
+	ambientLight: 0xffffff,
 
 	UI: {
 		scene: new THREE.Scene(),
@@ -43,7 +45,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 6
+		patch: 7
 	},
 
 	DT: {
@@ -90,7 +92,7 @@ window.addEventListener("wheel", function(event) {
 		global.player.selectedTile = 0;
 	}
 
-	global.level.renderUITile();
+	global.renderer.renderUITile();
 });
 
 canvas.addEventListener("click", async () => {
@@ -101,16 +103,14 @@ canvas.addEventListener("click", async () => {
 
 function update(dt) {
 	global.player.update(dt);
+	global.renderer.update(dt);
+
     global.UI.tile.rotation.x += 0.01 * dt;
     global.UI.tile.rotation.y += 0.01 * dt;
 }
 
 function render() {
-	global.renderer.clear();
-    global.renderer.render(global.scene, global.camera);
-
-	global.renderer.clearDepth();
-	global.renderer.render(global.UI.scene, global.UI.camera);
+	global.renderer.render();
 }
 
 function loop() {
@@ -126,40 +126,20 @@ function loop() {
 }
 
 function start() {
-	// MOVE TO a render class idk
-	global.UI.camera.position.z = 10;
-	const UICanvas = document.createElement("canvas");
-	UICanvas.width = window.innerWidth;
-	UICanvas.height = window.innerHeight;
-	global.UI.ctx = UICanvas.getContext("2d");
-	global.UI.texture = new THREE.CanvasTexture(UICanvas);
-	const UIMaterial = new THREE.MeshBasicMaterial({ map: global.UI.texture, transparent: true });
-	const UIPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), UIMaterial);
-	global.UI.scene.add(UIPlane);
-
-	global.renderer.autoClear = false;
-	global.camera.rotation.order = 'YXZ';
-	global.renderer.setSize(window.innerWidth, window.innerHeight);
-
-	global.scene.background = new THREE.Color();
-	const time = 0.6;
-	const r = 0x87 / 255 * time;
-	const g = 0xCE / 255 * time;
-	const b = 0xEB / 255 * time;
-	global.scene.background.setRGB(r, g, b);
-
-	const ambientLight = new THREE.AmbientLight(0xffffff, time * 2);
-	global.scene.add(ambientLight);
-
 	global.tile = new Tile();
 	global.tile.initializeTiles();
-	global.level = new Level(16, 32, 16);
+
+	global.level = new Level(64, 64, 64);
 	global.level.generate();
+
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
-	global.level.renderUI();
+	
+	global.renderer = new Renderer();
+	global.renderer.start();
+	global.renderer.renderUI();
+	global.renderer.renderUITile();
+
 	loop();
-
-
 }
 
 function loadAssets() {

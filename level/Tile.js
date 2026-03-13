@@ -49,13 +49,13 @@ export class Tile {
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
         this.tiles[this.stone] = new Tile(5);
-        this.tiles[this.dirt] = new Tile(2);
-        this.tiles[this.grass] = new Tile([6, 6, 3, 2, 6, 6]);
+        this.tiles[this.dirt] = new TileDirt(2);
+        this.tiles[this.grass] = new TileGrass([6, 6, 3, 2, 6, 6]);
         this.tiles[this.wood] = new Tile(4);
-        this.tiles[this.stoneDeep] = new Tile(1);
+        this.tiles[this.stoneDeep] = new TileStoneDeep(1);
         this.tiles[this.sand] = new TileSand(7);
         this.tiles[this.mud] = new Tile(8);
-        this.tiles[this.negeritre] = new Tile(9);
+        this.tiles[this.negeritre] = new TileNegeritre(9);
         this.tiles[this.water] = new TileWater(10, false, 0.8);
         this.tiles[this.leaves] = new TileLeaves(11, false, false, 0.6);
         this.tiles[this.log] = new Tile([12, 12, 13, 13, 12, 12]);
@@ -65,7 +65,12 @@ export class Tile {
     }
 
     update(x, y, z) {
-        console.log(x + ", " + y + ", " + z);
+    }
+
+    added(x, y, z) { 
+    }
+
+    removed(x, y, z) {  
     }
 }
 
@@ -77,12 +82,66 @@ class TileVoid extends Tile {
     }
 }
 
+class TileDirt extends Tile {
+    constructor(tileMaterials) {
+        super(tileMaterials);
+    }
+
+    update(x, y, z) {
+        if(global.level.getTile(x, y + 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.grass);
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
+    }
+}
+
+class TileGrass extends Tile {
+    constructor(tileMaterials) {
+        super(tileMaterials);
+    }
+
+    update(x, y, z) {
+        if(global.level.getTile(x, y + 1, z) != global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.dirt);
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
+    }
+}
+
+class TileStoneDeep extends Tile {
+    constructor(tileMaterials) {
+        super(tileMaterials);
+    }
+
+    removed(x, y, z) {
+        global.level.setTileWithUpdate(x, y, z, global.tile.stone);
+    }
+}
+
+class TileNegeritre extends Tile {
+    constructor(tileMaterials) {
+        super(tileMaterials);
+    }
+
+    removed(x, y, z) {
+        global.level.setTileWithUpdate(x, y, z, global.tile.negeritre);
+    }
+}
+
 class TileWater extends Tile {
     constructor(tileMaterials, opaque, viscosity) {
         super(tileMaterials);
         this.opaque = opaque;
         this.viscosity = viscosity;
     }
+
+    // CHANGE TO TICK INSTEAD OF UPDATE
 
     update(x, y, z) {
         if(global.level.getTile(x - 1, y, z) == global.tile.void) {
@@ -100,6 +159,11 @@ class TileWater extends Tile {
         if(global.level.getTile(x, y, z + 1) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z + 1, global.tile.water);
         }
+    }
+
+    // eek
+    added(x, y, z) { 
+        this.update(x, y, z);
     }
 }
 

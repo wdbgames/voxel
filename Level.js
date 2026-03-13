@@ -16,7 +16,7 @@ export class Level {
     spawnX;
     spawnY;
     spawnZ;
-    time;
+    time = 2;
 
     constructor(width, height, depth) {
         this.width = width;
@@ -30,7 +30,7 @@ export class Level {
         this.depthCeil = this.chunkDepth * global.chunkSize; 
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
-        this.time = 0;
+        this.time = 0.6;
     }
 
     seedRandom(seed) {
@@ -204,9 +204,13 @@ export class Level {
         const tileY = y % global.chunkSize;
         const tileZ = z % global.chunkSize;
         const tileIndex = tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize);
+        
+        const previousTile = chunk.tiles[tileIndex];
         chunk.tiles[tileIndex] = tileId;
+        global.tile.tiles[previousTile].removed(x, y, z);
+        global.tile.tiles[tileId].added(x, y, z);
 
-        // update neighbor tiles
+        // update neighbor tiles COMBINE FOR PERFORMANCE
         const tile0 = global.tile.tiles[this.getTile(x + 1, y, z)];
         const tile1 = global.tile.tiles[this.getTile(x - 1, y, z)];
         const tile2 = global.tile.tiles[this.getTile(x, y + 1, z)];
@@ -285,49 +289,5 @@ export class Level {
         tilesAABBs[1] = AABBs;
 
         return tilesAABBs;
-    }
-
-    // add debug
-    renderUI() {
-        const light = new THREE.AmbientLight(0xffffff, 4);
-        global.UI.scene.add(light); 
-
-        const size = 0.01;
-        const x0 = window.innerWidth / 2 - window.innerWidth / 2 * size;
-        const y0 = window.innerHeight / 2 - window.innerHeight / 2 * size;
-        const x1 = window.innerHeight * size;
-        const y1 = window.innerHeight * size;
-        global.UI.ctx.fillRect(x0, y0, x1, y1);
-
-        global.UI.ctx.font = "16px arial";
-        global.UI.ctx.fillText(`Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 4, 16);
-        global.UI.texture.needsUpdate = true;
-
-        const tileSize = 32;
-        const geometry = new THREE.BoxGeometry(tileSize, tileSize, tileSize);
-        const tile = global.player.selectedTile;
-        const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
-        global.UI.tile = new THREE.Mesh(geometry, material);
-        global.UI.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, 0);
-        global.UI.tile.position.z = -18;
-        global.UI.scene.add(global.UI.tile);
-    }
-
-    renderUITile() {
-        const tile = global.player.selectedTile;
-        if(tile == 0) {
-            const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
-            global.UI.tile.material = material;
-        } else {
-            const materials = []
-            
-            for(let i = 0; i < 6; ++i) {
-                materials[i] = global.materials[global.tile.tiles[tile].tileMaterials[i]];
-            }
-
-            global.UI.tile.material = materials;
-        }
-        
-        global.UI.tile.needsUpdate = true;
     }
 }

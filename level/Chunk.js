@@ -11,7 +11,6 @@ export class Chunk {
     chunkZ;
     tiles;
     mesh;
-    #CULLING = true;
 
     constructor(x, y, z) {
         this.x = x * global.chunkSize;
@@ -127,7 +126,7 @@ export class Chunk {
                         for (let f = 0; f < 6; ++f) {
                             const tile = global.tile.tiles[this.tiles[i]];
                             // OPTIMIZE CULLING
-                            if(tile.culling && this.#CULLING) {
+                            if(tile.culling) {
                                 let nx = x;
                                 let ny = y;
                                 let nz = z;
@@ -159,7 +158,10 @@ export class Chunk {
                                         continue;
                                     }
                                 } else {
-                                    if (neighbor !== 0) {
+                                    if (neighbor !== 0 && global.tile.tiles[neighbor].opaque) {
+                                        continue;
+                                    }
+                                    if (neighbor === this.tiles[i]) {
                                         continue;
                                     }
                                 }
