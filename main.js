@@ -33,7 +33,7 @@ export const global = {
 	DEBUG: false,
 
 	tick: {
-		tickRate: 1000 / 64,
+		tickRate: 1000 / 16,
 		tickAccumulator: 0
 	},
 
@@ -48,7 +48,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 9
+		patch: 10
 	},
 
 	DT: {

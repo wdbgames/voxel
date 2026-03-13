@@ -30,7 +30,7 @@ export class Level {
         this.depthCeil = this.chunkDepth * global.chunkSize; 
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
-        this.time = 0;
+        this.time = 6000;
     }
 
     update() {
