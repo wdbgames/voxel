@@ -28,8 +28,8 @@ export const global = {
 	tile: null,
 
 	materials: [],
-	assetCount: 15,
-	chunkSize: 16,
+	assetCount: 16,
+	chunkSize: 16, // move to level?
 	DEBUG: false,
 
 	tick: {
@@ -48,7 +48,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 10
+		patch: 11
 	},
 
 	DT: {
@@ -148,9 +148,10 @@ function start() {
 	loop();
 }
 
+// REFACTORING NEEDED
 function loadAssets() {
 	const alphaTest = [11];
-	const opacity = [10];
+	const transparent = [10];
 	return new Promise((resolve) => {
 		for(let i = 0; i < global.assetCount + 1; ++i) {
 			global.materials[i] = new THREE.MeshStandardMaterial();
@@ -163,9 +164,8 @@ function loadAssets() {
 				if(alphaTest.includes(i)) {
 					global.materials[i].alphaTest = 0.5;
 				}
-				if(opacity.includes(i)) {
+				if(transparent.includes(i)) {
 					global.materials[i].transparent = true;
-					global.materials[i].opacity = 0.5;
 				}
 			});
 		}

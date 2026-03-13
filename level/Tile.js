@@ -27,7 +27,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 15;
+        this.tileAmount = 16;
 
         // tile id
         this.void = 0;
@@ -45,6 +45,7 @@ export class Tile {
         this.flesh = 12;
         this.metal = 13;
         this.voidWall = 14;
+        this.lava = 15;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
@@ -62,6 +63,7 @@ export class Tile {
         this.tiles[this.flesh] = new Tile(14);
         this.tiles[this.metal] = new Tile(15);
         this.tiles[this.voidWall] = new Tile(0);
+        this.tiles[this.lava] = new TileLava(16, false, 0.8);
     }
 
     update(x, y, z) {
@@ -254,5 +256,45 @@ class TileSand extends Tile {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
             global.level.setTileWithUpdate(x, i, z, global.tile.sand);
         }
+    }
+}
+
+class TileLava extends Tile {
+    constructor(tileMaterials, opaque, viscosity) {
+        super(tileMaterials);
+        this.opaque = opaque;
+        this.viscosity = viscosity;
+    }
+
+    update(x, y, z) {
+        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.lava);
+            return;
+        }
+        if(global.level.getTile(x - 1, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x - 1, y - 1, z, global.tile.lava);
+            return;
+        }
+        if(global.level.getTile(x + 1, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x + 1, y - 1, z, global.tile.lava);
+            return;
+        }
+        if(global.level.getTile(x, y - 1, z - 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z - 1, global.tile.lava);
+            return;
+        }
+        if(global.level.getTile(x, y - 1, z + 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z + 1, global.tile.lava);
+            return;
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
     }
 }
