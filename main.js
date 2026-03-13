@@ -30,7 +30,7 @@ export const global = {
 	other: {
 		versionMajor: 0,
 		versionMinor: 1,
-		versionPatch: 3
+		versionPatch: 4
 	}
 }
 

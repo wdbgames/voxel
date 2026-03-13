@@ -1,3 +1,5 @@
+import { global } from "../main.js";
+
 export class Tile {
     void;
     stone;
@@ -51,7 +53,7 @@ export class Tile {
         this.tiles[this.grass] = new Tile([6, 6, 3, 2, 6, 6]);
         this.tiles[this.wood] = new Tile(4);
         this.tiles[this.stoneDeep] = new Tile(1);
-        this.tiles[this.sand] = new Tile(7);
+        this.tiles[this.sand] = new TileSand(7);
         this.tiles[this.mud] = new Tile(8);
         this.tiles[this.negeritre] = new Tile(9);
         this.tiles[this.water] = new TileWater(10, false, 0.8);
@@ -59,6 +61,10 @@ export class Tile {
         this.tiles[this.log] = new Tile([12, 12, 13, 13, 12, 12]);
         this.tiles[this.flesh] = new Tile(14);
         this.tiles[this.metal] = new Tile(15);
+    }
+
+    update(x, y, z) {
+        console.log(x + ", " + y + ", " + z);
     }
 }
 
@@ -76,6 +82,24 @@ class TileWater extends Tile {
         this.opaque = opaque;
         this.viscosity = viscosity;
     }
+
+    update(x, y, z) {
+        if(global.level.getTile(x - 1, y, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x - 1, y, z, global.tile.water);
+        }
+        if(global.level.getTile(x + 1, y, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x + 1, y, z, global.tile.water);
+        }
+        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.water);
+        }
+        if(global.level.getTile(x, y, z - 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z - 1, global.tile.water);
+        }
+        if(global.level.getTile(x, y, z + 1) == global.tile.void) {
+            global.level.setTileWithUpdate(x, y, z + 1, global.tile.water);
+        }
+    }
 }
 
 class TileLeaves extends Tile {
@@ -84,5 +108,22 @@ class TileLeaves extends Tile {
         this.culling = culling;
         this.opaque = opaque;
         this.viscosity = viscosity;
+    }
+}
+
+class TileSand extends Tile {
+    constructor(tileIndices) {
+        super(tileIndices);
+    }
+
+    update(x, y, z) {
+        let i = y;
+        while(global.level.getTile(x, i - 1, z) == global.tile.void) {
+            --i;
+        }
+        if(i != y) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, i, z, global.tile.sand);
+        }
     }
 }

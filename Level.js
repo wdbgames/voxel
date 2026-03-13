@@ -181,22 +181,43 @@ export class Level {
     }
 
     setTileWithUpdate(x, y, z, tileId) {
+        // check bounds
         if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
             return -1;
         }
 
+        // find chunk
         const chunkX = Math.floor(x / global.chunkSize);
         const chunkZ = Math.floor(z / global.chunkSize);
         const chunkY = Math.floor(y / global.chunkSize);
         const chunk = this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY];
         
+        // update tile
         const tileX = x % global.chunkSize;
         const tileY = y % global.chunkSize;
         const tileZ = z % global.chunkSize;
-        chunk.tiles[tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize)] = tileId;
-        
+        const tileIndex = tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize);
+        chunk.tiles[tileIndex] = tileId;
+
+        // update neighbor tiles
+        const tile0 = global.tile.tiles[this.getTile(x + 1, y, z)];
+        const tile1 = global.tile.tiles[this.getTile(x - 1, y, z)];
+        const tile2 = global.tile.tiles[this.getTile(x, y + 1, z)];
+        const tile3 = global.tile.tiles[this.getTile(x, y - 1, z)];
+        const tile4 = global.tile.tiles[this.getTile(x, y, z + 1)];
+        const tile5 = global.tile.tiles[this.getTile(x, y, z - 1)];
+
+        tile0.update(x + 1, y, z);
+        tile1.update(x - 1, y, z);
+        tile2.update(x, y + 1, z);
+        tile3.update(x, y - 1, z);
+        tile4.update(x, y, z + 1);
+        tile5.update(x, y, z - 1);
+
+        // update chunk
         chunk.updateGeometry();
         
+        // update neighbor chunks
         if(tileX == 0) {
             this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
@@ -213,7 +234,7 @@ export class Level {
             this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
         if(tileZ == 15) {
-            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+            this.chunks[chunkX + this.chunkWidth * (chunkZ + 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
         }
     }
 
