@@ -41,8 +41,12 @@ export class Chunk {
 
         }
 
+        // NEEDS MULTIPLE NOISES
         for(let x = this.x; x < this.x + global.chunkSize; ++x) {
             for(let z = this.z; z < this.z + global.chunkSize; ++z) {
+                // COULD BE BITSHIFT
+                const beachNoise = Math.floor(noise.perlin2(x / 128, z / 128) * 2);
+
                 let height = levelHeight >> 1;
                 if(global.level.type == 1) {
                     height += noise.perlin2(x / 32, z / 32);
@@ -59,7 +63,7 @@ export class Chunk {
                     if(x >= levelWidth || z >= levelDepth || y >= levelHeight) {
                         this.tiles[i] = global.tile.void;
                     } else if(y >= height + 1) {
-                        if(y > (levelHeight >> 1) - 1) {
+                        if(y >= levelHeight >> 1) {
                             this.tiles[i] = global.tile.void;
                         } else {
                             this.tiles[i] = water;
@@ -69,10 +73,11 @@ export class Chunk {
                         if(y > (levelHeight >> 1)) {
                             this.tiles[i] = grass;
                         } else {
-                            if(this.tiles[i - 1] == global.tile.mud) {
-                                this.tiles[i - 1] = global.tile.sand;
+                            if(beachNoise == 0 && y >= (levelHeight >> 1) - 1) {
+                                this.tiles[i] = global.tile.rock;   
+                            } else {
+                                this.tiles[i] = global.tile.sand; 
                             }
-                            this.tiles[i] = sand;   
                         }
 
                     } else if(y >= height - 2) {

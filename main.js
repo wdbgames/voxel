@@ -15,7 +15,7 @@ export const global = {
 	tile: null,
 
 	materials: [],
-	assetCount: 16,
+	assetCount: 17,
 	chunkSize: 16, // move to level?
 	DEBUG: false,
 
@@ -35,7 +35,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 13
+		patch: 14
 	},
 
 	DT: {

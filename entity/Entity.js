@@ -13,8 +13,7 @@ export class Entity {
     sizeX = 0.5;
     sizeY = 0.5;
     sizeZ = 0.5;
-    inWater = false;
-    inLeaves = false;
+    inViscous = [];
     box = new AABB(0, 0, 0, 0, 0, 0); // RENAME TO AABB
     noclip = true;
 
@@ -39,6 +38,18 @@ export class Entity {
         this.box.x1 = this.positionX + this.sizeX / 2;
         this.box.y1 = this.positionY + this.sizeY / 2;
         this.box.z1 = this.positionZ + this.sizeZ / 2;
+    }
+
+    #handleViscous(tiles, tile) {
+        if(tiles.includes(tile)) {
+            this.inViscous[tile] = true;
+            const viscosity = global.tile.tiles[tile].viscosity;
+            this.velocityX *= viscosity;
+            this.velocityY *= viscosity;
+            this.velocityZ *= viscosity;
+        } else {
+            this.inViscous[tile] = false;
+        }
     }
 
     move(x, y, z) {
@@ -75,25 +86,9 @@ export class Entity {
             this.box.move(0, 0, za);
 
             // MAKE EASIER, and improve bounds
-            if(tilesAABBs[0].includes(global.tile.water)) {
-                this.inWater = true;
-                const viscosity = global.tile.tiles[global.tile.water].viscosity;
-                this.velocityX *= viscosity;
-                this.velocityY *= viscosity;
-                this.velocityZ *= viscosity;
-            } else {
-                this.inWater = false;
-            }
-
-            if(tilesAABBs[0].includes(global.tile.leaves)) {
-                this.inLeaves = true;
-                const viscosity = global.tile.tiles[global.tile.leaves].viscosity;
-                this.velocityX *= viscosity;
-                this.velocityY *= viscosity;
-                this.velocityZ *= viscosity;
-            } else {
-                this.inLeaves = false;
-            }   
+            this.#handleViscous(tilesAABBs[0], global.tile.water);
+            this.#handleViscous(tilesAABBs[0], global.tile.leaves);
+            this.#handleViscous(tilesAABBs[0], global.tile.lava);
         
             if(xa != x) {
                 this.velocityX = 0;

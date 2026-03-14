@@ -27,7 +27,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 16;
+        this.tileAmount = 17;
 
         // tile id
         this.void = 0;
@@ -46,6 +46,7 @@ export class Tile {
         this.metal = 13;
         this.voidWall = 14;
         this.lava = 15;
+        this.rock = 16;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
@@ -54,16 +55,17 @@ export class Tile {
         this.tiles[this.grass] = new TileGrass([6, 6, 3, 2, 6, 6]);
         this.tiles[this.wood] = new Tile(4);
         this.tiles[this.stoneDeep] = new TileStoneDeep(1);
-        this.tiles[this.sand] = new TileSand(7);
+        this.tiles[this.sand] = new TileGravity(7, this.sand);
         this.tiles[this.mud] = new Tile(8);
         this.tiles[this.negeritre] = new TileNegeritre(9);
-        this.tiles[this.water] = new TileWater(10, false, 0.8);
+        this.tiles[this.water] = new TileLiquid(10, false, 0.8, this.water);
         this.tiles[this.leaves] = new TileLeaves(11, false, false, 0.6);
         this.tiles[this.log] = new TileLog([12, 12, 13, 13, 12, 12]);
         this.tiles[this.flesh] = new Tile(14);
         this.tiles[this.metal] = new Tile(15);
         this.tiles[this.voidWall] = new Tile(0);
-        this.tiles[this.lava] = new TileLava(16, false, 0.8);
+        this.tiles[this.lava] = new TileLiquid(16, false, 0.4, this.lava);
+        this.tiles[this.rock] = new TileGravity(17, this.rock);
     }
 
     tick() { 
@@ -139,43 +141,46 @@ class TileNegeritre extends Tile {
     }
 }
 
-class TileWater extends Tile {
-    constructor(tileMaterials, opaque, viscosity) {
+class TileLiquid extends Tile {
+    #tile;
+
+    constructor(tileMaterials, opaque, viscosity, tile) {
         super(tileMaterials);
         this.opaque = opaque;
         this.viscosity = viscosity;
+        this.#tile = tile;
     }
 
     tick(x, y, z) {
         if(global.level.getTile(x, y - 1, z) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z, global.tile.water);
+            global.level.setTileWithUpdate(x, y - 1, z, this.#tile);
             return;
         }
         if(global.level.getTile(x - 1, y - 1, z) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x - 1, y - 1, z, global.tile.water);
+            global.level.setTileWithUpdate(x - 1, y - 1, z, this.#tile);
             return;
         }
         if(global.level.getTile(x + 1, y - 1, z) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x + 1, y - 1, z, global.tile.water);
+            global.level.setTileWithUpdate(x + 1, y - 1, z, this.#tile);
             return;
         }
         if(global.level.getTile(x, y - 1, z - 1) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z - 1, global.tile.water);
+            global.level.setTileWithUpdate(x, y - 1, z - 1, this.#tile);
             return;
         }
         if(global.level.getTile(x, y - 1, z + 1) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z + 1, global.tile.water);
+            global.level.setTileWithUpdate(x, y - 1, z + 1, this.#tile);
             return;
         }
     }
 
     update(x, y, z) {
-        global.level.scheduleTick(x, y, z, 4);
+        global.level.scheduleTick(x, y, z, this.#tile == global.tile.water ? 4 : 8);
     }
 
     added(x, y, z) { 
@@ -221,9 +226,12 @@ class TileLeaves extends Tile {
     }
 }
 
-class TileSand extends Tile {
-    constructor(tileMaterials) {
+class TileGravity extends Tile {
+    #tile;
+
+    constructor(tileMaterials, tile) {
         super(tileMaterials);
+        this.#tile = tile;
     }
 
     update(x, y, z) {
@@ -233,8 +241,12 @@ class TileSand extends Tile {
         }
         if(i != y) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, i, z, global.tile.sand);
+            global.level.setTileWithUpdate(x, i, z, this.#tile);
         }
+    }
+
+    added(x, y, z) {
+        this.update(x, y, z);
     }
 }
 
@@ -251,49 +263,5 @@ class TileLog extends Tile {
                 }
             }
         }
-    }
-}
-
-class TileLava extends Tile {
-    constructor(tileMaterials, opaque, viscosity) {
-        super(tileMaterials);
-        this.opaque = opaque;
-        this.viscosity = viscosity;
-    }
-
-    tick(x, y, z) {
-        if(global.level.getTile(x, y - 1, z) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z, global.tile.lava);
-            return;
-        }
-        if(global.level.getTile(x - 1, y - 1, z) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x - 1, y - 1, z, global.tile.lava);
-            return;
-        }
-        if(global.level.getTile(x + 1, y - 1, z) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x + 1, y - 1, z, global.tile.lava);
-            return;
-        }
-        if(global.level.getTile(x, y - 1, z - 1) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z - 1, global.tile.lava);
-            return;
-        }
-        if(global.level.getTile(x, y - 1, z + 1) == global.tile.void) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z + 1, global.tile.lava);
-            return;
-        }
-    }
-
-    update(x, y, z) {
-        global.level.scheduleTick(x, y, z, 8);
-    }
-
-    added(x, y, z) { 
-        this.update(x, y, z);
     }
 }

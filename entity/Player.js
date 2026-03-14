@@ -96,7 +96,7 @@ export class Player extends Entity {
 		} else {
 			// FIX STICK TO CEILINGS
 			if (this.keys[" "]) {
-				if(this.inWater) {
+				if(this.inViscous[global.tile.water] || this.inViscous[global.tile.lava]) {
 					this.velocityY += 0.01;
 				} else if(this.velocityY == 0) {
 					this.velocityY += 0.1;
