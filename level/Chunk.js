@@ -133,7 +133,7 @@ export class Chunk {
             0, 0, 1, 0, 1, 1, 0, 1, // front, back, top, bottom, right, left
         ]);
 
-        for (let i = 0; i <= global.assetCount; i++) {
+        for (let i = 0; i <= global.materialCount; i++) {
             indicesByTexture.push([]);
         }
 

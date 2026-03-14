@@ -14,8 +14,11 @@ export const global = {
 	level: null,
 	tile: null,
 
+	materialCount: 19,
 	materials: [],
-	assetCount: 18,
+	audioCount: 6,
+	audio: [],
+	
 	DEBUG: false,
 
 	tick: {
@@ -34,7 +37,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 15
+		patch: 16
 	},
 
 	DT: {
@@ -61,12 +64,9 @@ window.addEventListener('mouseup', (event) => {
 	global.player.mouseOnce[event.button] = false;
 });
 
-// move if possible
 window.addEventListener("mousemove", function(event) {
 	if (document.pointerLockElement) {
-		const sensitivity = 0.004;
-		global.player.rotationY -= event.movementX * sensitivity * (global.DT.delta / 14);
-		global.player.rotationX -= event.movementY * sensitivity * (global.DT.delta / 14);
+		global.player.updateRotation(event.movementX, event.movementY);
 	}
 });
 
@@ -81,7 +81,7 @@ window.addEventListener("wheel", function(event) {
 		global.player.selectedTile = 0;
 	}
 
-	global.renderer.renderUITile();
+	global.renderer.updateUITile();
 });
 
 canvas.addEventListener("click", async () => {
@@ -117,32 +117,30 @@ function loop() {
 }
 
 function start() {
-	// MOVE FUNCTIONS TO CLASSES
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 0, 0);
+	global.level = new Level(128, 64, 128, 1, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
 	
 	global.renderer = new Renderer();
-	global.renderer.start();
-	global.renderer.renderUI();
-	global.renderer.renderUITile();
 
 	loop();
 }
 
-// REFACTORING NEEDED
-function loadAssets() {
+async function loadAssets() {
 	const alphaTest = [11];
 	const transparent = [10];
-	return new Promise((resolve) => {
-		for(let i = 0; i < global.assetCount + 1; ++i) {
-			global.materials[i] = new THREE.MeshStandardMaterial();
-			const loader = new THREE.TextureLoader();
-			loader.load(`./assets/${i}.png`, (texture) => {
+
+	const loader = new THREE.TextureLoader();
+	const promises = [];
+
+	for(let i = 0; i < global.materialCount; ++i) {
+		global.materials[i] = new THREE.MeshStandardMaterial();
+		promises.push(new Promise((resolve, reject) => {
+			loader.load(`./assets/tile/${i}.png`, (texture) => {
 				texture.colorSpace = THREE.SRGBColorSpace;
 				texture.magFilter = THREE.NearestFilter;
 				global.materials[i].map = texture;
@@ -150,16 +148,31 @@ function loadAssets() {
 				if(alphaTest.includes(i)) {
 					global.materials[i].alphaTest = 0.5;
 				}
+
 				if(transparent.includes(i)) {
 					global.materials[i].transparent = true;
 				}
+
+				resolve();
+			}, undefined, reject);
+		}));
+	}
+
+	for(let i = 0; i < global.audioCount; ++i) {
+		promises.push(new Promise((resolve, reject) => {
+			global.audio[i] = new Audio(`./assets/audio/${i}.mp3`)
+			global.audio[i].addEventListener("canplaythrough", () => resolve(), {
+				once: true 
 			});
-		}
-		resolve();
-	});
+			global.audio[i].addEventListener("error", reject, {
+				once: true
+			})
+		}));
+	}
+
+	await Promise.all(promises)
 }
 
-Promise.all([loadAssets()]).then(() => {
-	start();
-});
+await loadAssets();
+start();
 

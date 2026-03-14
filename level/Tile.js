@@ -21,15 +21,17 @@ export class Tile {
     culling = true;
     opaque = true;
     viscosity = 1;
+    audio;
     tileAmount;
 
-    constructor(tileMaterials) {
+    constructor(tileMaterials, audio) {
         this.tileMaterials = tileMaterials;
         if(Array.isArray(tileMaterials)) {
             this.tileMaterials = tileMaterials;
         } else {
             this.tileMaterials= new Array(6).fill(tileMaterials);
         }
+        this.audio = audio;
     }
 
     initializeTiles() {
@@ -57,23 +59,23 @@ export class Tile {
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
-        this.tiles[this.stone] = new Tile(5);
+        this.tiles[this.stone] = new Tile(5, 1);
         this.tiles[this.dirt] = new TileDirt(2);
         this.tiles[this.grass] = new TileGrass([6, 6, 3, 2, 6, 6]);
-        this.tiles[this.wood] = new Tile(4);
+        this.tiles[this.wood] = new Tile(4, 2);
         this.tiles[this.stoneDeep] = new TileStoneDeep(1);
         this.tiles[this.sand] = new TileGravity(7, this.sand);
-        this.tiles[this.mud] = new Tile(8);
+        this.tiles[this.mud] = new Tile(8, 4);
         this.tiles[this.negeritre] = new TileNegeritre(9);
         this.tiles[this.water] = new TileLiquid(10, false, 0.8, this.water);
         this.tiles[this.leaves] = new TileLeaves(11, false, false, 0.6);
         this.tiles[this.log] = new TileLog([12, 12, 13, 13, 12, 12]);
-        this.tiles[this.flesh] = new Tile(14);
-        this.tiles[this.metal] = new Tile(15);
-        this.tiles[this.voidWall] = new Tile(0);
+        this.tiles[this.flesh] = new Tile(14, 4);
+        this.tiles[this.metal] = new Tile(15, 5);
+        this.tiles[this.voidWall] = new Tile(0, 0);
         this.tiles[this.lava] = new TileLiquid(16, false, 0.4, this.lava);
         this.tiles[this.rock] = new TileGravity(17, this.rock);
-        this.tiles[this.roots] = new Tile(18);
+        this.tiles[this.roots] = new Tile(18, 3);
     }
 
     tick() { 
@@ -94,12 +96,14 @@ class TileVoid extends Tile {
         super(tileMaterials);
         this.opaque = opaque;
         this.viscosity = viscosity;
+        this.audio = 0;
     }
 }
 
 class TileDirt extends Tile {
     constructor(tileMaterials) {
         super(tileMaterials);
+        this.audio = 3;
     }
 
     update(x, y, z) {
@@ -116,6 +120,7 @@ class TileDirt extends Tile {
 class TileGrass extends Tile {
     constructor(tileMaterials) {
         super(tileMaterials);
+        this.audio = 3;
     }
 
     update(x, y, z) {
@@ -132,6 +137,7 @@ class TileGrass extends Tile {
 class TileStoneDeep extends Tile {
     constructor(tileMaterials) {
         super(tileMaterials);
+        this.audio = 1;
     }
 
     removed(x, y, z) {
@@ -142,6 +148,7 @@ class TileStoneDeep extends Tile {
 class TileNegeritre extends Tile {
     constructor(tileMaterials) {
         super(tileMaterials);
+        this.audio = 1;
     }
 
     removed(x, y, z) {
@@ -157,6 +164,7 @@ class TileLiquid extends Tile {
         this.opaque = opaque;
         this.viscosity = viscosity;
         this.#tile = tile;
+        this.audio = 0;
     }
 
     tick(x, y, z) {
@@ -203,6 +211,7 @@ class TileLeaves extends Tile {
         this.culling = culling;
         this.opaque = opaque;
         this.viscosity = viscosity;
+        this.audio = 1;
     }
 
     tick(x, y, z) {
@@ -234,12 +243,14 @@ class TileLeaves extends Tile {
     }
 }
 
+// DELETES OTHER TILES
 class TileGravity extends Tile {
     #tile;
 
     constructor(tileMaterials, tile) {
         super(tileMaterials);
         this.#tile = tile;
+        this.audio = 3;
     }
 
     update(x, y, z) {
@@ -261,6 +272,7 @@ class TileGravity extends Tile {
 class TileLog extends Tile {
     constructor(tileMaterials) {
         super(tileMaterials);
+        this.audio = 2;
     }
 
     removed(x, y, z) {

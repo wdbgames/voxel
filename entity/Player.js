@@ -10,10 +10,11 @@ export class Player extends Entity {
 	cameraHeight = 1.5;
 	selectedTile = 0;
 
+	sensitivity = 0.004;
 	acceleration = 0.05;
 	maxSpeed = 0.1;
 	reach = 4;
-	fly = false;
+	fly = true;
 
 	constructor(x, y, z) {
 		super(x, y, z);
@@ -60,7 +61,12 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				global.level.setTileWithUpdate(rayTrace[0], rayTrace[1], rayTrace[2], 0);
+				const x = rayTrace[0];
+				const y = rayTrace[1];
+				const z = rayTrace[2];
+				const audio = global.audio[global.tile.tiles[global.level.getTile(x, y, z)].audio].cloneNode();
+				audio.play();
+				global.level.setTileWithUpdate(x, y, z, 0);
 			}
 		}
 
@@ -82,6 +88,8 @@ export class Player extends Entity {
 				const tile = new AABB(x, y, z, x + 1, y + 1, z + 1);
 				if(!tile.intersect(this.box)) {
 					global.level.setTileWithUpdate(x, y, z, this.selectedTile);
+					const audio = global.audio[global.tile.tiles[this.selectedTile].audio].cloneNode();
+					audio.play();
 				}
 				
 			}
@@ -136,4 +144,8 @@ export class Player extends Entity {
 		global.camera.rotation.y = this.rotationY;
 	}
 
+	updateRotation(movementX, movementY) {
+		global.player.rotationY -= movementX * this.sensitivity * (global.DT.delta / 14);
+		global.player.rotationX -= movementY * this.sensitivity * (global.DT.delta / 14);
+	}
 }

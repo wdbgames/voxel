@@ -162,10 +162,8 @@ export class Level {
 
         // house
         if(this.width > 15 && this.depth > 15) {
-            let wood = global.tile.wood;
             let stone = global.tile.stone;
             if(this.theme == 1) {
-                wood = global.tile.stone;
                 stone = global.tile.stoneDeep;
             }
 
@@ -185,7 +183,7 @@ export class Level {
             for (let x = 0; x < 7; ++x) {
                 for (let y = 0; y < 4; ++y) {
                     for (let z = 0; z < 7; ++z) {
-                        this.setTile(houseX + x, houseY + 1 + y, houseZ + z, wood);
+                        this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
                     }
                 }
             }

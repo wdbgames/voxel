@@ -9,6 +9,9 @@ export class Renderer {
     lavaOverlay;
 
     constructor() {
+        this.start();
+        this.renderUI();
+        this.updateUITile();
     }
 
     start() {
@@ -82,7 +85,7 @@ export class Renderer {
         global.UI.scene.add(global.UI.tile);
     }
 
-    renderUITile() {
+    updateUITile() {
         const tile = global.player.selectedTile;
         if(tile == 0) {
             const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
