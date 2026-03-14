@@ -25,7 +25,7 @@ export class Renderer {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         global.scene.background = new THREE.Color();
-         global.scene.add(this.ambientLight);
+        global.scene.add(this.ambientLight);
     }
 
     update(dt) {

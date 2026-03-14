@@ -30,6 +30,17 @@ export class Chunk {
         const levelWidth = global.level.width;
         const levelDepth = global.level.depth;
         const levelHeight = global.level.height;
+
+        let water = global.tile.water;
+        let grass = global.tile.grass;
+        let sand = global.tile.sand;
+        if(global.level.theme == 1) {
+            water = global.tile.lava;
+            grass = global.tile.dirt;
+            sand = global.tile.grass;
+
+        }
+
         for(let x = this.x; x < this.x + global.chunkSize; ++x) {
             for(let z = this.z; z < this.z + global.chunkSize; ++z) {
                 const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
@@ -46,17 +57,17 @@ export class Chunk {
                         if(y > (levelHeight >> 1) - 1) {
                             this.tiles[i] = global.tile.void;
                         } else {
-                            this.tiles[i] = global.tile.water;
+                            this.tiles[i] = water;
                         }
                         
                     } else if(y >= height) {
                         if(y > (levelHeight >> 1)) {
-                            this.tiles[i] = global.tile.grass;
+                            this.tiles[i] = grass;
                         } else {
                             if(this.tiles[i - 1] == global.tile.mud) {
                                 this.tiles[i - 1] = global.tile.sand;
                             }
-                            this.tiles[i] = global.tile.sand;   
+                            this.tiles[i] = sand;   
                         }
 
                     } else if(y >= height - 2) {

@@ -17,11 +17,16 @@ export class Level {
     spawnY;
     spawnZ;
     time;
+    tickQueue = [];
+    type;
+    theme;
 
-    constructor(width, height, depth) {
+    constructor(width, height, depth, type, theme) {
         this.width = width;
         this.height = height;
         this.depth = depth; 
+        this.type = type;
+        this.theme = theme;
         this.chunkWidth = Math.ceil(this.width / global.chunkSize);
         this.chunkHeight = Math.ceil(this.height / global.chunkSize);
         this.chunkDepth = Math.ceil(this.depth / global.chunkSize);
@@ -38,20 +43,41 @@ export class Level {
 
     tick() {
         const cycleLength = 24000;
-        const brightness = Math.max(Math.min(Math.sin((this.time / cycleLength) * 2 * Math.PI), 0.9), 0.1);
+
+        let brightness;
+        if(this.theme == 1) {
+            brightness = 0;
+        } else {
+            brightness = Math.max(Math.min(Math.sin((this.time / cycleLength) * 2 * Math.PI), 0.8), 0);
+        }
 
         const r = 0x87 / 255 * brightness;
         const g = 0xCE / 255 * brightness;
         const b = 0xEB / 255 * brightness;
         global.scene.background.setRGB(r, g, b);
 
-        global.renderer.ambientLight.intensity = brightness * 2;
+        global.renderer.ambientLight.intensity = (brightness + 0.08) * 2;
 
         // > for future logic
         ++this.time;
         if(this.time > cycleLength) {
             this.time = 0;
         }
+
+        // ticking
+        for(let i = this.tickQueue.length - 1; i >= 0; --i) {
+            const tick = this.tickQueue[i];
+            if (!tick) continue;
+            --tick[3];
+            if(tick[3] <= 0) {
+                this.tickQueue.splice(i, 1);
+                global.tile.tiles[this.getTile(tick[0], tick[1], tick[2])].tick(tick[0], tick[1], tick[2]);
+            }
+        }
+    }
+
+    scheduleTick(x, y, z, delay) {
+        this.tickQueue.push([x, y, z, delay]);
     }
 
     seedRandom(seed) {
@@ -69,9 +95,6 @@ export class Level {
 
     generate() {
         const random = this.seedRandom(Math.floor(this.seed * 65535));
-        if(global.DEBUG) {
-            console.log("Random test: " + random());
-        }
 
         // per chunk generation
         for(let x = 0; x < this.chunkWidth; ++x) {
@@ -220,31 +243,25 @@ export class Level {
         const chunkY = Math.floor(y / global.chunkSize);
         const chunk = this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY];
         
-        // update tile
+        // find tile
         const tileX = x % global.chunkSize;
         const tileY = y % global.chunkSize;
         const tileZ = z % global.chunkSize;
         const tileIndex = tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize);
         
+        // update tile
         const previousTile = chunk.tiles[tileIndex];
         chunk.tiles[tileIndex] = tileId;
         global.tile.tiles[previousTile].removed(x, y, z);
         global.tile.tiles[tileId].added(x, y, z);
 
-        // update neighbor tiles COMBINE FOR PERFORMANCE
-        const tile0 = global.tile.tiles[this.getTile(x + 1, y, z)];
-        const tile1 = global.tile.tiles[this.getTile(x - 1, y, z)];
-        const tile2 = global.tile.tiles[this.getTile(x, y + 1, z)];
-        const tile3 = global.tile.tiles[this.getTile(x, y - 1, z)];
-        const tile4 = global.tile.tiles[this.getTile(x, y, z + 1)];
-        const tile5 = global.tile.tiles[this.getTile(x, y, z - 1)];
-
-        tile0.update(x + 1, y, z);
-        tile1.update(x - 1, y, z);
-        tile2.update(x, y + 1, z);
-        tile3.update(x, y - 1, z);
-        tile4.update(x, y, z + 1);
-        tile5.update(x, y, z - 1);
+        // update neighbor tiles
+        this.updateTile(x - 1, y, z);
+        this.updateTile(x + 1, y, z);
+        this.updateTile(x, y - 1, z);
+        this.updateTile(x, y + 1, z);
+        this.updateTile(x, y, z - 1);
+        this.updateTile(x, y, z + 1);
 
         // update chunk
         chunk.updateGeometry();
@@ -270,16 +287,9 @@ export class Level {
         }
     }
 
-    /*
-    update(x, y, z) {
-        if (x < 0 || x >= this.widthCeil || y < 0 || y >= this.heightCeil || z < 0 || z >= this.depthCeil) {
-            return -1;
-        }
-
-        const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
-        chunk.updateGeometry();
+    updateTile(x, y, z) {
+        global.tile.tiles[this.getTile(x, y, z)].update(x, y, z);
     }
-    */
 
     getTileAABBs(box) {
         const tilesAABBs = [];

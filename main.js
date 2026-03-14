@@ -48,7 +48,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 11
+		patch: 12
 	},
 
 	DT: {
@@ -75,7 +75,7 @@ window.addEventListener('mouseup', (event) => {
 	global.player.mouseOnce[event.button] = false;
 });
 
-// bad performance
+// move if possible
 window.addEventListener("mousemove", function(event) {
 	if (document.pointerLockElement) {
 		const sensitivity = 0.004;
@@ -131,11 +131,11 @@ function loop() {
 }
 
 function start() {
-	// MOVE FUNCTIONS TO THEIR THINGS
+	// MOVE FUNCTIONS TO CLASSES
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128);
+	global.level = new Level(128, 64, 128, 0, 1);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
