@@ -12,7 +12,7 @@ export class Player extends Entity {
 	acceleration = 0.05;
 	maxSpeed = 0.1;
 	reach = 4;
-	fly = true;
+	fly = false;
 
 	constructor(x, y, z) {
 		super(x, y, z);

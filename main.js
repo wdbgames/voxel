@@ -5,19 +5,6 @@ import { Level } from "./Level.js";
 import { Tile } from "./level/Tile.js";
 import { Renderer } from "./Renderer.js";
 
-// TODO:
-// ticking
-// time
-// entities
-// make crosshair a CUBE
-// debug
-// camera limits
-// aabb fixes
-// water visuals
-// blocks in entities
-// sand and water void
-// dirt, metal, grass side textures  
-
 export const global = {
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
@@ -48,7 +35,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 12
+		patch: 13
 	},
 
 	DT: {
@@ -135,7 +122,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 0, 1);
+	global.level = new Level(128, 64, 128, 0, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);

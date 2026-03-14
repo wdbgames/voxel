@@ -43,12 +43,17 @@ export class Chunk {
 
         for(let x = this.x; x < this.x + global.chunkSize; ++x) {
             for(let z = this.z; z < this.z + global.chunkSize; ++z) {
-                const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
-                let height = Math.floor(noise.perlin2(x / 64, z / 64) * 8 + (levelHeight >> 1));
-                height += Math.floor(island * 4);
-                height += Math.floor(noise.perlin2(x / 48, z / 48) * 4);
-                height += Math.floor(noise.perlin2(x / 32, z / 32)) * 4;
-                height += Math.floor(noise.perlin2(x / 16, z / 16) * 2);
+                let height = levelHeight >> 1;
+                if(global.level.type == 1) {
+                    height += noise.perlin2(x / 32, z / 32);
+                } else {
+                    const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
+                    height += Math.floor(island * 4);
+                    height += Math.floor(noise.perlin2(x / 64, z / 64) * 8);
+                    height += Math.floor(noise.perlin2(x / 48, z / 48) * 4);
+                    height += Math.floor(noise.perlin2(x / 32, z / 32)) * 4;
+                    height += Math.floor(noise.perlin2(x / 16, z / 16) * 2);
+                }
                 
                 for(let y = this.y; y < this.y + global.chunkSize; ++y) {
                     if(x >= levelWidth || z >= levelDepth || y >= levelHeight) {

@@ -127,16 +127,26 @@ export class Level {
                 ++y;
             }
             if(this.getTile(x, y - 1, z) == global.tile.grass) {
-                this.setTile(x, y - 1, z, global.tile.dirt);
-                for(let i = 0; i < 3; ++i) {
-                    for(let j = 0; j < 3; ++j) {
-                        for(let k = 0; k < 3; ++k) {
-                            this.setTile(x + i - 1, y + k + 3, z + j - 1, global.tile.leaves);
+                let log = false;
+                for(let i = x - 1; i <= x + 1; ++i) {
+                    for(let j = z - 1; j <= z + 1; ++j) {
+                        if(this.getTile(i, y, j) == global.tile.log) {
+                            log = true;
                         }
                     }
                 }
-                for(let i = 0; i < 5; ++i) {
-                    this.setTile(x, y + i, z, global.tile.log);
+                if(!log) {
+                    this.setTile(x, y - 1, z, global.tile.dirt);
+                    for(let i = x - 1; i <= x + 1; ++i) {
+                        for(let j = z - 1; j <= z + 1; ++j) {
+                            for(let k = y + 3; k <= y + 5; ++k) {
+                                this.setTile(i, k , j, global.tile.leaves);
+                            }
+                        }
+                    }
+                    for(let i = y; i < y + 5; ++i) {
+                        this.setTile(x, i, z, global.tile.log);
+                    }
                 }
             }
         }
