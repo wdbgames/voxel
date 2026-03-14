@@ -11,6 +11,12 @@ export class Tile {
     water;
     leaves;
     log;
+    flesh;
+    metal;
+    voidWall;
+    lava;
+    rock;
+    roots;
     tiles = [];
     culling = true;
     opaque = true;
@@ -27,7 +33,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 17;
+        this.tileAmount = 18;
 
         // tile id
         this.void = 0;
@@ -47,6 +53,7 @@ export class Tile {
         this.voidWall = 14;
         this.lava = 15;
         this.rock = 16;
+        this.roots = 17;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, false, 0);
@@ -66,6 +73,7 @@ export class Tile {
         this.tiles[this.voidWall] = new Tile(0);
         this.tiles[this.lava] = new TileLiquid(16, false, 0.4, this.lava);
         this.tiles[this.rock] = new TileGravity(17, this.rock);
+        this.tiles[this.roots] = new Tile(18);
     }
 
     tick() { 
@@ -198,19 +206,19 @@ class TileLeaves extends Tile {
     }
 
     tick(x, y, z) {
-        let log = false;
+        let logCheck = false;
 
         for(let i = x - 1; i < x + 2; ++i) {
             for(let j = y - 1; j < y + 2; ++j) {
                 for(let k = z - 1; k < z + 2; ++k) {
                     if(global.level.getTile(i, j, k) == global.tile.log) {
-                        log = true;
+                        logCheck = true;
                     }
                 }
             }
         }
 
-        if(!log) {
+        if(!logCheck) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
         }
 

@@ -20,6 +20,7 @@ export class Level {
     tickQueue = [];
     type;
     theme;
+    chunkSize
 
     constructor(width, height, depth, type, theme) {
         this.width = width;
@@ -27,12 +28,13 @@ export class Level {
         this.depth = depth; 
         this.type = type;
         this.theme = theme;
-        this.chunkWidth = Math.ceil(this.width / global.chunkSize);
-        this.chunkHeight = Math.ceil(this.height / global.chunkSize);
-        this.chunkDepth = Math.ceil(this.depth / global.chunkSize);
-        this.widthCeil = this.chunkWidth * global.chunkSize;
-        this.heightCeil = this.chunkHeight * global.chunkSize;
-        this.depthCeil = this.chunkDepth * global.chunkSize; 
+        this.chunkSize = 16;
+        this.chunkWidth = Math.ceil(this.width / this.chunkSize);
+        this.chunkHeight = Math.ceil(this.height / this.chunkSize);
+        this.chunkDepth = Math.ceil(this.depth / this.chunkSize);
+        this.widthCeil = this.chunkWidth * this.chunkSize;
+        this.heightCeil = this.chunkHeight * this.chunkSize;
+        this.depthCeil = this.chunkDepth * this.chunkSize; 
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
         this.time = 6000;
@@ -105,7 +107,13 @@ export class Level {
             }
         }
 
+        let grass = global.tile.grass;
+        if(this.theme == 1) {
+            grass = global.tile.dirt;
+        }
+
         // blobs
+        /*
         if(global.DEBUG) {
             console.log("Blob amount: " + Math.floor(this.width * this.height * this.depth / 2048));
         }
@@ -114,6 +122,7 @@ export class Level {
             const y = Math.floor(random() * this.height);
             const z = Math.floor(random() * this.depth);
         }
+        */
 
         // trees
         if(global.DEBUG) {
@@ -126,17 +135,17 @@ export class Level {
             while(this.getTile(x, y, z) != 0) {
                 ++y;
             }
-            if(this.getTile(x, y - 1, z) == global.tile.grass) {
-                let log = false;
+            if(this.getTile(x, y - 1, z) == grass) {
+                let logCheck = false;
                 for(let i = x - 1; i <= x + 1; ++i) {
                     for(let j = z - 1; j <= z + 1; ++j) {
                         if(this.getTile(i, y, j) == global.tile.log) {
-                            log = true;
+                            logCheck = true;
                         }
                     }
                 }
-                if(!log) {
-                    this.setTile(x, y - 1, z, global.tile.dirt);
+                if(!logCheck) {
+                    this.setTile(x, y - 1, z, global.tile.roots);
                     for(let i = x - 1; i <= x + 1; ++i) {
                         for(let j = z - 1; j <= z + 1; ++j) {
                             for(let k = y + 3; k <= y + 5; ++k) {
@@ -153,6 +162,13 @@ export class Level {
 
         // house
         if(this.width > 15 && this.depth > 15) {
+            let wood = global.tile.wood;
+            let stone = global.tile.stone;
+            if(this.theme == 1) {
+                wood = global.tile.stone;
+                stone = global.tile.stoneDeep;
+            }
+
             const houseX = this.width / 2 - 3;
             const houseZ = this.depth / 2 - 3;
 
@@ -169,14 +185,14 @@ export class Level {
             for (let x = 0; x < 7; ++x) {
                 for (let y = 0; y < 4; ++y) {
                     for (let z = 0; z < 7; ++z) {
-                        this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
+                        this.setTile(houseX + x, houseY + 1 + y, houseZ + z, wood);
                     }
                 }
             }
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {
-                    this.setTile(houseX + x, houseY, houseZ + z, global.tile.stoneDeep);
+                    this.setTile(houseX + x, houseY, houseZ + z, stone);
                 }
             }
 
@@ -228,8 +244,8 @@ export class Level {
             return global.tile.void;
         }
 
-        const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
-        return chunk.tiles[(y % global.chunkSize) + ((z % global.chunkSize) * global.chunkSize) + ((x % global.chunkSize) * global.chunkSize * global.chunkSize)];
+        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
+        return chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)];
     }
 
     setTile(x, y, z, tileId) {
@@ -237,8 +253,8 @@ export class Level {
             return -1;
         }
 
-        const chunk = this.chunks[Math.floor(x / global.chunkSize) + this.chunkWidth * Math.floor(z / global.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / global.chunkSize)];
-        chunk.tiles[(y % global.chunkSize) + ((z % global.chunkSize) * global.chunkSize) + ((x % global.chunkSize) * global.chunkSize * global.chunkSize)] = tileId;
+        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
+        chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)] = tileId;
     }
 
     setTileWithUpdate(x, y, z, tileId) {
@@ -248,16 +264,16 @@ export class Level {
         }
 
         // find chunk
-        const chunkX = Math.floor(x / global.chunkSize);
-        const chunkZ = Math.floor(z / global.chunkSize);
-        const chunkY = Math.floor(y / global.chunkSize);
+        const chunkX = Math.floor(x / this.chunkSize);
+        const chunkZ = Math.floor(z / this.chunkSize);
+        const chunkY = Math.floor(y / this.chunkSize);
         const chunk = this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY];
         
         // find tile
-        const tileX = x % global.chunkSize;
-        const tileY = y % global.chunkSize;
-        const tileZ = z % global.chunkSize;
-        const tileIndex = tileY + (tileZ * global.chunkSize) + (tileX * global.chunkSize * global.chunkSize);
+        const tileX = x % this.chunkSize;
+        const tileY = y % this.chunkSize;
+        const tileZ = z % this.chunkSize;
+        const tileIndex = tileY + (tileZ * this.chunkSize) + (tileX * this.chunkSize * this.chunkSize);
         
         // update tile
         const previousTile = chunk.tiles[tileIndex];

@@ -1,5 +1,3 @@
-// REVIEW, use intersect
-
 export class AABB {
     x0;
     y0;
@@ -18,14 +16,14 @@ export class AABB {
         this.z1 = z1;
     }
 
-    intersect(a, b) {
+    intersect(a) {
         return (
-            a.minX <= b.maxX &&
-            a.maxX >= b.minX &&
-            a.minY <= b.maxY &&
-            a.maxY >= b.minY &&
-            a.minZ <= b.maxZ &&
-            a.maxZ >= b.minZ
+            a.x0 <= this.x1 &&
+            a.x1 >= this.x0 &&
+            a.y0 <= this.y1 &&
+            a.y1 >= this.y0 &&
+            a.z0 <= this.z1 &&
+            a.z1 >= this.z0
         );
     }
 

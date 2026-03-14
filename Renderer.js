@@ -5,6 +5,8 @@ import { global } from "./main.js";
 export class Renderer {
     renderer = new THREE.WebGLRenderer({canvas: document.getElementById("canvas")});
     ambientLight = new THREE.AmbientLight(0xffffff, 0);
+    waterOverlay;
+    lavaOverlay;
 
     constructor() {
     }
@@ -31,6 +33,20 @@ export class Renderer {
     update(dt) {
         global.UI.tile.rotation.x += 0.01 * dt;
         global.UI.tile.rotation.y += 0.01 * dt;
+
+        global.UI.ctx.clearRect(0, 0, 128, 128)
+        global.UI.ctx.fillText(`Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 4, 16);
+        
+        if(global.DEBUG) {
+            global.UI.ctx.fillText(`x: ${global.player.positionX.toFixed(2)}`, 4, 32);
+            global.UI.ctx.fillText(`y: ${global.player.positionY.toFixed(2)}`, 4, 48);
+            global.UI.ctx.fillText(`z: ${global.player.positionZ.toFixed(2)}`, 4, 64);
+            
+            global.UI.ctx.fillText(`In water: ${global.player.inViscous[global.tile.water]}`, 4, 80);
+            global.UI.ctx.fillText(`In lava: ${global.player.inViscous[global.tile.lava]}`, 4, 96);
+        }
+
+        global.UI.texture.needsUpdate = true;
     }
 
     render() {

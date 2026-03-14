@@ -13,13 +13,13 @@ export class Chunk {
     mesh;
 
     constructor(x, y, z) {
-        this.x = x * global.chunkSize;
-        this.y = y * global.chunkSize;
-        this.z = z * global.chunkSize;
+        this.x = x * global.level.chunkSize;
+        this.y = y * global.level.chunkSize;
+        this.z = z * global.level.chunkSize;
         this.chunkX = x;
         this.chunkY = y;
         this.chunkZ = z;
-        this.tiles = new Uint8Array(global.chunkSize * global.chunkSize * global.chunkSize);
+        this.tiles = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
         this.mesh = null;
         this.generate();
     }
@@ -42,8 +42,8 @@ export class Chunk {
         }
 
         // NEEDS MULTIPLE NOISES
-        for(let x = this.x; x < this.x + global.chunkSize; ++x) {
-            for(let z = this.z; z < this.z + global.chunkSize; ++z) {
+        for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
+            for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
                 // COULD BE BITSHIFT
                 const beachNoise = Math.floor(noise.perlin2(x / 128, z / 128) * 2);
 
@@ -59,7 +59,7 @@ export class Chunk {
                     height += Math.floor(noise.perlin2(x / 16, z / 16) * 2);
                 }
                 
-                for(let y = this.y; y < this.y + global.chunkSize; ++y) {
+                for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
                     if(x >= levelWidth || z >= levelDepth || y >= levelHeight) {
                         this.tiles[i] = global.tile.void;
                     } else if(y >= height + 1) {
@@ -76,7 +76,7 @@ export class Chunk {
                             if(beachNoise == 0 && y >= (levelHeight >> 1) - 1) {
                                 this.tiles[i] = global.tile.rock;   
                             } else {
-                                this.tiles[i] = global.tile.sand; 
+                                this.tiles[i] = sand; 
                             }
                         }
 
@@ -138,9 +138,9 @@ export class Chunk {
         }
 
         let i = 0;
-        for(let x = 0; x < global.chunkSize; ++x) {
-            for(let z = 0; z < global.chunkSize; ++z) {
-                for(let y = 0; y < global.chunkSize; ++y) {
+        for(let x = 0; x < global.level.chunkSize; ++x) {
+            for(let z = 0; z < global.level.chunkSize; ++z) {
+                for(let y = 0; y < global.level.chunkSize; ++y) {
                     let tileMaterials = global.tile.tiles[this.tiles[i]].tileMaterials;
                     let facesRendered = 0;
                     if(this.tiles[i] != 0) {
@@ -240,10 +240,10 @@ export class Chunk {
     }
 
     getTile(x, y, z) {
-        if(x < 0 || y < 0 || z < 0 || x >= global.chunkSize || y >= global.chunkSize || z >= global.chunkSize) {
+        if(x < 0 || y < 0 || z < 0 || x >= global.level.chunkSize || y >= global.level.chunkSize || z >= global.level.chunkSize) {
             return global.level.getTile(this.x + x, this.y + y, this.z + z);
         }
 
-        return this.tiles[y + z * global.chunkSize + x * global.chunkSize * global.chunkSize];
+        return this.tiles[y + z * global.level.chunkSize + x * global.level.chunkSize * global.level.chunkSize];
     }
 }

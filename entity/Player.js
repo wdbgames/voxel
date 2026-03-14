@@ -1,5 +1,6 @@
 import { global } from "../main.js";
 import { Entity } from "./Entity.js";
+import { AABB } from "../AABB.js";
 
 export class Player extends Entity {
     keys = [];
@@ -75,7 +76,14 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				global.level.setTileWithUpdate(rayTrace[3], rayTrace[4], rayTrace[5], this.selectedTile);
+				const x = rayTrace[3];
+				const y = rayTrace[4];
+				const z = rayTrace[5];
+				const tile = new AABB(x, y, z, x + 1, y + 1, z + 1);
+				if(!tile.intersect(this.box)) {
+					global.level.setTileWithUpdate(x, y, z, this.selectedTile);
+				}
+				
 			}
 		}
 
