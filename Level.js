@@ -1,5 +1,3 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
-
 import { global } from "./main.js";
 import { Chunk } from "./level/Chunk.js";
 import { AABB } from "./AABB.js";
@@ -20,7 +18,9 @@ export class Level {
     tickQueue = [];
     type;
     theme;
-    chunkSize
+    chunkSize;
+    chunkUpdates;
+    tileUpdates;
 
     constructor(width, height, depth, type, theme) {
         this.width = width;
@@ -38,6 +38,8 @@ export class Level {
         this.chunks = new Array(this.chunkWidth * this.chunkHeight * this.chunkDepth);
         this.seed = Math.random();
         this.time = 6000;
+        this.chunkUpdates = 0;
+        this.tileUpdates = 0;
     }
 
     update() {
@@ -58,7 +60,7 @@ export class Level {
         const b = 0xEB / 255 * brightness;
         global.scene.background.setRGB(r, g, b);
 
-        global.renderer.ambientLight.intensity = (brightness + 0.08) * 2;
+        // global.renderer.ambientLight.intensity = (brightness + 0.08) * 2;
 
         // > for future logic
         ++this.time;
@@ -76,6 +78,8 @@ export class Level {
                 global.tile.tiles[this.getTile(tick[0], tick[1], tick[2])].tick(tick[0], tick[1], tick[2]);
             }
         }
+
+        // LIGHT UPDATES
     }
 
     scheduleTick(x, y, z, delay) {
@@ -139,7 +143,7 @@ export class Level {
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {
-                    this.setTile(houseX + x, houseY, houseZ + z, stone);
+                    this.setTileGenerate(houseX + x, houseY, houseZ + z, stone);
                 }
             }
 
@@ -147,7 +151,7 @@ export class Level {
                 for (let x = 0; x < 7; ++x) {
                     for (let y = 0; y < 4; ++y) {
                         for (let z = 0; z < 7; ++z) {
-                            this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
+                            this.setTileGenerate(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
                         }
                     }
                 }
@@ -155,14 +159,14 @@ export class Level {
                 for (let x = 0; x < 5; ++x) {
                     for (let y = 0; y < 3; ++y) {
                         for (let z = 0; z < 5; ++z) {
-                            this.setTile(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
+                            this.setTileGenerate(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
                         }
                     }
                 }
             }
 
-            this.setTile(houseX + 3, houseY + 1, houseZ, global.tile.void);
-            this.setTile(houseX + 3, houseY + 2, houseZ, global.tile.void);
+            this.setTileGenerate(houseX + 3, houseY + 1, houseZ, global.tile.void);
+            this.setTileGenerate(houseX + 3, houseY + 2, houseZ, global.tile.void);
         } else {
             this.spawnX = this.width / 2;
             this.spawnZ = this.depth / 2;
@@ -177,7 +181,7 @@ export class Level {
 
         // temp
         /*
-        if(global.DEBUG) {
+        if(global.debug) {
             console.log("Temp amount: " + Math.floor(this.width * this.height * this.depth / 2048));
         }
         for(let i = 0; i < Math.floor(this.width * this.height * this.depth / 2048); ++i) {
@@ -189,7 +193,7 @@ export class Level {
 
         // trees
         if(global.level.type != 2) {
-            if(global.DEBUG) {
+            if(global.debug) {
                 console.log("Tree amount: " + Math.floor(this.width * this.depth / 128));
             }
             for(let amount = 0; amount < Math.floor(this.width * this.depth / 128); ++amount) {
@@ -209,28 +213,30 @@ export class Level {
                         }
                     }
                     if(!logCheck) {
-                        this.setTile(x, y - 1, z, global.tile.roots);
+                        this.setTileGenerate(x, y - 1, z, global.tile.roots);
                         for(let i = x - 1; i <= x + 1; ++i) {
                             for(let j = z - 1; j <= z + 1; ++j) {
                                 for(let k = y + 3; k <= y + 5; ++k) {
-                                    this.setTile(i, k , j, global.tile.leaves);
+                                    this.setTileGenerate(i, k , j, global.tile.leaves);
                                 }
                             }
                         }
                         for(let i = y; i < y + 5; ++i) {
-                            this.setTile(x, i, z, global.tile.log);
+                            this.setTileGenerate(x, i, z, global.tile.log);
                         }
                     }
                 }
             }
         }
+        
+        // SKYLIGHT
 
         // geometry
         for(let i = 0; i < this.chunks.length; ++i) {
             this.chunks[i].generateGeometry();
         }
 
-        if(global.DEBUG) {
+        if(global.debug) {
             const size = this.width * this.height * this.depth * 4;
             console.log(this.width + ", " + this.height + ", " + this.depth);
             console.log(Math.round(size) + " bytes");
@@ -255,16 +261,7 @@ export class Level {
         return chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)];
     }
 
-    getTileData(x, y, z) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
-            return 0;  
-        }
-
-        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
-        return chunk.tileData[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)];
-    }
-
-    setTile(x, y, z, tileId) {
+    setTileGenerate(x, y, z, tileId) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
             return -1;
         }
@@ -273,13 +270,52 @@ export class Level {
         chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)] = tileId;
     }
 
-    setTileData(x, y, z, data) {
+    setTile(x, y, z, tileId) {
+        // check bounds
         if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
             return -1;
         }
 
-        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
-        chunk.tileData[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)] = data;
+        // find chunk
+        const chunkX = Math.floor(x / this.chunkSize);
+        const chunkZ = Math.floor(z / this.chunkSize);
+        const chunkY = Math.floor(y / this.chunkSize);
+        const chunk = this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY];
+        
+        // find tile
+        const tileX = x % this.chunkSize;
+        const tileY = y % this.chunkSize;
+        const tileZ = z % this.chunkSize;
+        const tileIndex = tileY + (tileZ * this.chunkSize) + (tileX * this.chunkSize * this.chunkSize);
+        
+        // update tile
+        const previousTile = chunk.tiles[tileIndex];
+        chunk.tiles[tileIndex] = tileId;
+        global.tile.tiles[previousTile].removed(x, y, z);
+        global.tile.tiles[tileId].added(x, y, z);
+
+        // update chunk
+        chunk.needsUpdate = true;
+        
+        // update neighbor chunks
+        if(tileX == 0 && x != 0) {
+            this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
+        }
+        if(tileX == 15 && x != this.width - 1) {
+            this.chunks[(chunkX + 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
+        }
+        if(tileY == 0 && y != 0) {
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY - 1)].needsUpdate = true;;
+        }
+        if(tileY == 15 && y != this.height - 1) {
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY + 1)].needsUpdate = true;;
+        }
+        if(tileZ == 0 && z != 0) {
+            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
+        }
+        if(tileZ == 15 && z != this.depth - 1) {
+            this.chunks[chunkX + this.chunkWidth * (chunkZ + 1) + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
+        }
     }
 
     setTileWithUpdate(x, y, z, tileId) {
@@ -315,31 +351,49 @@ export class Level {
         this.updateTile(x, y, z + 1);
 
         // update chunk
-        chunk.updateGeometry();
+        chunk.needsUpdate = true;
         
         // update neighbor chunks
         if(tileX == 0 && x != 0) {
-            this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+            this.chunks[(chunkX - 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
         }
         if(tileX == 15 && x != this.width - 1) {
-            this.chunks[(chunkX + 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+            this.chunks[(chunkX + 1) + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
         }
         if(tileY == 0 && y != 0) {
-            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY - 1)].updateGeometry();
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY - 1)].needsUpdate = true;;
         }
         if(tileY == 15 && y != this.height - 1) {
-            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY + 1)].updateGeometry();
+            this.chunks[chunkX + this.chunkWidth * chunkZ + this.chunkWidth * this.chunkDepth * (chunkY + 1)].needsUpdate = true;;
         }
         if(tileZ == 0 && z != 0) {
-            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+            this.chunks[chunkX + this.chunkWidth * (chunkZ - 1) + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
         }
         if(tileZ == 15 && z != this.depth - 1) {
-            this.chunks[chunkX + this.chunkWidth * (chunkZ + 1) + this.chunkWidth * this.chunkDepth * chunkY].updateGeometry();
+            this.chunks[chunkX + this.chunkWidth * (chunkZ + 1) + this.chunkWidth * this.chunkDepth * chunkY].needsUpdate = true;;
         }
     }
 
     updateTile(x, y, z) {
         global.tile.tiles[this.getTile(x, y, z)].update(x, y, z);
+    }
+
+    getTileData(x, y, z) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
+            return 0;  
+        }
+
+        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
+        return chunk.tileData[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)];
+    }
+
+    setTileData(x, y, z, data) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
+            return -1;
+        }
+
+        const chunk = this.chunks[Math.floor(x / this.chunkSize) + this.chunkWidth * Math.floor(z / this.chunkSize) + this.chunkWidth * this.chunkDepth * Math.floor(y / this.chunkSize)];
+        chunk.tileData[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)] = data;
     }
 
     getTileAABBs(box) {

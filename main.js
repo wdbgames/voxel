@@ -19,13 +19,15 @@ export const global = {
 	audioCount: 7,
 	audio: [],
 	
-	DEBUG: false,
+	debug: true,
+	debugUpdate: true,
 
 	tick: {
 		tickRate: 1000 / 16,
 		tickAccumulator: 0
 	},
 
+	// move to renderer
 	UI: {
 		scene: new THREE.Scene(),
 		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000),
@@ -35,10 +37,11 @@ export const global = {
 		tileRotation: 0,
 	},
 
+	// maybe move to renderer
 	version: {
 		major: 0,
 		minor: 2,
-		patch: 0
+		patch: 1
 	},
 
 	DT: {
@@ -50,11 +53,13 @@ export const global = {
 // COMBINE =
 window.addEventListener("keydown", function(event) {
 	global.player.keys[event.key] = true; 
+	if(!event.repeat) {
+		global.player.keysOnce[event.key] = true;
+	}
 });
 
 window.addEventListener("keyup", function(event) {
 	global.player.keys[event.key] = false;
-	global.player.keysOnce[event.key] = true; 
 });
 
 window.addEventListener('mousedown', (event) => {
@@ -125,7 +130,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 0, 0);
+	global.level = new Level(126, 64, 126, 0, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
@@ -150,6 +155,7 @@ async function loadAssets() {
 				texture.magFilter = THREE.NearestFilter;
 				global.materials[i].map = texture;
 				global.materials[i].needsUpdate = true;
+				global.materials[i].vertexColors = true;
 				if(alphaTest.includes(i)) {
 					global.materials[i].alphaTest = 0.5;
 				}

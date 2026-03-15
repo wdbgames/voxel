@@ -31,9 +31,27 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
-		if (this.keysOnce["f"]) {
-			this.keysOnce["f"] = false;
-			this.fly = !this.fly;
+		if (this.keys["f"]) {
+			
+			// debug
+			if(this.keysOnce["1"]) {
+				this.keysOnce["1"] = false;
+				global.debug = !global.debug;
+				global.debugUpdate = true;
+
+			}
+
+			// fly
+			if(this.keysOnce["2"]) {
+				this.keysOnce["2"] = false;
+				this.fly = !this.fly;
+			}
+
+			// noclip
+			if(this.keysOnce["3"]) {
+				this.keysOnce["3"] = false;
+				this.noclip = !this.noclip;
+			}
 		}
 
 		if (this.keys["w"]) {

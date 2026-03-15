@@ -14,6 +14,7 @@ export class Chunk {
     tileLight;
     tileSkylight;
     mesh;
+    needsUpdate;
 
     constructor(x, y, z) {
         this.x = x * global.level.chunkSize;
@@ -24,7 +25,10 @@ export class Chunk {
         this.chunkZ = z;
         this.tiles = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
         this.tileData = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
+        this.tileLight = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
+        this.tileSkylight = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
         this.mesh = null;
+        this.needsUpdate = false;
         this.generate();
     }
 
@@ -128,12 +132,15 @@ export class Chunk {
     }
 
     generateGeometry() {
+        ++global.level.chunkUpdates;
+
         const geometry = new THREE.BufferGeometry();
 
         const positions = [];
         const indices = [];
         const indicesByTexture = [];
         const uvs = [];
+        const colors = [];
         let indexOffset = 0;
 
         const defaultFaceVertices = new Float32Array([
@@ -169,8 +176,13 @@ export class Chunk {
                     const faceUVs = tile.hasCustomFaceUVs ? tile.customFaceUVs : defaultFaceUVs;
                     if(this.tiles[i] != global.tile.void && this.tiles[i] != global.tile.voidWall) {
                         for (let f = 0; f < 6; ++f) {
+                            for(let j = 0; j < 3; ++j) {
+                                colors.push(1, 1, 1);
+                            }
+
                             // OPTIMIZE CULLING
                             if(tile.culling) {
+                                // RENAME
                                 let nx = x;
                                 let ny = y;
                                 let nz = z;
@@ -244,8 +256,11 @@ export class Chunk {
             start += array.length;
         }
 
+
+        // CHANGE
         geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
         geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(colors), 3));
         geometry.setIndex(indices);
         geometry.computeVertexNormals();
         this.mesh = new THREE.Mesh(geometry, global.materials);

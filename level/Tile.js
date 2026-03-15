@@ -117,6 +117,7 @@ export class Tile {
     }
 
     update(x, y, z) {
+        ++global.level.tileUpdates;
     }
 
     added(x, y, z) { 
@@ -289,7 +290,6 @@ class TileLeaves extends Tile {
     }
 }
 
-// DELETES OTHER TILES
 class TileGravity extends Tile {
     #tile;
 
@@ -304,8 +304,9 @@ class TileGravity extends Tile {
             --i;
         }
         if(i != y) {
-            global.level.setTileWithUpdate(x, y, z, global.tile.void);
             global.level.setTileWithUpdate(x, i, z, this.#tile);
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            
         }
     }
 
@@ -424,7 +425,7 @@ class TileSponge extends Tile {
             for(let j = y - 2; j <= y + 2; ++j) {
                 for(let k = z - 2; k <= z + 2; ++k) {
                     if(global.level.getTile(i, j, k) == this.#tile) {
-                        global.level.setTileWithUpdate(i, j, k, global.tile.void);
+                        global.level.setTile(i, j, k, global.tile.void);
                     }
                 }
             }
