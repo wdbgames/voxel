@@ -415,9 +415,39 @@ export class Level {
 		}
 
 		for(let i = 0; i < limit * 3; ++i) {
-			if(global.tile.tiles[global.level.getTile(floorX, floorY, floorZ)].breakable) {
-				return [floorX, floorY, floorZ, previousX, previousY, previousZ];
-			}
+            const tileId = global.level.getTile(floorX, floorY, floorZ);
+            const tile = global.tile.tiles[tileId];
+
+            if (tile.breakable) {
+                const bb = tile.hasCustomBoundingBox ? tile.customBoundingBox : [0, 0, 0, 1, 1, 1];
+                
+                const minX = floorX + bb[0];
+                const minY = floorY + bb[1];
+                const minZ = floorZ + bb[2];
+                const maxX = floorX + bb[3];
+                const maxY = floorY + bb[4];
+                const maxZ = floorZ + bb[5];
+
+                // REVIEW
+                const tx1 = (minX - positionX) / directionX;
+                const tx2 = (maxX - positionX) / directionX;
+                let tmin = Math.min(tx1, tx2);
+                let tmax = Math.max(tx1, tx2);
+
+                const ty1 = (minY - positionY) / directionY;
+                const ty2 = (maxY - positionY) / directionY;
+                tmin = Math.max(tmin, Math.min(ty1, ty2));
+                tmax = Math.min(tmax, Math.max(ty1, ty2));
+
+                const tz1 = (minZ - positionZ) / directionZ;
+                const tz2 = (maxZ - positionZ) / directionZ;
+                tmin = Math.max(tmin, Math.min(tz1, tz2));
+                tmax = Math.min(tmax, Math.max(tz1, tz2));
+
+                if(tmax >= tmin && tmax > 0) {
+                    return [floorX, floorY, floorZ, previousX, previousY, previousZ]
+                }
+            }
 
 			previousX = floorX;
 			previousY = floorY;

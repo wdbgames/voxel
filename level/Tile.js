@@ -3,7 +3,7 @@ import { global } from "../main.js";
 export class Tile {
     tileAmount;
 
-    // BIG REFACTOR, swap...
+    // BIG REFACTOR, swap... (maybe)
     void;
     stone;
     dirt;
