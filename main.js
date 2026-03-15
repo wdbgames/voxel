@@ -31,13 +31,14 @@ export const global = {
 		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000),
 		ctx: null,
 		texture: null,
-		tile: null
+		tile: null,
+		tileRotation: 0,
 	},
 
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 17
+		patch: 18
 	},
 
 	DT: {

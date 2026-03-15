@@ -339,4 +339,11 @@ class TileStep extends Tile {
             0, 0, 1, 0, 1, 0.5, 0, 0.5, // left
         ]);
     }
+    
+    added(x, y, z) {
+        if(global.level.getTile(x, y - 1, z) == global.tile.step) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.stone);
+        }
+    }
 }
