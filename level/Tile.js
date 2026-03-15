@@ -47,7 +47,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 20;
+        this.tileAmount = 21;
 
         // tile id
         this.void = 0;
@@ -70,6 +70,7 @@ export class Tile {
         this.roots = 17;
         this.step = 18;
         this.leafPile = 19;
+        this.pumice = 20;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -92,6 +93,7 @@ export class Tile {
         this.tiles[this.roots] = new Tile(18, 3);
         this.tiles[this.step] = new TileStep(5, 1);
         this.tiles[this.leafPile] = new TileLeafPile(11, 0);
+        this.tiles[this.pumice] = new TilePumice(20, 1);
     }
 
     tick() { 
@@ -176,6 +178,7 @@ class TileNegeritre extends Tile {
     }
 }
 
+// CHECK FOR PUMICE
 class TileLiquid extends Tile {
     #tile;
 
@@ -385,5 +388,23 @@ class TileLeafPile extends Tile {
 
     added(x, y, z) { 
         this.update(x, y, z);
+    }
+}
+
+class TilePumice extends Tile {
+    constructor(tileMaterials, audio) {
+        super(tileMaterials, audio);
+    }
+
+    added(x, y, z) {
+        for(let i = x - 2; i <= x + 2; ++i) {
+            for(let j = y - 2; j <= y + 2; ++j) {
+                for(let k = z - 2; k <= z + 2; ++k) {
+                    if(global.level.getTile(i, j, k) == global.tile.lava) {
+                        global.level.setTileWithUpdate(i, j, k, global.tile.void);
+                    }
+                }
+            }
+        }
     }
 }

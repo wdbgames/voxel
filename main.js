@@ -14,7 +14,7 @@ export const global = {
 	level: null,
 	tile: null,
 
-	materialCount: 19,
+	materialCount: 21,
 	materials: [],
 	audioCount: 6,
 	audio: [],
@@ -38,7 +38,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 20
+		patch: 21
 	},
 
 	DT: {
@@ -123,7 +123,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 0, 0);
+	global.level = new Level(128, 64, 128, 0, 1);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
