@@ -10,6 +10,9 @@ export class Chunk {
     chunkY;
     chunkZ;
     tiles;
+    tileData;
+    tileLight;
+    tileSkylight;
     mesh;
 
     constructor(x, y, z) {
@@ -20,13 +23,14 @@ export class Chunk {
         this.chunkY = y;
         this.chunkZ = z;
         this.tiles = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
+        this.tileData = new Uint8Array(global.level.chunkSize * global.level.chunkSize * global.level.chunkSize);
         this.mesh = null;
         this.generate();
     }
 
     generate() {
         noise.seed(global.level.seed);
-        let i = 0;
+        
         const levelWidth = global.level.width;
         const levelDepth = global.level.depth;
         const levelHeight = global.level.height;
@@ -40,8 +44,17 @@ export class Chunk {
             sand = global.tile.grass;
 
         }
+    
+        let i = 0;
+        for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
+            for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
+                this.tileData[i] = 0;
+                ++i;
+            }
+        }
 
         // NEEDS MULTIPLE NOISES
+        i = 0;
         for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
             for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
                 // COULD BE BITSHIFT
@@ -120,7 +133,7 @@ export class Chunk {
         const uvs = [];
         let indexOffset = 0;
 
-        const faceVertices = new Float32Array([
+        const defaultFaceVertices = new Float32Array([
             0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, // front
             1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, // back
             0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, // top
@@ -129,8 +142,13 @@ export class Chunk {
             0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0  // left
         ]);
 
-        const faceUVs = new Float32Array([
-            0, 0, 1, 0, 1, 1, 0, 1, // front, back, top, bottom, right, left
+        const defaultFaceUVs = new Float32Array([
+            0, 0, 1, 0, 1, 1, 0, 1, // front
+            0, 0, 1, 0, 1, 1, 0, 1, // back
+            0, 0, 1, 0, 1, 1, 0, 1, // top
+            0, 0, 1, 0, 1, 1, 0, 1, // bottom
+            0, 0, 1, 0, 1, 1, 0, 1, // right
+            0, 0, 1, 0, 1, 1, 0, 1, // left
         ]);
 
         for (let i = 0; i <= global.materialCount; i++) {
@@ -143,9 +161,11 @@ export class Chunk {
                 for(let y = 0; y < global.level.chunkSize; ++y) {
                     let tileMaterials = global.tile.tiles[this.tiles[i]].tileMaterials;
                     let facesRendered = 0;
-                    if(this.tiles[i] != 0) {
+                    const tile = global.tile.tiles[this.tiles[i]];
+                    const faceVertices = tile.hasCustomFaceVertices ? tile.customFaceVertices : defaultFaceVertices;
+                    const faceUVs = tile.hasCustomFaceUVs ? tile.customFaceUVs : defaultFaceUVs;
+                    if(this.tiles[i] != global.tile.void && this.tiles[i] != global.tile.voidWall) {
                         for (let f = 0; f < 6; ++f) {
-                            const tile = global.tile.tiles[this.tiles[i]];
                             // OPTIMIZE CULLING
                             if(tile.culling) {
                                 let nx = x;
@@ -175,11 +195,11 @@ export class Chunk {
                                 
                                 const neighbor = this.getTile(nx, ny, nz);
                                 if(tile.opaque) {
-                                    if (neighbor !== 0 && global.tile.tiles[neighbor].opaque) {
+                                    if (neighbor !== global.tile.void && global.tile.tiles[neighbor].opaque) {
                                         continue;
                                     }
                                 } else {
-                                    if (neighbor !== 0 && global.tile.tiles[neighbor].opaque) {
+                                    if (neighbor !== global.tile.void && global.tile.tiles[neighbor].opaque) {
                                         continue;
                                     }
                                     if (neighbor === this.tiles[i]) {
@@ -192,9 +212,9 @@ export class Chunk {
                                 positions.push(faceVertices[j] + this.x + x, faceVertices[j + 1] + this.y + y, faceVertices[j + 2] + this.z + z);
                             }
 
-                            // OPTIMIZE THIS
+                            
                             for (let j = f << 3; j < (f << 3) + 8; ++j) {
-                                uvs.push(faceUVs[j % 8]);
+                                uvs.push(faceUVs[j]);
                             }
 
                             const offset = indexOffset + (facesRendered << 2);

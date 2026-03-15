@@ -10,11 +10,12 @@ export class Player extends Entity {
 	cameraHeight = 1.5;
 	selectedTile = 0;
 
+	jumpCooldown = 0;
 	sensitivity = 0.004;
 	acceleration = 0.05;
 	maxSpeed = 0.1;
 	reach = 4;
-	fly = true;
+	fly = false;
 
 	constructor(x, y, z) {
 		super(x, y, z);
@@ -61,12 +62,31 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
+				// GET RID OF XYZ
 				const x = rayTrace[0];
 				const y = rayTrace[1];
 				const z = rayTrace[2];
 				const audio = global.audio[global.tile.tiles[global.level.getTile(x, y, z)].audio].cloneNode();
 				audio.play();
 				global.level.setTileWithUpdate(x, y, z, 0);
+			}
+		}
+
+		if(this.mouseOnce[1]) {
+			this.mouseOnce[1] = false;
+			this.click = false;
+			const rayTrace = global.level.rayTraceTiles(this.positionX,
+						this.positionY - this.sizeY / 2 + this.cameraHeight,
+						this.positionZ,
+						-Math.sin(this.rotationY) * Math.cos(this.rotationX),
+						Math.sin(this.rotationX),
+						-Math.cos(this.rotationY) * Math.cos(this.rotationX),
+						this.reach
+			);
+			if(rayTrace != -1) {
+				console.log(global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]));
+				this.selectedTile = global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]);
+				global.renderer.updateUITile();
 			}
 		}
 
@@ -82,11 +102,14 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
+				// GET RID OF XYZ
 				const x = rayTrace[3];
 				const y = rayTrace[4];
 				const z = rayTrace[5];
-				const tile = new AABB(x, y, z, x + 1, y + 1, z + 1);
-				if(!tile.intersect(this.box)) {
+				//UPDATE
+				const bb = global.tile.tiles[this.selectedTile].hasCustomBoundingBox ? global.tile.tiles[this.selectedTile].customBoundingBox : [0, 0, 0, 1, 1, 1];
+				const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
+				if(!tileAABB.intersect(this.box)) {
 					global.level.setTileWithUpdate(x, y, z, this.selectedTile);
 					const audio = global.audio[global.tile.tiles[this.selectedTile].audio].cloneNode();
 					audio.play();
@@ -110,12 +133,20 @@ export class Player extends Entity {
 
 			this.velocityY = this.#clamp(this.velocityY, -this.maxSpeed, this.maxSpeed);
 		} else {
-			// FIX STICK TO CEILINGS
+			if(this.jumpCooldown > 0) {
+				this.jumpCooldown -= dt;
+			}
+
+			// MAKE PROPERTY IN TILE
 			if (this.keys[" "]) {
-				if(this.inViscous[global.tile.water] || this.inViscous[global.tile.lava]) {
-					this.velocityY += 0.01;
-				} else if(this.velocityY == 0) {
+				if((this.inViscous[global.tile.water] || this.inViscous[global.tile.lava])) {
+					if(this.jumpCooldown <= 0) {
+						this.velocityY += 0.01;
+					}	
+				} else if(this.onGround) {
 					this.velocityY += 0.1;
+				} else {
+					this.jumpCooldown = 4;
 				}
 			}
 

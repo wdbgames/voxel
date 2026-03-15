@@ -37,7 +37,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 1,
-		patch: 16
+		patch: 17
 	},
 
 	DT: {
@@ -55,8 +55,10 @@ window.addEventListener("keyup", function(event) {
 });
 
 window.addEventListener('mousedown', (event) => {
-    global.player.mouse[event.button] = true;
-	global.player.mouseOnce[event.button] = true;
+	if(document.pointerLockElement) {
+		global.player.mouse[event.button] = true;
+		global.player.mouseOnce[event.button] = true;
+	}
 });
 
 window.addEventListener('mouseup', (event) => {
@@ -120,7 +122,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 1, 0);
+	global.level = new Level(128, 64, 128, 0, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);

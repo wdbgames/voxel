@@ -16,6 +16,7 @@ export class Entity {
     inViscous = [];
     box = new AABB(0, 0, 0, 0, 0, 0); // RENAME TO AABB
     noclip = true;
+    onGround = false;
 
     constructor(x, y, z) {
         this.positionX = x;
@@ -40,18 +41,24 @@ export class Entity {
         this.box.z1 = this.positionZ + this.sizeZ / 2;
     }
 
-    #handleViscous(tiles, tile) {
-        if(tiles.includes(tile)) {
-            this.inViscous[tile] = true;
+    #handleViscous(tiles, AABBs, tile) {
+        this.inViscous[tile] = false;
+        for (let i = 0; i < tiles.length; ++i) {
+            if (tiles[i] == tile && AABBs[i].intersect(this.box)) {
+                this.inViscous[tile] = true;
+                break;
+            }
+        }
+
+        if(this.inViscous[tile]) {
             const viscosity = global.tile.tiles[tile].viscosity;
             this.velocityX *= viscosity;
             this.velocityY *= viscosity;
             this.velocityZ *= viscosity;
-        } else {
-            this.inViscous[tile] = false;
         }
     }
 
+    // IMPLEMENT BETTER CACHING (viscosity AND AABBs.length)
     move(x, y, z) {
         if(this.noclip) {
             this.positionX += x;
@@ -63,32 +70,42 @@ export class Entity {
             let za = z;
 
             const tilesAABBs = global.level.getTileAABBs(this.box.expand(x, y, z));
+            const tiles = tilesAABBs[0];
+            const AABBs = tilesAABBs[1];
 
-            for (let i = 0; i < tilesAABBs[1].length; ++i) {
-                xa = this.box.clipXCollide(tilesAABBs[1][i], xa);
+            for (let i = 0; i < AABBs.length; ++i) {
+                if(global.tile.tiles[tiles[i]].viscosity == 1) {
+                    xa = this.box.clipXCollide(AABBs[i], xa);
+                }
             }
 
             this.positionX += xa;
             this.box.move(xa, 0, 0);
 
-            for (let i = 0; i < tilesAABBs[1].length; ++i) {
-                ya = this.box.clipYCollide(tilesAABBs[1][i], ya);
+            for (let i = 0; i < AABBs.length; ++i) {
+                if(global.tile.tiles[tiles[i]].viscosity == 1) {
+                    ya = this.box.clipYCollide(AABBs[i], ya);
+                }
             }
+
+            this.onGround = y < 0 && ya !== y;
 
             this.positionY += ya;
             this.box.move(0, ya, 0);
 
-            for (let i = 0; i < tilesAABBs[1].length; ++i) {
-                za = this.box.clipZCollide(tilesAABBs[1][i], za);
+            for (let i = 0; i < AABBs.length; ++i) {
+                if(global.tile.tiles[tiles[i]].viscosity == 1) {
+                    za = this.box.clipZCollide(AABBs[i], za);
+                }
             }
 
             this.positionZ += za;
             this.box.move(0, 0, za);
 
-            // MAKE EASIER, and improve bounds
-            this.#handleViscous(tilesAABBs[0], global.tile.water);
-            this.#handleViscous(tilesAABBs[0], global.tile.leaves);
-            this.#handleViscous(tilesAABBs[0], global.tile.lava);
+            // COMBINE TO ARRAY, REMOVE HELPER FUNCTION
+            this.#handleViscous(tiles, AABBs, global.tile.water);
+            this.#handleViscous(tiles, AABBs, global.tile.lava);
+            this.#handleViscous(tiles, AABBs, global.tile.leaves);
         
             if(xa != x) {
                 this.velocityX = 0;

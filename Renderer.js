@@ -44,9 +44,14 @@ export class Renderer {
             global.UI.ctx.fillText(`x: ${global.player.positionX.toFixed(2)}`, 4, 32);
             global.UI.ctx.fillText(`y: ${global.player.positionY.toFixed(2)}`, 4, 48);
             global.UI.ctx.fillText(`z: ${global.player.positionZ.toFixed(2)}`, 4, 64);
+
+            global.UI.ctx.fillText(`On ground: ${global.player.onGround}`, 4, 80);
             
+            /*
             global.UI.ctx.fillText(`In water: ${global.player.inViscous[global.tile.water]}`, 4, 80);
-            global.UI.ctx.fillText(`In lava: ${global.player.inViscous[global.tile.lava]}`, 4, 96);
+            global.UI.ctx.fillText(`In leaves: ${global.player.inViscous[global.tile.leaves]}`, 4, 96);
+            global.UI.ctx.fillText(`In lava: ${global.player.inViscous[global.tile.lava]}`, 4, 112);
+            */
         }
 
         global.UI.texture.needsUpdate = true;
@@ -87,7 +92,7 @@ export class Renderer {
 
     updateUITile() {
         const tile = global.player.selectedTile;
-        if(tile == 0) {
+        if(tile == global.tile.void || tile == global.tile.voidWall) {
             const material = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
             global.UI.tile.material = material;
         } else {
