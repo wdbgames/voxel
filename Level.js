@@ -113,7 +113,7 @@ export class Level {
         }
 
         // house
-        if(this.width > 15 && this.depth > 15) {
+        if(this.width > 15 && this.height > 15 && this.depth > 15) {
             let stone = global.tile.stone;
             if(this.theme == 1) {
                 stone = global.tile.stoneDeep;
@@ -122,23 +122,20 @@ export class Level {
             const houseX = this.width / 2 - 3;
             const houseZ = this.depth / 2 - 3;
 
-            let i = 0;
-            while(this.getTile(houseX, i, houseZ) != 0) {
-                ++i;
+            let houseY = 0;
+            if(global.level.type == 2) {
+                houseY = 0;
+            } else {
+                let i = 0;
+                while(this.getTile(houseX, i, houseZ) != 0) {
+                    ++i;
+                }
+                houseY = i - 1;
             }
-
-            const houseY = i - 1;
+            
             this.spawnX = houseX + 3.5;
             this.spawnY = houseY + 2.5;
             this.spawnZ = houseZ + 3.5;
-
-            for (let x = 0; x < 7; ++x) {
-                for (let y = 0; y < 4; ++y) {
-                    for (let z = 0; z < 7; ++z) {
-                        this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
-                    }
-                }
-            }
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {
@@ -146,10 +143,20 @@ export class Level {
                 }
             }
 
-            for (let x = 0; x < 5; ++x) {
-                for (let y = 0; y < 3; ++y) {
-                    for (let z = 0; z < 5; ++z) {
-                        this.setTile(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
+            if(global.level.type != 2) {
+                for (let x = 0; x < 7; ++x) {
+                    for (let y = 0; y < 4; ++y) {
+                        for (let z = 0; z < 7; ++z) {
+                            this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
+                        }
+                    }
+                }
+
+                for (let x = 0; x < 5; ++x) {
+                    for (let y = 0; y < 3; ++y) {
+                        for (let z = 0; z < 5; ++z) {
+                            this.setTile(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
+                        }
                     }
                 }
             }
@@ -168,10 +175,10 @@ export class Level {
             this.spawnY = i + 1.5;
         }
 
-        // blobs
+        // temp
         /*
         if(global.DEBUG) {
-            console.log("Blob amount: " + Math.floor(this.width * this.height * this.depth / 2048));
+            console.log("Temp amount: " + Math.floor(this.width * this.height * this.depth / 2048));
         }
         for(let i = 0; i < Math.floor(this.width * this.height * this.depth / 2048); ++i) {
             const x = Math.floor(random() * this.width);
@@ -181,36 +188,38 @@ export class Level {
         */
 
         // trees
-        if(global.DEBUG) {
-            console.log("Tree amount: " + Math.floor(this.width * this.depth / 128));
-        }
-        for(let amount = 0; amount < Math.floor(this.width * this.depth / 128); ++amount) {
-            const x = Math.floor(random() * this.width);
-            const z = Math.floor(random() * this.depth);
-            let y = 0;
-            while(this.getTile(x, y, z) != 0) {
-                ++y;
+        if(global.level.type != 2) {
+            if(global.DEBUG) {
+                console.log("Tree amount: " + Math.floor(this.width * this.depth / 128));
             }
-            if(this.getTile(x, y - 1, z) == grass) {
-                let logCheck = false;
-                for(let i = x - 1; i <= x + 1; ++i) {
-                    for(let j = z - 1; j <= z + 1; ++j) {
-                        if(this.getTile(i, y, j) == global.tile.log) {
-                            logCheck = true;
-                        }
-                    }
+            for(let amount = 0; amount < Math.floor(this.width * this.depth / 128); ++amount) {
+                const x = Math.floor(random() * this.width);
+                const z = Math.floor(random() * this.depth);
+                let y = 0;
+                while(this.getTile(x, y, z) != 0) {
+                    ++y;
                 }
-                if(!logCheck) {
-                    this.setTile(x, y - 1, z, global.tile.roots);
+                if(this.getTile(x, y - 1, z) == grass) {
+                    let logCheck = false;
                     for(let i = x - 1; i <= x + 1; ++i) {
                         for(let j = z - 1; j <= z + 1; ++j) {
-                            for(let k = y + 3; k <= y + 5; ++k) {
-                                this.setTile(i, k , j, global.tile.leaves);
+                            if(this.getTile(i, y, j) == global.tile.log) {
+                                logCheck = true;
                             }
                         }
                     }
-                    for(let i = y; i < y + 5; ++i) {
-                        this.setTile(x, i, z, global.tile.log);
+                    if(!logCheck) {
+                        this.setTile(x, y - 1, z, global.tile.roots);
+                        for(let i = x - 1; i <= x + 1; ++i) {
+                            for(let j = z - 1; j <= z + 1; ++j) {
+                                for(let k = y + 3; k <= y + 5; ++k) {
+                                    this.setTile(i, k , j, global.tile.leaves);
+                                }
+                            }
+                        }
+                        for(let i = y; i < y + 5; ++i) {
+                            this.setTile(x, i, z, global.tile.log);
+                        }
                     }
                 }
             }
@@ -359,12 +368,6 @@ export class Level {
                         AABBs.push(new AABB(x, y, z, x + 1, y + 1, z + 1));
                     }
                     tiles.push(tile);
-                    /*
-                    if (global.tile.tiles[tile].viscosity == 1) {
-                        AABBs.push(new AABB(x, y, z, x + 1, y + 1, z + 1));
-                    }
-                    tiles.push(tile);
-                    */
                 }
             }
         }

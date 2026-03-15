@@ -1,4 +1,4 @@
-import { global } from "../main.js";
+import { global } from "../main.js"; // remove global import
 
 export class Tile {
     tileAmount;
@@ -21,6 +21,13 @@ export class Tile {
     rock;
     roots;
     step;
+    leafPile;
+    sponge;
+    pumice;
+    glass;
+    carpet;
+    music;
+    stoneBlood;
     tiles = [];
 
     tileMaterials = [0, 0, 0, 0, 0, 0];
@@ -47,7 +54,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 21;
+        this.tileAmount = 26;
 
         // tile id
         this.void = 0;
@@ -70,7 +77,12 @@ export class Tile {
         this.roots = 17;
         this.step = 18;
         this.leafPile = 19;
-        this.pumice = 20;
+        this.sponge = 20;
+        this.pumice = 21;
+        this.glass = 22;
+        this.carpet = 23;
+        this.music = 24;
+        this.stoneBlood = 25;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -93,7 +105,12 @@ export class Tile {
         this.tiles[this.roots] = new Tile(18, 3);
         this.tiles[this.step] = new TileStep(5, 1);
         this.tiles[this.leafPile] = new TileLeafPile(11, 0);
-        this.tiles[this.pumice] = new TilePumice(20, 1);
+        this.tiles[this.sponge] = new TileSponge(20, 3, this.water);
+        this.tiles[this.pumice] = new TileSponge(21, 1, this.lava);
+        this.tiles[this.glass] = new TileGlass(22, 1);
+        this.tiles[this.carpet] = new TileCarpet(23, 1);
+        this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
+        this.tiles[this.stoneBlood] = new Tile(26, 1);
     }
 
     tick() { 
@@ -106,6 +123,9 @@ export class Tile {
     }
 
     removed(x, y, z) {  
+    }
+
+    interact(x, y, z) {
     }
 }
 
@@ -174,7 +194,7 @@ class TileNegeritre extends Tile {
     }
 
     removed(x, y, z) {
-        // global.level.setTileWithUpdate(x, y, z, global.tile.negeritre);
+        global.level.setTileWithUpdate(x, y, z, global.tile.negeritre);
     }
 }
 
@@ -391,16 +411,19 @@ class TileLeafPile extends Tile {
     }
 }
 
-class TilePumice extends Tile {
-    constructor(tileMaterials, audio) {
+class TileSponge extends Tile {
+    #tile;
+
+    constructor(tileMaterials, audio, tile) {
         super(tileMaterials, audio);
+        this.#tile = tile;
     }
 
     added(x, y, z) {
         for(let i = x - 2; i <= x + 2; ++i) {
             for(let j = y - 2; j <= y + 2; ++j) {
                 for(let k = z - 2; k <= z + 2; ++k) {
-                    if(global.level.getTile(i, j, k) == global.tile.lava) {
+                    if(global.level.getTile(i, j, k) == this.#tile) {
                         global.level.setTileWithUpdate(i, j, k, global.tile.void);
                     }
                 }
@@ -408,3 +431,60 @@ class TilePumice extends Tile {
         }
     }
 }
+
+class TileGlass extends Tile {
+    constructor(tileMaterials, audio, tile) {
+        super(tileMaterials, audio);
+        this.opaque = false;
+    } 
+}
+
+class TileCarpet extends Tile {
+    constructor(tileMaterials, audio) {
+        super(tileMaterials, audio);
+        this.culling = false;
+        this.opaque = false;
+        this.viscosity = 0;
+        this.breakable = false;
+        this.hasCustomFaceVertices = true;
+        this.hasCustomFaceUVs = true;
+        this.customFaceVertices = new Float32Array([
+            0, 0, 1, 1, 0, 1, 1, 1 / 16, 1, 0, 1 / 16, 1, // front
+            1, 0, 0, 0, 0, 0, 0, 1 / 16, 0, 1, 1 / 16, 0, // back
+            0, 1 / 16, 1, 1, 1 / 16, 1, 1, 1 / 16, 0, 0, 1 / 16, 0, // top
+            0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, // bottom
+            1, 0, 1, 1, 0, 0, 1, 1 / 16, 0, 1, 1 / 16, 1, // right
+            0, 0, 0, 0, 0, 1, 0, 1 / 16, 1, 0, 1 / 16, 0  // left
+        ]);
+        this.customFaceUVs = new Float32Array([
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // front
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // back
+            0, 0, 1, 0, 1, 1, 0, 1, // top
+            0, 0, 1, 0, 1, 1, 0, 1, // bottom
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // right
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // left
+        ]);
+    }
+
+    update(x, y, z) {
+        if(global.tile.tiles[global.level.getTile(x, y - 1, z)].breakable != 1) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
+    }
+}
+
+class TileMusic extends Tile {
+    constructor(tileMaterials, audio) {
+        super(tileMaterials, audio);
+    }
+
+    interact(x, y, z) {
+        const audio = global.audio[global.tile.tiles[global.level.getTile(x, y - 1, z)].audio].cloneNode();
+        audio.play();
+    }
+}
+

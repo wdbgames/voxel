@@ -14,9 +14,9 @@ export const global = {
 	level: null,
 	tile: null,
 
-	materialCount: 21,
+	materialCount: 27,
 	materials: [],
-	audioCount: 6,
+	audioCount: 7,
 	audio: [],
 	
 	DEBUG: false,
@@ -37,8 +37,8 @@ export const global = {
 
 	version: {
 		major: 0,
-		minor: 1,
-		patch: 21
+		minor: 2,
+		patch: 0
 	},
 
 	DT: {
@@ -47,12 +47,14 @@ export const global = {
 	}
 }
 
+// COMBINE =
 window.addEventListener("keydown", function(event) {
 	global.player.keys[event.key] = true; 
 });
 
 window.addEventListener("keyup", function(event) {
 	global.player.keys[event.key] = false;
+	global.player.keysOnce[event.key] = true; 
 });
 
 window.addEventListener('mousedown', (event) => {
@@ -123,7 +125,7 @@ function start() {
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(128, 64, 128, 0, 1);
+	global.level = new Level(128, 64, 128, 0, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
@@ -134,7 +136,7 @@ function start() {
 }
 
 async function loadAssets() {
-	const alphaTest = [11];
+	const alphaTest = [11, 22];
 	const transparent = [10];
 
 	const loader = new THREE.TextureLoader();

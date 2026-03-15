@@ -31,6 +31,11 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
+		if (this.keysOnce["f"]) {
+			this.keysOnce["f"] = false;
+			this.fly = !this.fly;
+		}
+
 		if (this.keys["w"]) {
 			this.velocityX += -Math.sin(this.rotationY) * this.acceleration;
 			this.velocityZ += -Math.cos(this.rotationY) * this.acceleration;
@@ -102,17 +107,22 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				const x = rayTrace[3];
-				const y = rayTrace[4];
-				const z = rayTrace[5];
-				const bb = global.tile.tiles[this.selectedTile].hasCustomBoundingBox ? global.tile.tiles[this.selectedTile].customBoundingBox : [0, 0, 0, 1, 1, 1];
-				const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
-				if(!tileAABB.intersect(this.box)) {
-					global.level.setTileWithUpdate(x, y, z, this.selectedTile);
-					const audio = global.audio[global.tile.tiles[this.selectedTile].audio].cloneNode();
-					audio.play();
+				// update
+				if(this.selectedTile == global.tile.void) {
+					console.log("aaa")
+					global.tile.tiles[global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2])].interact(rayTrace[0], rayTrace[1], rayTrace[2]);
+				} else {
+					const x = rayTrace[3];
+					const y = rayTrace[4];
+					const z = rayTrace[5];
+					const bb = global.tile.tiles[this.selectedTile].hasCustomBoundingBox ? global.tile.tiles[this.selectedTile].customBoundingBox : [0, 0, 0, 1, 1, 1];
+					const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
+					if(!tileAABB.intersect(this.box)) {
+						global.level.setTileWithUpdate(x, y, z, this.selectedTile);
+						const audio = global.audio[global.tile.tiles[this.selectedTile].audio].cloneNode();
+						audio.play();
+					}
 				}
-				
 			}
 		}
 
