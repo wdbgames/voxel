@@ -16,6 +16,7 @@ export class Player extends Entity {
 	maxSpeed = 0.1;
 	reach = 4;
 	fly = false;
+	stepHeight = 0.5;
 
 	constructor(x, y, z) {
 		super(x, y, z);
@@ -62,7 +63,6 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				// GET RID OF XYZ
 				const x = rayTrace[0];
 				const y = rayTrace[1];
 				const z = rayTrace[2];
@@ -102,11 +102,9 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				// GET RID OF XYZ
 				const x = rayTrace[3];
 				const y = rayTrace[4];
 				const z = rayTrace[5];
-				//UPDATE
 				const bb = global.tile.tiles[this.selectedTile].hasCustomBoundingBox ? global.tile.tiles[this.selectedTile].customBoundingBox : [0, 0, 0, 1, 1, 1];
 				const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
 				if(!tileAABB.intersect(this.box)) {

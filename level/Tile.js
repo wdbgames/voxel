@@ -47,7 +47,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 19;
+        this.tileAmount = 20;
 
         // tile id
         this.void = 0;
@@ -69,6 +69,7 @@ export class Tile {
         this.rock = 16;
         this.roots = 17;
         this.step = 18;
+        this.leafPile = 19;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -90,6 +91,7 @@ export class Tile {
         this.tiles[this.rock] = new TileGravity(17, 3, this.rock);
         this.tiles[this.roots] = new Tile(18, 3);
         this.tiles[this.step] = new TileStep(5, 1);
+        this.tiles[this.leafPile] = new TileLeafPile(11, 0);
     }
 
     tick() { 
@@ -128,7 +130,7 @@ class TileDirt extends Tile {
     }
 
     update(x, y, z) {
-        if(global.level.getTile(x, y + 1, z) == global.tile.void && global.level.theme != 1) {
+        if(!global.tile.tiles[global.level.getTile(x, y + 1, z)].opaque && global.level.theme != 1) {
             global.level.setTileWithUpdate(x, y, z, global.tile.grass);
         }
     }
@@ -144,7 +146,7 @@ class TileGrass extends Tile {
     }
 
     update(x, y, z) {
-        if(global.level.getTile(x, y + 1, z) != global.tile.void) {
+        if(global.tile.tiles[global.level.getTile(x, y + 1, z)].opaque) {
             global.level.setTileWithUpdate(x, y, z, global.tile.dirt);
         }
     }
@@ -170,7 +172,7 @@ class TileNegeritre extends Tile {
     }
 
     removed(x, y, z) {
-        global.level.setTileWithUpdate(x, y, z, global.tile.negeritre);
+        // global.level.setTileWithUpdate(x, y, z, global.tile.negeritre);
     }
 }
 
@@ -345,5 +347,43 @@ class TileStep extends Tile {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
             global.level.setTileWithUpdate(x, y - 1, z, global.tile.stone);
         }
+    }
+}
+
+class TileLeafPile extends Tile {
+    constructor(tileMaterials, audio) {
+        super(tileMaterials, audio);
+        this.culling = false;
+        this.opaque = false;
+        this.viscosity = 0;
+        this.breakable = false;
+        this.hasCustomFaceVertices = true;
+        this.hasCustomFaceUVs = true;
+        this.customFaceVertices = new Float32Array([
+            0, 0, 1, 1, 0, 1, 1, 1 / 16, 1, 0, 1 / 16, 1, // front
+            1, 0, 0, 0, 0, 0, 0, 1 / 16, 0, 1, 1 / 16, 0, // back
+            0, 1 / 16, 1, 1, 1 / 16, 1, 1, 1 / 16, 0, 0, 1 / 16, 0, // top
+            0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, // bottom
+            1, 0, 1, 1, 0, 0, 1, 1 / 16, 0, 1, 1 / 16, 1, // right
+            0, 0, 0, 0, 0, 1, 0, 1 / 16, 1, 0, 1 / 16, 0  // left
+        ]);
+        this.customFaceUVs = new Float32Array([
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // front
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // back
+            0, 0, 1, 0, 1, 1, 0, 1, // top
+            0, 0, 1, 0, 1, 1, 0, 1, // bottom
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // right
+            0, 0, 1, 0, 1, 1 / 16, 0, 1 / 16, // left
+        ]);
+    }
+
+    update(x, y, z) {
+        if(global.tile.tiles[global.level.getTile(x, y - 1, z)].breakable != 1) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+        }
+    }
+
+    added(x, y, z) { 
+        this.update(x, y, z);
     }
 }
