@@ -19,7 +19,7 @@ export const global = {
 	audioCount: 7,
 	audio: [],
 	
-	debug: true,
+	debug: false,
 	debugUpdate: true,
 
 	tick: {
@@ -35,13 +35,15 @@ export const global = {
 		texture: null,
 		tile: null,
 		tileRotation: 0,
+
+		start: document.getElementById("start")
 	},
 
 	// maybe move to renderer
 	version: {
 		major: 0,
-		minor: 2,
-		patch: 1
+		minor: 3,
+		patch: 0
 	},
 
 	DT: {
@@ -49,6 +51,10 @@ export const global = {
 		deltaTemp: performance.now(),
 	}
 }
+
+global.UI.start.addEventListener("click", () => {
+	start();
+});
 
 // COMBINE =
 window.addEventListener("keydown", function(event) {
@@ -127,10 +133,12 @@ function loop() {
 }
 
 function start() {
+	document.getElementById("in-game").hidden = false;
+
 	global.tile = new Tile();
 	global.tile.initializeTiles();
 
-	global.level = new Level(126, 64, 126, 0, 0);
+	global.level = new Level(128, 64, 128, 0, 0);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
@@ -146,7 +154,7 @@ async function loadAssets() {
 
 	const loader = new THREE.TextureLoader();
 	const promises = [];
-
+	
 	for(let i = 0; i < global.materialCount; ++i) {
 		global.materials[i] = new THREE.MeshStandardMaterial();
 		promises.push(new Promise((resolve, reject) => {
@@ -185,5 +193,5 @@ async function loadAssets() {
 }
 
 await loadAssets();
-start();
+document.getElementById("in-game").hidden = true;
 
