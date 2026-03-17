@@ -16,7 +16,7 @@ export class Entity {
     inViscous = [];
     box = new AABB(0, 0, 0, 0, 0, 0); // RENAME TO AABB
     noclip = true;
-    onGround = false;
+    onGround = true;
 
     constructor(x, y, z) {
         this.positionX = x;

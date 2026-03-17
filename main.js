@@ -25,7 +25,7 @@ export const global = {
 
 	materialCount: 26,
 	materials: [],
-	audioCount: 7,
+	audioCount: 10,
 	audio: [],
 	
 	debug: false,
@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 4
+		patch: 5
 	},
 
 	DT: {

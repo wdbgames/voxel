@@ -143,7 +143,7 @@ export class Level {
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {
-                    this.setTileGenerate(houseX + x, houseY, houseZ + z, stone);
+                    this.setTile(houseX + x, houseY, houseZ + z, stone);
                 }
             }
 
@@ -151,7 +151,7 @@ export class Level {
                 for (let x = 0; x < 7; ++x) {
                     for (let y = 0; y < 4; ++y) {
                         for (let z = 0; z < 7; ++z) {
-                            this.setTileGenerate(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
+                            this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
                         }
                     }
                 }
@@ -159,14 +159,14 @@ export class Level {
                 for (let x = 0; x < 5; ++x) {
                     for (let y = 0; y < 3; ++y) {
                         for (let z = 0; z < 5; ++z) {
-                            this.setTileGenerate(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
+                            this.setTile(houseX + 1 + x, houseY + 1 + y, houseZ + 1 + z, global.tile.void);
                         }
                     }
                 }
             }
 
-            this.setTileGenerate(houseX + 3, houseY + 1, houseZ, global.tile.void);
-            this.setTileGenerate(houseX + 3, houseY + 2, houseZ, global.tile.void);
+            this.setTile(houseX + 3, houseY + 1, houseZ, global.tile.void);
+            this.setTile(houseX + 3, houseY + 2, houseZ, global.tile.void);
         } else {
             this.spawnX = this.width / 2;
             this.spawnZ = this.depth / 2;
@@ -179,17 +179,14 @@ export class Level {
             this.spawnY = i + 3.5;
         }
 
-        // temp
-        /*
         if(global.debug) {
-            console.log("Temp amount: " + Math.floor(this.width * this.height * this.depth / 2048));
+            console.log("Blob amount: " + Math.floor(this.width * this.height * this.depth / 2048));
         }
         for(let i = 0; i < Math.floor(this.width * this.height * this.depth / 2048); ++i) {
             const x = Math.floor(random() * this.width);
             const y = Math.floor(random() * this.height);
             const z = Math.floor(random() * this.depth);
         }
-        */
 
         // trees
         if(global.level.type != 2) {
@@ -213,16 +210,17 @@ export class Level {
                         }
                     }
                     if(!logCheck) {
-                        this.setTileGenerate(x, y - 1, z, global.tile.roots);
+                        // this.setTile(x, y - 1, z, global.tile.roots);
+                        this.setTile(x, y - 1, z, global.tile.dirt);
                         for(let i = x - 1; i <= x + 1; ++i) {
                             for(let j = z - 1; j <= z + 1; ++j) {
                                 for(let k = y + 3; k <= y + 5; ++k) {
-                                    this.setTileGenerate(i, k , j, global.tile.leaves);
+                                    this.setTile(i, k , j, global.tile.leaves);
                                 }
                             }
                         }
                         for(let i = y; i < y + 5; ++i) {
-                            this.setTileGenerate(x, i, z, global.tile.log);
+                            this.setTile(x, i, z, global.tile.log);
                         }
                     }
                 }
@@ -261,7 +259,7 @@ export class Level {
         return chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)];
     }
 
-    setTileGenerate(x, y, z, tileId) {
+    setTile(x, y, z, tileId) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
             return -1;
         }
@@ -270,7 +268,7 @@ export class Level {
         chunk.tiles[(y % this.chunkSize) + ((z % this.chunkSize) * this.chunkSize) + ((x % this.chunkSize) * this.chunkSize * this.chunkSize)] = tileId;
     }
 
-    setTile(x, y, z, tileId) {
+    setTileWithoutUpdate(x, y, z, tileId) {
         // check bounds
         if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z >= this.depth) {
             return -1;
@@ -530,4 +528,15 @@ export class Level {
 		}
 		return -1;
 	}
+
+    playSound(x, y, z, audio) {
+       const distanceX = Math.pow(Math.abs(global.player.positionX - x), 2);
+       const distanceY = Math.pow(Math.abs(global.player.positionY - y), 2);
+       const distanceZ = Math.pow(Math.abs(global.player.positionZ - z), 2);
+       const distance = Math.sqrt(distanceX + distanceY + distanceZ);
+       
+       const sound = global.audio[audio].cloneNode();
+       sound.volume = Math.max(1 / (distance + 1), 0);
+       sound.play();
+    }
 }

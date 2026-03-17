@@ -92,13 +92,13 @@ export class Tile {
         this.tiles[this.sand] = new TileGravity(7, 3, this.sand);
         this.tiles[this.mud] = new Tile(8, 4);
         this.tiles[this.negeritre] = new TileNegeritre(9, 1);
-        this.tiles[this.water] = new TileLiquid(10, 0, 0.8, this.water);
+        this.tiles[this.water] = new TileLiquid(10, 7, 0.8, this.water);
         this.tiles[this.leaves] = new TileLeaves(11, 0);
         this.tiles[this.log] = new TileLog([12, 12, 13, 13, 12, 12], 2);
         this.tiles[this.flesh] = new Tile(14, 4);
         this.tiles[this.metal] = new Tile(15, 5);
         this.tiles[this.voidWall] = new TileVoidWall(0, 1);
-        this.tiles[this.lava] = new TileLiquid(16, 0, 0.4, this.lava);
+        this.tiles[this.lava] = new TileLiquid(16, 9, 0.4, this.lava);
         this.tiles[this.rock] = new TileGravity(17, 3, this.rock);
         this.tiles[this.roots] = new Tile(18, 3);
         this.tiles[this.step] = new TileStep(5, 1);
