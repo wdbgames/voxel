@@ -27,7 +27,6 @@ export class Tile {
     glass;
     carpet;
     music;
-    stoneBlood;
     tiles = [];
 
     tileMaterials = [0, 0, 0, 0, 0, 0];
@@ -54,7 +53,7 @@ export class Tile {
     }
 
     initializeTiles() {
-        this.tileAmount = 26;
+        this.tileAmount = 25;
 
         // tile id
         this.void = 0;
@@ -82,7 +81,6 @@ export class Tile {
         this.glass = 22;
         this.carpet = 23;
         this.music = 24;
-        this.stoneBlood = 25;
 
         // tile classes
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -110,7 +108,6 @@ export class Tile {
         this.tiles[this.glass] = new TileGlass(22, 1);
         this.tiles[this.carpet] = new TileCarpet(23, 1);
         this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
-        this.tiles[this.stoneBlood] = new Tile(26, 1);
     }
 
     tick() { 
@@ -425,7 +422,7 @@ class TileSponge extends Tile {
             for(let j = y - 2; j <= y + 2; ++j) {
                 for(let k = z - 2; k <= z + 2; ++k) {
                     if(global.level.getTile(i, j, k) == this.#tile) {
-                        global.level.setTile(i, j, k, global.tile.void);
+                        global.level.setTileWithUpdate(i, j, k, global.tile.void);
                     }
                 }
             }

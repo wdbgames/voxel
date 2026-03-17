@@ -42,12 +42,10 @@ export class Chunk {
         let water = global.tile.water;
         let grass = global.tile.grass;
         let sand = global.tile.sand;
-        let stone = global.tile.stone;
         if(global.level.theme == 1) {
             water = global.tile.lava;
             grass = global.tile.dirt;
             sand = global.tile.grass;
-            stone = global.tile.stoneBlood;
         }
     
         let i = 0;
@@ -114,9 +112,9 @@ export class Chunk {
                             }
                             
                         } else if(y >= height - ((levelHeight >> 2) - 2)) {
-                            this.tiles[i] = stone;
+                            this.tiles[i] = global.tile.stone;
                         } else if(y >= height - ((levelHeight >> 2) + 2) && Math.floor(Math.random() * 5) <= y - (height - ((levelHeight >> 2) + 2))) {
-                            this.tiles[i] = stone;
+                            this.tiles[i] = global.tile.stone;
                         } else if(y >= ((levelHeight >> 4) + 2)) {
                             this.tiles[i] = global.tile.stoneDeep;
                         } else if(y >= ((levelHeight >> 4) - 2) && Math.floor(Math.random() * 5) <= y - ((levelHeight >> 4) - 2)) {

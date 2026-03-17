@@ -16,7 +16,7 @@ export const global = {
 	tile: null,
 	gui: null,
 
-	materialCount: 27,
+	materialCount: 26,
 	materials: [],
 	audioCount: 7,
 	audio: [],
@@ -42,7 +42,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 1
+		patch: 2
 	},
 
 	DT: {
@@ -128,7 +128,7 @@ function loop() {
 }
 
 function start() {
-	// TODO
+	// ADD POSITIONING
 	global.gui = new Gui();
 	global.gui.createElement("title", "title", "Voxel", 0, 0);
 	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, createNewLevel);
@@ -204,5 +204,3 @@ async function loadAssets() {
 
 await loadAssets();
 start();
-//document.getElementById("in-game").hidden = true;
-

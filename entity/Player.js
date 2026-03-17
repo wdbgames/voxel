@@ -31,8 +31,7 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
-		if (this.keys["f"]) {
-			
+		if(this.keys["f"]) {
 			// debug
 			if(this.keysOnce["1"]) {
 				this.keysOnce["1"] = false;
@@ -52,6 +51,26 @@ export class Player extends Entity {
 				this.keysOnce["3"] = false;
 				this.noclip = !this.noclip;
 			}
+		}
+
+		if(this.keysOnce["ArrowLeft"]) {
+			this.keysOnce["ArrowLeft"] = false;
+			this.selectedTile -= 1;
+			if(this.selectedTile < 0) {
+				this.selectedTile = global.tile.tileAmount - 1;
+			}
+
+			global.renderer.updateUITile();
+		}
+
+		if(this.keysOnce["ArrowRight"]) {
+			this.keysOnce["ArrowRight"] = false;
+			this.selectedTile += 1;
+			if(this.selectedTile > global.tile.tileAmount - 1) {
+				this.selectedTile = 0;
+			}
+
+			global.renderer.updateUITile();
 		}
 
 		if (this.keys["w"]) {
@@ -202,7 +221,7 @@ export class Player extends Entity {
 	}
 
 	updateRotation(movementX, movementY) {
-		global.player.rotationY -= movementX * this.sensitivity * (global.DT.delta / 14);
-		global.player.rotationX -= movementY * this.sensitivity * (global.DT.delta / 14);
+		this.rotationY -= movementX * this.sensitivity * (global.DT.delta / 14);
+		this.rotationX -= movementY * this.sensitivity * (global.DT.delta / 14);
 	}
 }
