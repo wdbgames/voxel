@@ -10,24 +10,6 @@ export class Renderer {
 
     axesHelper = new THREE.AxesHelper(64);
 
-    info = {
-        info: document.getElementById("info"),
-        debug: document.getElementById("debug"),
-
-        version: document.getElementById("version"),
-
-        positionX: document.getElementById("positionX"),
-        positionY: document.getElementById("positionY"),
-        positionZ: document.getElementById("positionZ"),
-
-        onGround: document.getElementById("onGround"),
-        fly: document.getElementById("fly"),
-        noclip: document.getElementById("noclip"),
-
-        chunkUpdates: document.getElementById("chunkUpdates"),
-        tileUpdates: document.getElementById("tileUpdates")
-    }
-
     constructor() {
         this.start();
         this.renderUI();
@@ -51,9 +33,15 @@ export class Renderer {
 
         global.scene.background = new THREE.Color();
         global.scene.add(this.ambientLight);
-
-        // version (not debug)
-        version.innerText = `Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`;
+    
+        global.gui.createElement("version", "info", `Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 2, 2);
+        global.gui.createElement("positionX", "info", "b", 2, 34);
+        global.gui.createElement("positionY", "info", "c", 2, 50);
+        global.gui.createElement("positionZ", "info", "d", 2, 66);
+        global.gui.createElement("fly", "info", "e", 2, 98);
+        global.gui.createElement("noclip", "info", "f", 2, 114);
+        global.gui.createElement("chunkUpdates", "info", "g", 2, 146);
+        global.gui.createElement("tileUpdates", "info", "h", 2, 162);
     }
 
     update(dt) {
@@ -68,7 +56,13 @@ export class Renderer {
                 this.axesHelper = new THREE.AxesHelper(64);
                 global.UI.scene.add(this.axesHelper);
 
-                this.info.debug.hidden = false;
+                global.gui.showElement("positionX");
+                global.gui.showElement("positionY");
+                global.gui.showElement("positionZ");
+                global.gui.showElement("fly");
+                global.gui.showElement("noclip");
+                global.gui.showElement("chunkUpdates");
+                global.gui.showElement("tileUpdates");
             } else {
                 if (this.axesHelper) {
                     global.UI.scene.remove(this.axesHelper);
@@ -76,22 +70,24 @@ export class Renderer {
                     this.axesHelper = null;
                 }
 
-                this.info.debug.hidden = true;
+                global.gui.hideElement("positionX");
+                global.gui.hideElement("positionY");
+                global.gui.hideElement("positionZ");
+                global.gui.hideElement("fly");
+                global.gui.hideElement("noclip");
+                global.gui.hideElement("chunkUpdates");
+                global.gui.hideElement("tileUpdates");
             }
         }
 
-        console.log("Check positionX:", info.positionX);
         if(global.debug) {
-            this.info.positionX.textContent = `positionX: ${global.player.positionX.toFixed(3)}`;
-            this.info.positionY.textContent = `positionY: ${global.player.positionY.toFixed(3)}`;
-            this.info.positionZ.textContent = `positionZ: ${global.player.positionZ.toFixed(3)}`;
-            
-            this.info.onGround.textContent = `onGround: ${global.player.onGround}`;
-            this.info.fly.textContent = `fly: ${global.player.fly}`;
-            this.info.noclip.textContent = `noclip: ${global.player.noclip}`;
-            
-            this.info.chunkUpdates.textContent = `chunkUpdates: ${global.level.chunkUpdates}`;
-            this.info.tileUpdates.textContent = `tileUpdates: ${global.level.tileUpdates}`;
+            global.gui.updateTextContent("positionX", `positionX: ${global.player.positionX.toFixed(3)}`);
+            global.gui.updateTextContent("positionY", `positionY: ${global.player.positionY.toFixed(3)}`);
+            global.gui.updateTextContent("positionZ", `positionZ: ${global.player.positionZ.toFixed(3)}`);
+            global.gui.updateTextContent("fly", `fly: ${global.player.fly}`);
+            global.gui.updateTextContent("noclip", `noclip: ${global.player.noclip}`);
+            global.gui.updateTextContent("chunkUpdates", `chunkUpdates: ${global.level.chunkUpdates}`);
+            global.gui.updateTextContent("tileUpdates", `tileUpdates: ${global.level.tileUpdates}`);
         }
 
         global.UI.texture.needsUpdate = false;
@@ -121,11 +117,11 @@ export class Renderer {
         global.UI.scene.add(light); 
 
         // crosshair
-        const size = 0.01;
-        const x0 = window.innerWidth / 2 - window.innerWidth / 2 * size;
-        const y0 = window.innerHeight / 2 - window.innerHeight / 2 * size;
-        const x1 = window.innerHeight * size;
-        const y1 = window.innerHeight * size;
+        const size = 9;
+        const x0 = window.innerWidth / 2 - size / 2;
+        const y0 = window.innerHeight / 2 - size / 2;
+        const x1 = size;
+        const y1 = size;
         global.UI.ctx.fillRect(x0, y0, x1, y1);
     }
 

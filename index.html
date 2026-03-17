@@ -6,91 +6,50 @@
 		<style>
 			body {
 				margin: 0;
+				padding: 0;
 				overflow: hidden;
 				background: black;
-			}
-			.in-game {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				pointer-events: none;
-				user-select: none;
+				position: relative;
 			}
 			.info {
 				position: absolute;
-				top: 2px;
-				left: 2px;
 			}
-			.crosshair {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-			}
-			.ui {
+			.gui {
 				font-family: Arial;
 				font-size: 16px;
 				color: black;
-			}
-			button {
-				border-radius: 0px 8px 8px 0px;
-				border: 4px solid black;
-				width: 50%;
-				height: 64px;
-				padding-left: 16px;
-				margin-top: 16px;
-				font-size: 32px;
-				background-color: white;
-				text-align: left;
-				position: relative;
-				left: -4px;
-			}
-			button:hover {
-				background: gray;
-			}
-			button:disabled {
-				background: gray;
-				color: black;
+				user-select: none;
 			}
 			.title {
 				color: white;
 				font-size: 64px;
 				padding-left: 16px;
 			}
+			.button {
+				border-radius: 0px 8px 8px 0px;
+				border: 4px solid black;
+				width: 50%;
+				height: 64px;
+				padding-left: 16px;
+				margin-top: 8px;
+				margin-bottom: 8px;
+				font-size: 32px;
+				background-color: white;
+				text-align: left;
+				line-height: 64px;
+				position: relative;
+				border-left: none;
+			}
+			.button:hover {
+				background: gray;
+			}
+			.disabled {
+				background: gray;
+			}
 		</style>
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
-
-		<!-- MOVE CREATION TO RENDERER.JS -->
-		<div id="ui" class="ui">
-			<div class="title">Voxel</div>
-			<button id="start">Generate Level</button><br />
-			<button id="load-level" disabled>Load Level</button><br />
-			<button id="settings" disabled>Settings</button><br />
-			<div id="in-game" class="in-game">
-				<div id="info" class="info">
-					<span id="version"></span>
-					<div id="debug" class="debug">
-						<br />
-						<span id="positionX"></span><br />
-						<span id="positionY"></span><br />
-						<span id="positionZ"></span><br />
-						<br />
-						<span id="onGround"></span><br />
-						<span id="fly"></span><br />
-						<span id="noclip"></span><br />
-						<br />
-						<span id="chunkUpdates"></span><br />
-						<span id="tileUpdates"></span><br />
-					</div>
-				</div>
-				<!-- <div id="crosshair" class="crosshair">+</div> -->
-			</div>
-		</div>
-
 		<script type="module" src="./main.js"></script>
 	</body>
 </html>

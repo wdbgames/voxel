@@ -4,6 +4,7 @@ import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
 import { Tile } from "./level/Tile.js";
 import { Renderer } from "./Renderer.js";
+import { Gui } from "./Gui.js";
 
 export const global = {
 	scene: new THREE.Scene(),
@@ -13,6 +14,7 @@ export const global = {
 	player: null,
 	level: null,
 	tile: null,
+	gui: null,
 
 	materialCount: 27,
 	materials: [],
@@ -35,15 +37,12 @@ export const global = {
 		texture: null,
 		tile: null,
 		tileRotation: 0,
-
-		start: document.getElementById("start")
 	},
 
-	// maybe move to renderer
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 0
+		patch: 1
 	},
 
 	DT: {
@@ -51,10 +50,6 @@ export const global = {
 		deltaTemp: performance.now(),
 	}
 }
-
-global.UI.start.addEventListener("click", () => {
-	start();
-});
 
 // COMBINE =
 window.addEventListener("keydown", function(event) {
@@ -133,11 +128,20 @@ function loop() {
 }
 
 function start() {
-	document.getElementById("in-game").hidden = false;
+	// TODO
+	global.gui = new Gui();
+	global.gui.createElement("title", "title", "Voxel", 0, 0);
+	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, createNewLevel);
+	global.gui.createElement("load-level", "button", "Load Level", 0, 0);
+	global.gui.createElement("settings", "button", "Settings", 0, 0);
+	global.gui.disableElement("load-level", 0, 0);
+	global.gui.disableElement("settings", 0, 0);
 
 	global.tile = new Tile();
 	global.tile.initializeTiles();
+}
 
+function createNewLevel() {
 	global.level = new Level(128, 64, 128, 0, 0);
 	global.level.generate();
 
@@ -146,6 +150,12 @@ function start() {
 	global.renderer = new Renderer();
 
 	loop();
+}
+
+function loadLevel() {
+}
+
+function settings() {
 }
 
 async function loadAssets() {
@@ -193,5 +203,6 @@ async function loadAssets() {
 }
 
 await loadAssets();
-document.getElementById("in-game").hidden = true;
+start();
+//document.getElementById("in-game").hidden = true;
 
