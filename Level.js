@@ -123,12 +123,12 @@ export class Level {
                 stone = global.tile.stoneDeep;
             }
 
-            const houseX = this.width / 2 - 3;
-            const houseZ = this.depth / 2 - 3;
+            const houseX =  Math.floor(this.width / 2 - 3);
+            const houseZ =  Math.floor(this.depth / 2 - 3);
 
             let houseY = 0;
             if(global.level.type == 2) {
-                houseY = 0;
+                houseY = Math.floor(this.height / 2);
             } else {
                 let i = 0;
                 while(this.getTile(houseX, i, houseZ) != 0) {
@@ -138,7 +138,7 @@ export class Level {
             }
             
             this.spawnX = houseX + 3.5;
-            this.spawnY = houseY + 2.5;
+            this.spawnY = houseY + 3.5;
             this.spawnZ = houseZ + 3.5;
 
             for (let x = 0; x < 7; ++x) {
@@ -176,7 +176,7 @@ export class Level {
                 ++i;
             }
 
-            this.spawnY = i + 1.5;
+            this.spawnY = i + 3.5;
         }
 
         // temp

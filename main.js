@@ -19,6 +19,10 @@ export const global = {
 	tile: null,
 	gui: null,
 
+	selectedType: 0,
+	selectedTheme: 0,
+	selectedSize: 1,
+
 	materialCount: 26,
 	materials: [],
 	audioCount: 7,
@@ -35,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 3
+		patch: 4
 	},
 
 	DT: {
@@ -44,7 +48,6 @@ export const global = {
 	}
 }
 
-// COMBINE =
 window.addEventListener("keydown", function(event) {
 	global.player.keys[event.key] = true; 
 	if(!event.repeat) {
@@ -118,8 +121,8 @@ function loop() {
 function start() {
 	// ADD POSITIONING
 	global.gui = new Gui();
-	global.gui.createElement("title", "title", "Voxel", 0, 0);
-	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, createNewLevel);
+	global.gui.createElement("voxel", "title", "Voxel", 0, 0);
+	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, newLevelSettings);
 	global.gui.createElement("load-level", "button", "Load Level", 0, 0);
 	global.gui.createElement("settings", "button", "Settings", 0, 0);
 	global.gui.disableElement("load-level", 0, 0);
@@ -129,8 +132,47 @@ function start() {
 	global.tile.initializeTiles();
 }
 
+function newLevelSettings() {
+	global.gui.deleteElement("voxel");
+	global.gui.deleteElement("create-new-level");
+	global.gui.deleteElement("load-level");
+	global.gui.deleteElement("settings");
+
+	global.gui.createElement("type", "button", "Type: Default", 0, 0, updateType);
+	global.gui.createElement("theme", "button", "Theme: Default", 0, 0, updateTheme);
+	global.gui.createElement("size", "button", "Size: Medium", 0, 0, updateSize);
+	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, createNewLevel);
+}
+
+function updateType() {
+	const types = ["Default", "Flat", "Void"];
+	++global.selectedType;
+	if(global.selectedType >= 3) {
+		global.selectedType = 0;
+	}
+	global.gui.updateTextContent("type", `Type: ${types[global.selectedType]}`);
+}
+
+function updateTheme() {
+	const themes = ["Default", "Hell"];
+	++global.selectedTheme;
+	if(global.selectedTheme >= 2) {
+		global.selectedTheme = 0;
+	}
+	global.gui.updateTextContent("theme", `Theme: ${themes[global.selectedTheme]}`);
+}
+
+function updateSize() {
+	const sizes = ["Small", "Medium", "Large"];
+	++global.selectedSize;
+	if(global.selectedSize >= 3) {
+		global.selectedSize = 0;
+	}
+	global.gui.updateTextContent("size", `Size: ${sizes[global.selectedSize]}`);
+}
+
 function createNewLevel() {
-	global.level = new Level(128, 64, 128, 0, 0);
+	global.level = new Level(64 << global.selectedSize, 64, 64 << global.selectedSize, global.selectedType, global.selectedTheme);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
