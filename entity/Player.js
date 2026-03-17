@@ -37,7 +37,6 @@ export class Player extends Entity {
 				this.keysOnce["1"] = false;
 				global.debug = !global.debug;
 				global.debugUpdate = true;
-
 			}
 
 			// fly
@@ -55,22 +54,12 @@ export class Player extends Entity {
 
 		if(this.keysOnce["ArrowLeft"]) {
 			this.keysOnce["ArrowLeft"] = false;
-			this.selectedTile -= 1;
-			if(this.selectedTile < 0) {
-				this.selectedTile = global.tile.tileAmount - 1;
-			}
-
-			global.renderer.updateUITile();
+			this.updateSelectedTile(-1);
 		}
 
 		if(this.keysOnce["ArrowRight"]) {
 			this.keysOnce["ArrowRight"] = false;
-			this.selectedTile += 1;
-			if(this.selectedTile > global.tile.tileAmount - 1) {
-				this.selectedTile = 0;
-			}
-
-			global.renderer.updateUITile();
+			this.updateSelectedTile(1);
 		}
 
 		if (this.keys["w"]) {
@@ -223,5 +212,19 @@ export class Player extends Entity {
 	updateRotation(movementX, movementY) {
 		this.rotationY -= movementX * this.sensitivity * (global.DT.delta / 14);
 		this.rotationX -= movementY * this.sensitivity * (global.DT.delta / 14);
+	}
+
+	updateSelectedTile(x) {
+		this.selectedTile += x;
+
+		if(this.selectedTile < 0) {
+			this.selectedTile = global.tile.tileAmount - 1;
+		}
+
+		if(this.selectedTile > global.tile.tileAmount - 1) {
+			this.selectedTile = 0;
+		}
+
+		global.renderer.updateUITile();
 	}
 }

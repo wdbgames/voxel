@@ -10,6 +10,9 @@ export const global = {
 	scene: new THREE.Scene(),
 	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
 
+	canvasWidth: window.innerWidth,
+	canvasHeight: window.innerHeight,
+
 	renderer: null,
 	player: null,
 	level: null,
@@ -29,20 +32,10 @@ export const global = {
 		tickAccumulator: 0
 	},
 
-	// move to renderer
-	UI: {
-		scene: new THREE.Scene(),
-		camera: new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000),
-		ctx: null,
-		texture: null,
-		tile: null,
-		tileRotation: 0,
-	},
-
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 2
+		patch: 3
 	},
 
 	DT: {
@@ -63,16 +56,15 @@ window.addEventListener("keyup", function(event) {
 	global.player.keys[event.key] = false;
 });
 
+// FIX MOUSE
 window.addEventListener('mousedown', (event) => {
 	if(document.pointerLockElement) {
-		global.player.mouse[event.button] = true;
-		global.player.mouseOnce[event.button] = true;
+		global.player.mouse[event.button] = global.player.mouseOnce[event.button] = true;
 	}
 });
 
 window.addEventListener('mouseup', (event) => {
-    global.player.mouse[event.button] = false;
-	global.player.mouseOnce[event.button] = false;
+    global.player.mouse[event.button] = global.player.mouseOnce[event.button] = false;
 });
 
 window.addEventListener("mousemove", function(event) {
@@ -82,17 +74,7 @@ window.addEventListener("mousemove", function(event) {
 });
 
 window.addEventListener("wheel", function(event) {
-	global.player.selectedTile += Math.floor(event.deltaY / 100);
-
-	if(global.player.selectedTile < 0) {
-		global.player.selectedTile = global.tile.tileAmount - 1;
-	}
-
-	if(global.player.selectedTile > global.tile.tileAmount - 1) {
-		global.player.selectedTile = 0;
-	}
-
-	global.renderer.updateUITile();
+	global.player.updateSelectedTile(Math.floor(event.deltaY / 100));
 });
 
 canvas.addEventListener("click", async () => {
@@ -102,6 +84,12 @@ canvas.addEventListener("click", async () => {
 });
 
 function update(dt) {
+	// TODO
+	if(global.canvasWidth != window.innerWidth || global.canvasHeight != window.innerHeight) {
+		global.canvasWidth = window.innerWidth;
+		global.canvasHeight = window.innerHeight;
+	}
+
 	global.player.update(dt);
 	global.renderer.update(dt);
 }

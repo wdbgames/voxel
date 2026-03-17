@@ -8,6 +8,17 @@ export class Renderer {
     // waterOverlay;
     // lavaOverlay;
 
+    scene = new THREE.Scene();
+    camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000);
+    ctx = null;
+    texture = null;
+    tile = null;
+    #tileRotation = 0;
+    #canvasWidth = 0;
+    #canvasHeight = 0;
+    #mesh = null;
+    #material = null;
+
     axesHelper = new THREE.AxesHelper(64);
 
     constructor() {
@@ -17,15 +28,15 @@ export class Renderer {
     }
 
     start() {
-        global.UI.camera.position.z = 10;
-        const UICanvas = document.createElement("canvas");
-        UICanvas.width = window.innerWidth;
-        UICanvas.height = window.innerHeight;
-        global.UI.ctx = UICanvas.getContext("2d");
-        global.UI.texture = new THREE.CanvasTexture(UICanvas);
-        const UIMaterial = new THREE.MeshBasicMaterial({ map: global.UI.texture, transparent: true });
-        const UIPlane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), UIMaterial);
-        global.UI.scene.add(UIPlane);
+        this.camera.position.z = 10;
+        const canvas = document.createElement("canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        this.ctx = canvas.getContext("2d");
+        this.texture = new THREE.CanvasTexture(canvas);
+        const material = new THREE.MeshBasicMaterial({ map: this.texture, transparent: true });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), material);
+        this.scene.add(mesh);
 
         this.renderer.autoClear = false;
         global.camera.rotation.order = 'YXZ';
@@ -34,27 +45,28 @@ export class Renderer {
         global.scene.background = new THREE.Color();
         global.scene.add(this.ambientLight);
     
+        const textHeight = 16;
         global.gui.createElement("version", "info", `Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 2, 2);
-        global.gui.createElement("positionX", "info", "b", 2, 34);
-        global.gui.createElement("positionY", "info", "c", 2, 50);
-        global.gui.createElement("positionZ", "info", "d", 2, 66);
-        global.gui.createElement("fly", "info", "e", 2, 98);
-        global.gui.createElement("noclip", "info", "f", 2, 114);
-        global.gui.createElement("chunkUpdates", "info", "g", 2, 146);
-        global.gui.createElement("tileUpdates", "info", "h", 2, 162);
+        global.gui.createElement("positionX", "info", "b", 2, 2 + textHeight * 2);
+        global.gui.createElement("positionY", "info", "c", 2, 2 + textHeight * 3);
+        global.gui.createElement("positionZ", "info", "d", 2, 2 + textHeight * 4);
+        global.gui.createElement("fly", "info", "e", 2, 2 + textHeight * 6);
+        global.gui.createElement("noclip", "info", "f", 2, 2 + textHeight * 7);
+        global.gui.createElement("chunkUpdates", "info", "g", 2, 2 + textHeight * 9);
+        global.gui.createElement("tileUpdates", "info", "h", 2, 2 + textHeight * 10);
     }
 
     update(dt) {
-        global.UI.tileRotation += 0.01 * dt;
-        global.UI.tile.rotation.x = global.UI.tileRotation;
-        global.UI.tile.rotation.y = global.UI.tileRotation;
+        this.#tileRotation += 0.01 * dt;
+        this.tile.rotation.x = this.#tileRotation;
+        this.tile.rotation.y = this.#tileRotation;
 
-        global.UI.ctx.clearRect(0, 0, 256, 128)
+        this.ctx.clearRect(0, 0, 256, 128)
 
         if(global.debugUpdate) {
             if(global.debug) {
                 this.axesHelper = new THREE.AxesHelper(64);
-                global.UI.scene.add(this.axesHelper);
+                this.scene.add(this.axesHelper);
 
                 global.gui.showElement("positionX");
                 global.gui.showElement("positionY");
@@ -65,7 +77,7 @@ export class Renderer {
                 global.gui.showElement("tileUpdates");
             } else {
                 if (this.axesHelper) {
-                    global.UI.scene.remove(this.axesHelper);
+                    this.scene.remove(this.axesHelper);
                     this.axesHelper.geometry.dispose();
                     this.axesHelper = null;
                 }
@@ -90,7 +102,7 @@ export class Renderer {
             global.gui.updateTextContent("tileUpdates", `tileUpdates: ${global.level.tileUpdates}`);
         }
 
-        global.UI.texture.needsUpdate = false;
+        this.texture.needsUpdate = false;
 
         for(const chunk of global.level.chunks) {
             if(chunk.needsUpdate) {
@@ -109,12 +121,12 @@ export class Renderer {
         this.renderer.render(global.scene, global.camera);
 
         this.renderer.clearDepth();
-        this.renderer.render(global.UI.scene, global.UI.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     renderUI() {
         const light = new THREE.AmbientLight(0xffffff, 4);
-        global.UI.scene.add(light); 
+        this.scene.add(light); 
 
         // crosshair
         const size = 9;
@@ -122,14 +134,14 @@ export class Renderer {
         const y0 = window.innerHeight / 2 - size / 2;
         const x1 = size;
         const y1 = size;
-        global.UI.ctx.fillRect(x0, y0, x1, y1);
+        this.ctx.fillRect(x0, y0, x1, y1);
     }
 
     updateUITile() {
-        if (global.UI.tile) {
-            global.UI.scene.remove(global.UI.tile);
-            global.UI.tile.geometry.dispose();
-            global.UI.tile = null;
+        if (this.tile) {
+            this.scene.remove(this.tile);
+            this.tile.geometry.dispose();
+            this.tile = null;
         }
 
         const defaultFaceVertices = new Float32Array([
@@ -195,12 +207,12 @@ export class Renderer {
         geometry.computeVertexNormals();
 
         if(global.player.selectedTile == global.tile.void || global.player.selectedTile == global.tile.voidWall) {
-            global.UI.tile = new THREE.Mesh(geometry, material);
+            this.tile = new THREE.Mesh(geometry, material);
         } else {
-            global.UI.tile = new THREE.Mesh(geometry, global.materials);
+            this.tile = new THREE.Mesh(geometry, global.materials);
         }
         
-        global.UI.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, -64);
-        global.UI.scene.add(global.UI.tile);
+        this.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, -64);
+        this.scene.add(this.tile);
     }
 }
