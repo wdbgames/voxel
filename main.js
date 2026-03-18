@@ -1,8 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js";
-
 import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
-import { Tile } from "./level/Tile.js";
+import { TileRegisterer } from "./level/TileRegisterer.js";
 import { Renderer } from "./Renderer.js";
 import { Gui } from "./Gui.js";
 
@@ -39,7 +38,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 5
+		patch: 6
 	},
 
 	DT: {
@@ -128,8 +127,8 @@ function start() {
 	global.gui.disableElement("load-level", 0, 0);
 	global.gui.disableElement("settings", 0, 0);
 
-	global.tile = new Tile();
-	global.tile.initializeTiles();
+	// MOVE
+	global.tile = new TileRegisterer();
 }
 
 function newLevelSettings() {
@@ -172,6 +171,11 @@ function updateSize() {
 }
 
 function createNewLevel() {
+	global.gui.deleteElement("type");
+	global.gui.deleteElement("theme");
+	global.gui.deleteElement("size");
+	global.gui.deleteElement("create-new-level");
+
 	global.level = new Level(64 << global.selectedSize, 64, 64 << global.selectedSize, global.selectedType, global.selectedTheme);
 	global.level.generate();
 
@@ -183,9 +187,11 @@ function createNewLevel() {
 }
 
 function loadLevel() {
+	// TODO
 }
 
 function settings() {
+	// TODO
 }
 
 async function loadAssets() {

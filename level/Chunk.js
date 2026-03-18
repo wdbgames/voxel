@@ -120,7 +120,7 @@ export class Chunk {
                         } else if(y >= ((levelHeight >> 4) - 2) && Math.floor(Math.random() * 5) <= y - ((levelHeight >> 4) - 2)) {
                             this.tiles[i] = global.tile.stoneDeep;
                         } else {
-                            this.tiles[i] = global.tile.negeritre;
+                            this.tiles[i] = global.tile.stoneDeepDeep;
                         }
                         ++i;
                     }

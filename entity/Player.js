@@ -134,7 +134,6 @@ export class Player extends Entity {
 			);
 			if(rayTrace != -1) {
 				if(this.selectedTile == global.tile.void) {
-					console.log("aaa")
 					global.tile.tiles[global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2])].interact(rayTrace[0], rayTrace[1], rayTrace[2]);
 				} else {
 					const x = rayTrace[3];
