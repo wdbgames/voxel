@@ -15,8 +15,9 @@ export const global = {
 	renderer: null,
 	player: null,
 	level: null,
-	tile: null,
-	gui: null,
+
+	tile: new TileRegisterer(),
+	gui: new Gui(),
 
 	selectedType: 0,
 	selectedTheme: 0,
@@ -38,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 6
+		patch: 7
 	},
 
 	DT: {
@@ -117,18 +118,16 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+// MOVE TO GUI
 function start() {
-	// ADD POSITIONING
-	global.gui = new Gui();
-	global.gui.createElement("voxel", "title", "Voxel", 0, 0);
-	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, newLevelSettings);
-	global.gui.createElement("load-level", "button", "Load Level", 0, 0);
-	global.gui.createElement("settings", "button", "Settings", 0, 0);
-	global.gui.disableElement("load-level", 0, 0);
-	global.gui.disableElement("settings", 0, 0);
+	global.gui.hideElement("canvas");
 
-	// MOVE
-	global.tile = new TileRegisterer();
+	global.gui.createElement("voxel", "title", "Voxel", 0, 64);
+	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 64, newLevelSettings);
+	global.gui.createElement("load-level", "button", "Load Level", 0, 64);
+	global.gui.createElement("settings", "button", "Settings", 0, 64);
+	global.gui.disableElement("load-level");
+	global.gui.disableElement("settings");
 }
 
 function newLevelSettings() {
@@ -137,16 +136,16 @@ function newLevelSettings() {
 	global.gui.deleteElement("load-level");
 	global.gui.deleteElement("settings");
 
-	global.gui.createElement("type", "button", "Type: Default", 0, 0, updateType);
-	global.gui.createElement("theme", "button", "Theme: Default", 0, 0, updateTheme);
-	global.gui.createElement("size", "button", "Size: Medium", 0, 0, updateSize);
-	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 0, createNewLevel);
+	global.gui.createElement("type", "button", "Type: Default", 0, 64, updateType);
+	global.gui.createElement("theme", "button", "Theme: Default", 0, 64, updateTheme);
+	global.gui.createElement("size", "button", "Size: Medium", 0, 64, updateSize);
+	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 64, createNewLevel);
 }
 
 function updateType() {
-	const types = ["Default", "Flat", "Void"];
+	const types = ["Default", "Flat", "Void", "Floating"];
 	++global.selectedType;
-	if(global.selectedType >= 3) {
+	if(global.selectedType >= 4) {
 		global.selectedType = 0;
 	}
 	global.gui.updateTextContent("type", `Type: ${types[global.selectedType]}`);
@@ -175,6 +174,8 @@ function createNewLevel() {
 	global.gui.deleteElement("theme");
 	global.gui.deleteElement("size");
 	global.gui.deleteElement("create-new-level");
+
+	global.gui.showElement("canvas");
 
 	global.level = new Level(64 << global.selectedSize, 64, 64 << global.selectedSize, global.selectedType, global.selectedTheme);
 	global.level.generate();

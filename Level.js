@@ -62,7 +62,6 @@ export class Level {
 
         // global.renderer.ambientLight.intensity = (brightness + 0.08) * 2;
 
-        // > for future logic
         ++this.time;
         if(this.time > cycleLength) {
             this.time = 0;

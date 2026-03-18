@@ -26,6 +26,9 @@ export class Tile {
     tick() { 
     }
 
+    randomTick() {
+    }
+
     update(x, y, z) {
         ++global.level.tileUpdates;
     }
@@ -34,6 +37,7 @@ export class Tile {
     }
 
     removed(x, y, z) {  
+        // METADATA??
     }
 
     interact(x, y, z) {
