@@ -100,10 +100,10 @@ export class Chunk {
                     } else {
                         const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
                         height += Math.floor(island * 4);
-                        height += Math.floor(noise.perlin2(x / 64, z / 64) * 8);
-                        height += Math.floor(noise.perlin2(offsetX / 48, offsetZ / 48) * 4);
-                        height += Math.floor(noise.perlin2(x / 32, z / 32)) * 4;
-                        height += Math.floor(noise.perlin2(offsetX / 16, offsetZ / 16) * 2);
+                        height += Math.floor(noise.perlin2(x / 64, z / 64) * 10);
+                        height += Math.floor(noise.perlin2(offsetX / 48, offsetZ / 48) * 6);
+                        height += Math.floor(noise.perlin2(x / 32, z / 32)) * 6;
+                        height += Math.floor(noise.perlin2(offsetX / 16, offsetZ / 16) * 4);
                     }
 
                     if(global.level.type == 3) {
