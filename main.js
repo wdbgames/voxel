@@ -4,6 +4,7 @@ import { Level } from "./Level.js";
 import { TileRegisterer } from "./level/TileRegisterer.js";
 import { Renderer } from "./Renderer.js";
 import { Gui } from "./Gui.js";
+import { Input } from "./Input.js";
 
 export const global = {
 	scene: new THREE.Scene(),
@@ -18,6 +19,7 @@ export const global = {
 
 	tile: new TileRegisterer(),
 	gui: new Gui(),
+	input: new Input(),
 
 	selectedType: 0,
 	selectedTheme: 0,
@@ -39,7 +41,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 9
+		patch: 10
 	},
 
 	DT: {
@@ -48,43 +50,45 @@ export const global = {
 	}
 }
 
-window.addEventListener("keydown", function(event) {
-	global.player.keys[event.key] = true; 
-	if(!event.repeat) {
-		global.player.keysOnce[event.key] = true;
-	}
-});
+function addEventListeners() {
+	document.addEventListener("keydown", function(event) {
+		global.player.keys[event.key] = true; 
+		if(!event.repeat) {
+			global.player.keysOnce[event.key] = true;
+		}
+	});
 
-window.addEventListener("keyup", function(event) {
-	global.player.keys[event.key] = false;
-});
+	document.addEventListener("keyup", function(event) {
+		global.player.keys[event.key] = false;
+	});
 
-// FIX MOUSE
-window.addEventListener('mousedown', (event) => {
-	if(document.pointerLockElement) {
-		global.player.mouse[event.button] = global.player.mouseOnce[event.button] = true;
-	}
-});
+	// FIX MOUSE
+	document.addEventListener('mousedown', (event) => {
+		if(document.pointerLockElement) {
+			global.player.mouse[event.button] = global.player.mouseOnce[event.button] = true;
+		}
+	});
 
-window.addEventListener('mouseup', (event) => {
-    global.player.mouse[event.button] = global.player.mouseOnce[event.button] = false;
-});
+	document.addEventListener('mouseup', (event) => {
+		global.player.mouse[event.button] = global.player.mouseOnce[event.button] = false;
+	});
 
-window.addEventListener("mousemove", function(event) {
-	if (document.pointerLockElement) {
-		global.player.updateRotation(event.movementX, event.movementY);
-	}
-});
+	document.addEventListener("mousemove", function(event) {
+		if (document.pointerLockElement) {
+			global.player.updateRotation(event.movementX, event.movementY);
+		}
+	});
 
-window.addEventListener("wheel", function(event) {
-	global.player.updateSelectedTile(Math.floor(event.deltaY / 100));
-});
+	document.addEventListener("wheel", function(event) {
+		global.player.updateSelectedTile(Math.floor(event.deltaY / 100));
+	});
 
-canvas.addEventListener("click", async () => {
-	if(!document.pointerLockElement) {
-		await canvas.requestPointerLock();
-	}
-});
+	canvas.addEventListener("click", async () => {
+		if(!document.pointerLockElement) {
+			await canvas.requestPointerLock();
+		}
+	});
+}
 
 function update(dt) {
 	// TODO
@@ -182,6 +186,8 @@ function createNewLevel() {
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
 	
+	addEventListeners()
+
 	global.renderer = new Renderer();
 
 	loop();
