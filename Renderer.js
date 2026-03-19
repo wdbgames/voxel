@@ -12,7 +12,7 @@ export class Renderer {
     camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000);
     ctx = null;
     texture = null;
-    tile = null;
+    tiles = new Array(5);
     #tileRotation = 0;
     #canvasWidth = 0;
     #canvasHeight = 0;
@@ -57,15 +57,19 @@ export class Renderer {
     }
 
     update(dt) {
+        /*
         this.#tileRotation += 0.01 * dt;
-        this.tile.rotation.x = this.#tileRotation;
-        this.tile.rotation.y = this.#tileRotation;
+        for(let i = 0; i < this.tiles.length; ++i) {
+            this.tiles[i].rotation.x = this.#tileRotation;
+            this.tiles[i].rotation.y = this.#tileRotation;
+        }
+        */
 
         this.ctx.clearRect(0, 0, 256, 128)
 
         if(global.debugUpdate) {
             if(global.debug) {
-                this.axesHelper = new THREE.AxesHelper(64);
+                this.axesHelper = new THREE.AxesHelper(512);
                 this.scene.add(this.axesHelper);
 
                 global.gui.showElement("positionX");
@@ -138,81 +142,88 @@ export class Renderer {
     }
 
     updateUITile() {
-        if (this.tile) {
-            this.scene.remove(this.tile);
-            this.tile.geometry.dispose();
-            this.tile = null;
-        }
-
-        const defaultFaceVertices = new Float32Array([
-            0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, // front
-            1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, // back
-            0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, // top
-            0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, // bottom
-            1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, // right
-            0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0  // left
-        ]);
-
-        const defaultFaceUVs = new Float32Array([
-            0, 0, 1, 0, 1, 1, 0, 1, // front
-            0, 0, 1, 0, 1, 1, 0, 1, // back
-            0, 0, 1, 0, 1, 1, 0, 1, // top
-            0, 0, 1, 0, 1, 1, 0, 1, // bottom
-            0, 0, 1, 0, 1, 1, 0, 1, // right
-            0, 0, 1, 0, 1, 1, 0, 1, // left
-        ]);
-
-        const tileSize = 32;
-
-        const geometry = new THREE.BufferGeometry();
-
-        const tile = global.tile.tiles[global.player.selectedTile];
-        const faceVertices = tile.hasCustomFaceVertices ? tile.customFaceVertices : defaultFaceVertices;
-        const faceUVs = tile.hasCustomFaceUVs ? tile.customFaceUVs : defaultFaceUVs;
-
-        const positions = [];
-        const uvs = [];
-        const indices = [];
-        const colors = [];
-
-        const material = new THREE.MeshBasicMaterial({
-            color: 0x000000,
-            wireframe: true
-       });
-
-        let vertexOffset = 0;
-        for (let f = 0; f < 6; ++f) {
-            for(let j = 0; j < 4; ++j) {
-                colors.push(1, 1, 1);
-            }
-
-            for (let j = f * 12; j < (f * 12) + 12; j += 3) {
-                positions.push(faceVertices[j] * tileSize - tileSize / 2, faceVertices[j + 1] * tileSize - tileSize / 2, faceVertices[j + 2] * tileSize - tileSize / 2);
-            }
-
-            for (let j = f * 8; j < (f * 8) + 8; ++j) {
-                uvs.push(faceUVs[j]);
-            }
-
-            indices.push(vertexOffset, vertexOffset + 1, vertexOffset + 2, vertexOffset, vertexOffset + 2, vertexOffset + 3);
-            geometry.addGroup(indices.length - 6, 6, tile.tileMaterials[f]);
-            vertexOffset += 4;
-        }
-
-        // CHANGE TO THREE.Float32BufferAttribute
-        geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
-        geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
-        geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(colors), 3));
-        geometry.setIndex(indices);
-        geometry.computeVertexNormals();
-
-        if(global.player.selectedTile == global.tile.void || global.player.selectedTile == global.tile.voidWall) {
-            this.tile = new THREE.Mesh(geometry, material);
-        } else {
-            this.tile = new THREE.Mesh(geometry, global.materials);
-        }
+        global.player.inventory[0] = global.player.selectedTile;
         
-        this.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, -64);
-        this.scene.add(this.tile);
+        for(let i = 0; i < this.tiles.length; ++i) {
+            if (this.tiles[i]) {
+                this.scene.remove(this.tiles[i]);
+                this.tiles[i].geometry.dispose();
+                this.tiles[i] = null;
+            }
+
+            const defaultFaceVertices = new Float32Array([
+                0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, // front
+                1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, // back
+                0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, // top
+                0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, // bottom
+                1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, // right
+                0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0  // left
+            ]);
+
+            const defaultFaceUVs = new Float32Array([
+                0, 0, 1, 0, 1, 1, 0, 1, // front
+                0, 0, 1, 0, 1, 1, 0, 1, // back
+                0, 0, 1, 0, 1, 1, 0, 1, // top
+                0, 0, 1, 0, 1, 1, 0, 1, // bottom
+                0, 0, 1, 0, 1, 1, 0, 1, // right
+                0, 0, 1, 0, 1, 1, 0, 1, // left
+            ]);
+
+            const tileSize = 32;
+
+            const geometry = new THREE.BufferGeometry();
+
+            const tile = global.tile.tiles[global.player.inventory[i]];
+            const faceVertices = tile.hasCustomFaceVertices ? tile.customFaceVertices : defaultFaceVertices;
+            const faceUVs = tile.hasCustomFaceUVs ? tile.customFaceUVs : defaultFaceUVs;
+
+            const positions = [];
+            const uvs = [];
+            const indices = [];
+            const colors = [];
+
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                wireframe: true
+        });
+
+            let vertexOffset = 0;
+            for (let f = 0; f < 6; ++f) {
+                for(let j = 0; j < 4; ++j) {
+                    colors.push(1, 1, 1);
+                }
+
+                for (let j = f * 12; j < (f * 12) + 12; j += 3) {
+                    positions.push(faceVertices[j] * tileSize - tileSize / 2, faceVertices[j + 1] * tileSize - tileSize / 2, faceVertices[j + 2] * tileSize - tileSize / 2);
+                }
+
+                for (let j = f * 8; j < (f * 8) + 8; ++j) {
+                    uvs.push(faceUVs[j]);
+                }
+
+                indices.push(vertexOffset, vertexOffset + 1, vertexOffset + 2, vertexOffset, vertexOffset + 2, vertexOffset + 3);
+                geometry.addGroup(indices.length - 6, 6, tile.tileMaterials[f]);
+                vertexOffset += 4;
+            }
+
+            // CHANGE TO THREE.Float32BufferAttribute
+            geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
+            geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
+            geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(colors), 3));
+            geometry.setIndex(indices);
+            geometry.computeVertexNormals();
+
+            if(global.player.inventory[i] == global.tile.void || global.player.inventory[i] == global.tile.voidWall) {
+                this.tiles[i] = new THREE.Mesh(geometry, material);
+            } else {
+                this.tiles[i] = new THREE.Mesh(geometry, global.materials);
+            }
+            
+            //this.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, -64);
+            this.tiles[i].position.set((i - 2) * tileSize * 2, -window.innerHeight / 2 + tileSize + 16, -64);
+            this.tiles[i].rotation.x = 0.5;
+            this.tiles[i].rotation.y = 0.5;
+            this.scene.add(this.tiles[i]);
+        }
     }
 }

@@ -8,6 +8,8 @@ export class Player extends Entity {
 	mouse = [];
 	mouseOnce = [];
 	cameraHeight = 1.5;
+
+	inventory = [0, 1, 2, 3, 4];
 	selectedTile = 0;
 
 	jumpCooldown = 0;

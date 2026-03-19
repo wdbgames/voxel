@@ -41,7 +41,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 10
+		patch: 11
 	},
 
 	DT: {
@@ -130,6 +130,7 @@ function start() {
 	global.gui.createElement("create-new-level", "button", "Create New Level", 0, 64, newLevelSettings);
 	global.gui.createElement("load-level", "button", "Load Level", 0, 64);
 	global.gui.createElement("settings", "button", "Settings", 0, 64);
+	global.gui.createElement("quick-new-level", "button", "Quick New Level", 0, 64, quickNewLevel);
 	global.gui.disableElement("load-level");
 	global.gui.disableElement("settings");
 }
@@ -139,6 +140,7 @@ function newLevelSettings() {
 	global.gui.deleteElement("create-new-level");
 	global.gui.deleteElement("load-level");
 	global.gui.deleteElement("settings");
+	global.gui.deleteElement("quick-new-level");
 
 	global.gui.createElement("type", "button", "Type: Default", 0, 64, updateType);
 	global.gui.createElement("theme", "button", "Theme: Default", 0, 64, updateTheme);
@@ -179,6 +181,10 @@ function createNewLevel() {
 	global.gui.deleteElement("size");
 	global.gui.deleteElement("create-new-level");
 
+	quickNewLevel();
+}
+
+function quickNewLevel() {
 	global.gui.showElement("canvas");
 
 	global.level = new Level(64 << global.selectedSize, 64, 64 << global.selectedSize, global.selectedType, global.selectedTheme);
