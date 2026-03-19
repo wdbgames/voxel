@@ -116,6 +116,7 @@ export class Level {
         }
 
         // house
+        // FIX CUTOFF
         if(this.width > 15 && this.height > 15 && this.depth > 15) {
             let stone = global.tile.stone;
             if(this.theme == 1) {
@@ -129,7 +130,7 @@ export class Level {
             if(global.level.type == 2) {
                 houseY = Math.floor(this.height / 2);
             } else {
-                let i = 0;
+                let i = Math.floor(global.level.height / 2);
                 while(this.getTile(houseX, i, houseZ) != 0) {
                     ++i;
                 }
@@ -188,6 +189,7 @@ export class Level {
         }
 
         // trees
+        // FIX CUTOFF
         if(global.level.type != 2) {
             if(global.debug) {
                 console.log("Tree amount: " + Math.floor(this.width * this.depth / 128));

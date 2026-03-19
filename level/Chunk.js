@@ -47,18 +47,45 @@ export class Chunk {
             grass = global.tile.dirt;
             sand = global.tile.grass;
         }
+        if(global.level.type == 3) {
+            water = global.tile.void;
+        }
     
         let i = 0;
         for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
             for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
-                this.tileData[i] = 0;
-                ++i;
+                    for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
+                        this.tileData[i] = 0;
+                        ++i;
+                    }
             }
         }
 
-        // NEEDS MULTIPLE NOISES
-        if(global.level.type != 2) {
+        // ADD LAYERS (MAYBE)
+
+        /*
+        const layerAmount = 8;
+        const layersX = [];
+        const layersZ = [];
+        for(i = 0; i < layerAmount; ++i) {
+            layersX[i] = levelWidth * i;
+            layersZ[i] = levelDepth * i;
+        }
+        */
+
+        if(global.level.type == 2) { 
+           i = 0;
+            for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
+                for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
+                        for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
+                            this.tiles[i] = global.tile.void;
+                            ++i;
+                        }
+                }
+            }
+        } else {
             i = 0;
+            // BITSHIFT
             for(let x = this.x; x < this.x + global.level.chunkSize; ++x) {
                 for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
                     const offsetX = x + global.level.width;
@@ -67,73 +94,75 @@ export class Chunk {
                     const beachNoise = Math.floor(noise.perlin2(x / 16, z / 16) * 2);
 
                     let height = levelHeight >> 1;
+                    let minHeight = 0;
                     if(global.level.type == 1) {
-                        height += noise.perlin2(x / 48, y / 48);
+                        height += noise.perlin2(offsetX / 48, offsetZ / 48);
                     } else {
                         const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
                         height += Math.floor(island * 4);
                         height += Math.floor(noise.perlin2(x / 64, z / 64) * 8);
-                        height += Math.floor(noise.perlin2(x / 48, z / 48) * 4);
+                        height += Math.floor(noise.perlin2(offsetX / 48, offsetZ / 48) * 4);
                         height += Math.floor(noise.perlin2(x / 32, z / 32)) * 4;
-                        height += Math.floor(noise.perlin2(x / 16, z / 16) * 2);
+                        height += Math.floor(noise.perlin2(offsetX / 16, offsetZ / 16) * 2);
                     }
 
                     if(global.level.type == 3) {
-                        const cutoff = noise.perlin2(x / 64, z / 64);
-                        if(cutoff < 0.5) {
-                            height = 0;
+                        let cutoff = Math.floor(Math.abs(noise.perlin2(x / 64, z / 64)) * levelHeight);
+                        cutoff += Math.floor(noise.perlin2(offsetX / 32, offsetZ / 32) * (levelHeight / 2));
+
+                        minHeight = cutoff;
+                        if(cutoff > 16) {
+                            minHeight = levelHeight;
                         }
                     }
                     
-                    if(height != 0) {
-                        for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
-                            if(x >= levelWidth || z >= levelDepth || y >= levelHeight) {
+                    for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
+                        if(x >= levelWidth || z >= levelDepth || y >= levelHeight || y < minHeight || height == 0) {
+                            this.tiles[i] = global.tile.void;
+                        } else if(y >= height + 1) {
+                            if(y >= levelHeight >> 1) {
                                 this.tiles[i] = global.tile.void;
-                            } else if(y >= height + 1) {
-                                if(y >= levelHeight >> 1) {
-                                    this.tiles[i] = global.tile.void;
-                                } else {
-                                    this.tiles[i] = water;
-                                }
-                                
-                            } else if(y >= height) {
-                                if(y > (levelHeight >> 1)) {
-                                    this.tiles[i] = grass;
-                                } else {
-                                    if(beachNoise == 0 && y >= (levelHeight >> 1) - 1) {
-                                        this.tiles[i] = global.tile.rock;   
-                                    } else {
-                                        this.tiles[i] = sand; 
-                                    }
-                                }
-
-                            } else if(y >= height - 2) {
-                                if (height > (levelHeight >> 1)) {
-                                    this.tiles[i] = global.tile.dirt;
-                                } else {
-                                    this.tiles[i] = global.tile.mud;
-                                }
-                                
-                            } else if(y >= height - 4 && Math.floor(Math.random() * 3) <= y - (height - 4)) {
-                                if (height > (levelHeight >> 1)) {
-                                    this.tiles[i] = global.tile.dirt;
-                                } else {
-                                    this.tiles[i] = global.tile.mud;
-                                }
-                                
-                            } else if(y >= height - ((levelHeight >> 2) - 2)) {
-                                this.tiles[i] = global.tile.stone;
-                            } else if(y >= height - ((levelHeight >> 2) + 2) && Math.floor(Math.random() * 5) <= y - (height - ((levelHeight >> 2) + 2))) {
-                                this.tiles[i] = global.tile.stone;
-                            } else if(y >= ((levelHeight >> 4) + 2)) {
-                                this.tiles[i] = global.tile.stoneDeep;
-                            } else if(y >= ((levelHeight >> 4) - 2) && Math.floor(Math.random() * 5) <= y - ((levelHeight >> 4) - 2)) {
-                                this.tiles[i] = global.tile.stoneDeep;
                             } else {
-                                this.tiles[i] = global.tile.stoneDeepDeep;
+                                this.tiles[i] = water;
                             }
-                            ++i;
+                            
+                        } else if(y >= height) {
+                            if(y > (levelHeight >> 1)) {
+                                this.tiles[i] = grass;
+                            } else {
+                                if(beachNoise == 0 && y >= (levelHeight >> 1) - 1) {
+                                    this.tiles[i] = global.tile.rock;   
+                                } else {
+                                    this.tiles[i] = sand; 
+                                }
+                            }
+
+                        } else if(y >= height - 2) {
+                            if (height > (levelHeight >> 1)) {
+                                this.tiles[i] = global.tile.dirt;
+                            } else {
+                                this.tiles[i] = global.tile.mud;
+                            }
+                            
+                        } else if(y >= height - 4 && Math.floor(Math.random() * 3) <= y - (height - 4)) {
+                            if (height > (levelHeight >> 1)) {
+                                this.tiles[i] = global.tile.dirt;
+                            } else {
+                                this.tiles[i] = global.tile.mud;
+                            }
+                            
+                        } else if(y >= height - ((levelHeight >> 2) - 2)) {
+                            this.tiles[i] = global.tile.stone;
+                        } else if(y >= height - ((levelHeight >> 2) + 2) && Math.floor(Math.random() * 5) <= y - (height - ((levelHeight >> 2) + 2))) {
+                            this.tiles[i] = global.tile.stone;
+                        } else if(y >= ((levelHeight >> 4) + 2)) {
+                            this.tiles[i] = global.tile.stoneDeep;
+                        } else if(y >= ((levelHeight >> 4) - 2) && Math.floor(Math.random() * 5) <= y - ((levelHeight >> 4) - 2)) {
+                            this.tiles[i] = global.tile.stoneDeep;
+                        } else {
+                            this.tiles[i] = global.tile.stoneDeepDeep;
                         }
+                        ++i;
                     }
                 }
             }

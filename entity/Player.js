@@ -20,7 +20,7 @@ export class Player extends Entity {
 
 	constructor(x, y, z) {
 		super(x, y, z);
-		// console.log(x + ", " + y + ", " + z);
+		// console.log("Spawned player at: " + x + ", " + y + ", " + z);
 		this.sizeX = 0.75;
 		this.sizeY = 1.75;
 		this.sizeZ = 0.75;

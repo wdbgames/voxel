@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 7
+		patch: 8
 	},
 
 	DT: {
