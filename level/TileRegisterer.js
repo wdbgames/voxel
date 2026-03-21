@@ -78,6 +78,6 @@ export class TileRegisterer {
         this.tiles[this.carpet] = new TileCarpet(23, 1);
         this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
         this.tiles[this.data] = new TileData(25, 5);
-        this.tiles[this.bush] = new TileBush(27, 0);
+        this.tiles[this.bush] = new TileBush(11, 0);
     }
 }

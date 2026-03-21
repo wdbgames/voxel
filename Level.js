@@ -116,7 +116,7 @@ export class Level {
         }
 
         // house
-        // FIX CUTOFF
+        // FIX CUTOFF & TREES...
         if(this.width > 15 && this.height > 15 && this.depth > 15) {
             let stone = global.tile.stone;
             if(this.theme == 1) {
@@ -167,6 +167,18 @@ export class Level {
 
             this.setTile(houseX + 3, houseY + 1, houseZ, global.tile.void);
             this.setTile(houseX + 3, houseY + 2, houseZ, global.tile.void);
+
+            this.setTile(houseX + 2, houseY + 2, houseZ + 6, global.tile.glass);
+            this.setTile(houseX + 3, houseY + 2, houseZ + 6, global.tile.glass);
+            this.setTile(houseX + 4, houseY + 2, houseZ + 6, global.tile.glass);
+
+            this.setTile(houseX, houseY + 2, houseZ + 2, global.tile.glass);
+            this.setTile(houseX, houseY + 2, houseZ + 3, global.tile.glass);
+            this.setTile(houseX, houseY + 2, houseZ + 4, global.tile.glass);
+
+            this.setTile(houseX + 6, houseY + 2, houseZ + 2, global.tile.glass);
+            this.setTile(houseX + 6, houseY + 2, houseZ + 3, global.tile.glass);
+            this.setTile(houseX + 6, houseY + 2, houseZ + 4, global.tile.glass);
         } else {
             this.spawnX = this.width / 2;
             this.spawnZ = this.depth / 2;
