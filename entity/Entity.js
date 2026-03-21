@@ -17,6 +17,7 @@ export class Entity {
     box = new AABB(0, 0, 0, 0, 0, 0); // RENAME TO AABB
     noclip = true;
     onGround = true;
+    viscous = [global.tile.water, global.tile.lava, global.tile.leaves, global.tile.bush, global.tile.bushBerry]; // MOVE?
 
     constructor(x, y, z) {
         this.positionX = x;
@@ -58,7 +59,7 @@ export class Entity {
         }
     }
 
-    // IMPLEMENT BETTER CACHING (viscosity AND AABBs.length)
+    // IMPLEMENT BETTER CACHING (AABBs.length)
     move(x, y, z) {
         if(this.noclip) {
             this.positionX += x;
@@ -72,8 +73,9 @@ export class Entity {
             const tilesAABBs = global.level.getTileAABBs(this.box.expand(x, y, z));
             const tiles = tilesAABBs[0];
             const AABBs = tilesAABBs[1];
+            const AABBsLength = AABBs.length;
 
-            for (let i = 0; i < AABBs.length; ++i) {
+            for (let i = 0; i < AABBsLength; ++i) {
                 if(global.tile.tiles[tiles[i]].viscosity == 1) {
                     xa = this.box.clipXCollide(AABBs[i], xa);
                 }
@@ -82,7 +84,7 @@ export class Entity {
             this.positionX += xa;
             this.box.move(xa, 0, 0);
 
-            for (let i = 0; i < AABBs.length; ++i) {
+            for (let i = 0; i < AABBsLength; ++i) {
                 if(global.tile.tiles[tiles[i]].viscosity == 1) {
                     ya = this.box.clipYCollide(AABBs[i], ya);
                 }
@@ -93,7 +95,7 @@ export class Entity {
             this.positionY += ya;
             this.box.move(0, ya, 0);
 
-            for (let i = 0; i < AABBs.length; ++i) {
+            for (let i = 0; i < AABBsLength; ++i) {
                 if(global.tile.tiles[tiles[i]].viscosity == 1) {
                     za = this.box.clipZCollide(AABBs[i], za);
                 }
@@ -102,11 +104,26 @@ export class Entity {
             this.positionZ += za;
             this.box.move(0, 0, za);
 
-            // COMBINE TO ARRAY, REMOVE HELPER FUNCTION
-            this.#handleViscous(tiles, AABBs, global.tile.water);
-            this.#handleViscous(tiles, AABBs, global.tile.lava);
-            this.#handleViscous(tiles, AABBs, global.tile.leaves);
-            this.#handleViscous(tiles, AABBs, global.tile.bush);
+            // MOVE TO TILE REGISTERER
+            const viscous = [global.tile.water, global.tile.lava, global.tile.leaves, global.tile.bush, global.tile.bushBerry];
+
+            for(let i = 0; i < viscous.length; ++i) {
+                const tile = this.viscous[i];
+                this.inViscous[tile] = false;
+                for (let i = 0; i < tiles.length; ++i) {
+                    if (tiles[i] == tile && AABBs[i].intersect(this.box)) {
+                        this.inViscous[tile] = true;
+                        break;
+                    }
+                }
+
+                if(this.inViscous[tile]) {
+                    const viscosity = global.tile.tiles[tile].viscosity;
+                    this.velocityX *= viscosity;
+                    this.velocityY *= viscosity;
+                    this.velocityZ *= viscosity;
+                }
+            }
         
             if(xa != x) {
                 this.velocityX = 0;

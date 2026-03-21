@@ -1,8 +1,12 @@
+import { global } from "../main.js";
 import { Tile } from "./Tile.js";
 
 export class TileBush extends Tile {
-    constructor(tileMaterials, audio) {
+    hasBerries;
+
+    constructor(tileMaterials, audio, hasBerries) {
         super(tileMaterials, audio);
+        this.hasBerries = hasBerries;
         this.culling = false;
         this.opaque = false;
         this.viscosity = 0.2;
@@ -13,7 +17,6 @@ export class TileBush extends Tile {
         this.hasCustomFaceUVs = true;
         const min = 1 / 16;
         const max = 15 / 16;
-        // CHANGE LATER TO BETTER SHAPE
         this.customFaceVertices = new Float32Array([
             0, 0, max, 1, 0, max, 1, 1, max, 0, 1, max, // front
             1, 0, min, 0, 0, min, 0, 1, min, 1, 1, min, // back
@@ -31,5 +34,11 @@ export class TileBush extends Tile {
             0, 0, 1, 0, 1, 1, 0, 1, // right
             0, 0, 1, 0, 1, 1, 0, 1, // left
         ]);
+    }
+
+    interact(x, y, z) {
+        if(this.hasBerries) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.bush)
+        }
     }
 }

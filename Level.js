@@ -191,13 +191,18 @@ export class Level {
             this.spawnY = i + 3.5;
         }
 
+        // bushes
         if(global.debug) {
-            console.log("Blob amount: " + Math.floor(this.width * this.height * this.depth / 2048));
+            console.log("Bush amount: " + Math.floor(this.width * this.height * this.depth / 256));
         }
-        for(let i = 0; i < Math.floor(this.width * this.height * this.depth / 2048); ++i) {
+        for(let i = 0; i < Math.floor(this.width * this.height * this.depth / 256); ++i) {
             const x = Math.floor(random() * this.width);
-            const y = Math.floor(random() * this.height);
+            const y = Math.floor(random() * ((this.height << 1) + (this.height << 2)));
             const z = Math.floor(random() * this.depth);
+            if(this.getTile(x, y - 1, z) == grass) {
+                this.setTile(x, y, z, global.tile.bushBerry);
+                // this.setTile(x, y - 1, z, global.tile.roots);
+            }  
         }
 
         // trees
@@ -223,8 +228,8 @@ export class Level {
                         }
                     }
                     if(!logCheck) {
-                        // this.setTile(x, y - 1, z, global.tile.roots);
-                        this.setTile(x, y - 1, z, global.tile.dirt);
+                        this.setTile(x, y - 1, z, global.tile.log);
+                        this.setTile(x, y - 2, z, global.tile.roots);
                         for(let i = x - 1; i <= x + 1; ++i) {
                             for(let j = z - 1; j <= z + 1; ++j) {
                                 for(let k = y + 3; k <= y + 5; ++k) {

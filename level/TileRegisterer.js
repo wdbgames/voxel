@@ -19,7 +19,7 @@ import { TileData } from "./TileData.js";
 import { TileBush } from "./TileBush.js";
 
 export class TileRegisterer {
-    tileAmount = 27;
+    tileAmount = 28;
     tiles = [];
 
     void = 0;
@@ -49,6 +49,7 @@ export class TileRegisterer {
     music = 24;
     data = 25;
     bush = 26;
+    bushBerry = 27;
 
     // REMOVE CONSTRUCTOR?
     constructor() {
@@ -78,6 +79,7 @@ export class TileRegisterer {
         this.tiles[this.carpet] = new TileCarpet(23, 1);
         this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
         this.tiles[this.data] = new TileData(25, 5);
-        this.tiles[this.bush] = new TileBush(11, 0);
+        this.tiles[this.bush] = new TileBush(26, 0, false);
+        this.tiles[this.bushBerry] = new TileBush(27, 0, true);
     }
 }

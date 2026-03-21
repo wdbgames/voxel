@@ -41,7 +41,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 13
+		patch: 14
 	},
 
 	DT: {
@@ -210,10 +210,12 @@ function settings() {
 async function loadAssets() {
 	const alphaTest = [11, 22];
 	const transparent = [10];
+	const doubleSide = [26, 27];
 
 	const loader = new THREE.TextureLoader();
 	const promises = [];
 	
+	// SIMPLIFY A BIT
 	for(let i = 0; i < global.materialCount; ++i) {
 		global.materials[i] = new THREE.MeshStandardMaterial();
 		promises.push(new Promise((resolve, reject) => {
@@ -229,6 +231,10 @@ async function loadAssets() {
 
 				if(transparent.includes(i)) {
 					global.materials[i].transparent = true;
+				}
+
+				if(doubleSide.includes(i)) {
+					global.materials[i].side =  THREE.DoubleSide;
 				}
 
 				resolve();

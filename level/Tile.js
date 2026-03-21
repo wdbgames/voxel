@@ -23,10 +23,10 @@ export class Tile {
         this.audio = audio;
     }
 
-    tick() { 
+    tick(x, y, z) { 
     }
 
-    randomTick() {
+    randomTick(x, y, z) {
     }
 
     update(x, y, z) {
