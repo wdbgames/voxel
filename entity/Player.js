@@ -196,17 +196,17 @@ export class Player extends Entity {
 				this.jumpCooldown -= dt;
 			}
 
-			// MAKE PROPERTY IN TILE...
+			// MAKE PROPERTY IN TILE... (MAYBE)
 			if (this.keys[" "]) {
 				if((this.inViscous[global.tile.water])) {
 					if(this.jumpCooldown <= 0) {
 						this.velocityY += 0.01;
 					}	
-				} else if(this.inViscous[global.tile.lava]) {
+				} /*else if(this.inViscous[global.tile.lava]) {
 					if(this.jumpCooldown <= 0) {
 						this.velocityY += 0.01;
 					}
-				} else if(this.onGround) {
+				}*/ else if(this.onGround) {
 					this.velocityY += 0.1;
 				} else {
 					this.jumpCooldown = 4;

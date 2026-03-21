@@ -44,6 +44,20 @@ export class TileLiquid extends Tile {
 
     update(x, y, z) {
         global.level.scheduleTick(x, y, z, this.#tile == global.tile.water ? 4 : 8);
+
+        if(this.#tile == global.tile.lava) {
+            if(global.level.getTile(x + 1, y, z) == global.tile.water ||
+               global.level.getTile(x - 1, y, z) == global.tile.water ||
+               global.level.getTile(x, y + 1, z) == global.tile.water ||
+               global.level.getTile(x, y - 1, z) == global.tile.water ||
+               global.level.getTile(x, y, z + 1) == global.tile.water ||
+               global.level.getTile(x, y, z - 1) == global.tile.water) {
+                global.level.setTile(x, y, z, global.tile.stone);
+                if(global.level.getTile(x, y + 1, z) == global.tile.void) {
+                    global.level.setTile(x, y + 1, z, global.tile.steam);
+                }
+            }
+        }
     }
 
     added(x, y, z) { 

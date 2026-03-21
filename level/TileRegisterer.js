@@ -14,7 +14,7 @@ import { TileLeafPile } from "./TileLeafPile.js";
 import { TileSponge } from "./TileSponge.js";
 import { TileGlass } from "./TileGlass.js";
 import { TileCarpet } from "./TileCarpet.js";
-import { TileMusic } from "./TileMusic.js";
+import { TileSteam } from "./TileSteam.js";
 import { TileData } from "./TileData.js";
 import { TileBush } from "./TileBush.js";
 
@@ -47,7 +47,7 @@ export class TileRegisterer {
     pumice = 21;
     glass = 22;
     carpet = 23;
-    music = 24;
+    steam = 24;
     data = 25;
     bush = 26;
     bushBerry = 27;
@@ -78,7 +78,7 @@ export class TileRegisterer {
         this.tiles[this.pumice] = new TileSponge(21, 1, this.lava);
         this.tiles[this.glass] = new TileGlass(22, 1);
         this.tiles[this.carpet] = new TileCarpet(23, 1);
-        this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
+        this.tiles[this.steam] = new TileSteam(24, 5);
         this.tiles[this.data] = new TileData(25, 5);
         this.tiles[this.bush] = new TileBush(26, 0, false);
         this.tiles[this.bushBerry] = new TileBush(27, 0, true);

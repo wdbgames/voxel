@@ -41,7 +41,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 15
+		patch: 16
 	},
 
 	DT: {
@@ -208,8 +208,9 @@ function settings() {
 }
 
 async function loadAssets() {
+	// MOVE TO TILE
 	const alphaTest = [11, 22];
-	const transparent = [10];
+	const transparent = [10, 24];
 	const doubleSide = [26, 27];
 
 	const loader = new THREE.TextureLoader();
