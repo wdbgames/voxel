@@ -25,7 +25,7 @@ export const global = {
 	selectedTheme: 0,
 	selectedSize: 1,
 
-	materialCount: 28,
+	materialCount: 30,
 	materials: [],
 	audioCount: 10,
 	audio: [],
@@ -41,7 +41,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 3,
-		patch: 14
+		patch: 15
 	},
 
 	DT: {

@@ -31,7 +31,7 @@ export class TileStep extends Tile {
     added(x, y, z) {
         if(global.level.getTile(x, y - 1, z) == global.tile.step) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
-            global.level.setTileWithUpdate(x, y - 1, z, global.tile.stone);
+            global.level.setTileWithUpdate(x, y - 1, z, global.tile.stepDouble);
         }
     }
 }

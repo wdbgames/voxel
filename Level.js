@@ -147,9 +147,15 @@ export class Level {
                 }
             }
 
+            for (let x = 0; x < 7; ++x) {
+                for (let z = 0; z < 7; ++z) {
+                    this.setTile(houseX + x, houseY + 4, houseZ + z, global.tile.step);
+                }
+            }
+
             if(global.level.type != 2) {
                 for (let x = 0; x < 7; ++x) {
-                    for (let y = 0; y < 4; ++y) {
+                    for (let y = 0; y < 3; ++y) {
                         for (let z = 0; z < 7; ++z) {
                             this.setTile(houseX + x, houseY + 1 + y, houseZ + z, global.tile.wood);
                         }
@@ -201,7 +207,6 @@ export class Level {
             const z = Math.floor(random() * this.depth);
             if(this.getTile(x, y - 1, z) == grass) {
                 this.setTile(x, y, z, global.tile.bushBerry);
-                // this.setTile(x, y - 1, z, global.tile.roots);
             }  
         }
 
@@ -228,8 +233,7 @@ export class Level {
                         }
                     }
                     if(!logCheck) {
-                        this.setTile(x, y - 1, z, global.tile.log);
-                        this.setTile(x, y - 2, z, global.tile.roots);
+                        this.setTile(x, y - 1, z, global.tile.roots);
                         for(let i = x - 1; i <= x + 1; ++i) {
                             for(let j = z - 1; j <= z + 1; ++j) {
                                 for(let k = y + 3; k <= y + 5; ++k) {

@@ -11,7 +11,7 @@ export class TileGravity extends Tile {
 
     update(x, y, z) {
         let i = y;
-        while(global.level.getTile(x, i - 1, z) == global.tile.void) {
+        while(global.tile.tiles[global.level.getTile(x, i - 1, z)].breakable == false) {
             --i;
         }
         if(i != y) {

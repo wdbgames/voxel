@@ -9,7 +9,7 @@ export class Player extends Entity {
 	mouseOnce = [];
 	cameraHeight = 1.5;
 
-	inventory = [1, 1, 2, 3, 4];
+	inventory = [0, 1, 2, 3, 4];
 	selectedSlot = 0;
 
 	jumpCooldown = 0;

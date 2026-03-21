@@ -14,10 +14,9 @@ export class Entity {
     sizeY = 0.5;
     sizeZ = 0.5;
     inViscous = [];
-    box = new AABB(0, 0, 0, 0, 0, 0); // RENAME TO AABB
+    box = new AABB(0, 0, 0, 0, 0, 0);
     noclip = true;
     onGround = true;
-    viscous = [global.tile.water, global.tile.lava, global.tile.leaves, global.tile.bush, global.tile.bushBerry]; // MOVE?
 
     constructor(x, y, z) {
         this.positionX = x;
@@ -59,7 +58,6 @@ export class Entity {
         }
     }
 
-    // IMPLEMENT BETTER CACHING (AABBs.length)
     move(x, y, z) {
         if(this.noclip) {
             this.positionX += x;
@@ -104,11 +102,8 @@ export class Entity {
             this.positionZ += za;
             this.box.move(0, 0, za);
 
-            // MOVE TO TILE REGISTERER
-            const viscous = [global.tile.water, global.tile.lava, global.tile.leaves, global.tile.bush, global.tile.bushBerry];
-
-            for(let i = 0; i < viscous.length; ++i) {
-                const tile = this.viscous[i];
+            for(let i = 0; i < global.tile.viscous.length; ++i) {
+                const tile = global.tile.viscous[i];
                 this.inViscous[tile] = false;
                 for (let i = 0; i < tiles.length; ++i) {
                     if (tiles[i] == tile && AABBs[i].intersect(this.box)) {

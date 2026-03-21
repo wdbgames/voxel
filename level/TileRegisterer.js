@@ -19,8 +19,9 @@ import { TileData } from "./TileData.js";
 import { TileBush } from "./TileBush.js";
 
 export class TileRegisterer {
-    tileAmount = 28;
+    tileAmount = 29;
     tiles = [];
+    viscous = [];
 
     void = 0;
     stone = 1;
@@ -50,8 +51,8 @@ export class TileRegisterer {
     data = 25;
     bush = 26;
     bushBerry = 27;
+    stepDouble = 28;
 
-    // REMOVE CONSTRUCTOR?
     constructor() {
         this.tiles[this.void] = new TileVoid(0, 0);
         this.tiles[this.stone] = new Tile(5, 1);
@@ -70,8 +71,8 @@ export class TileRegisterer {
         this.tiles[this.voidWall] = new TileVoidWall(0, 1);
         this.tiles[this.lava] = new TileLiquid(16, 9, 0.4, this.lava);
         this.tiles[this.rock] = new TileGravity(17, 3, this.rock);
-        this.tiles[this.roots] = new Tile(18, 3);
-        this.tiles[this.step] = new TileStep(5, 1);
+        this.tiles[this.roots] = new TileDirt(18, 3);
+        this.tiles[this.step] = new TileStep([29, 29, 28, 28, 29, 29], 1);
         this.tiles[this.leafPile] = new TileLeafPile(11, 0);
         this.tiles[this.sponge] = new TileSponge(20, 3, this.water);
         this.tiles[this.pumice] = new TileSponge(21, 1, this.lava);
@@ -81,5 +82,14 @@ export class TileRegisterer {
         this.tiles[this.data] = new TileData(25, 5);
         this.tiles[this.bush] = new TileBush(26, 0, false);
         this.tiles[this.bushBerry] = new TileBush(27, 0, true);
+        this.tiles[this.stepDouble] = new Tile(28, 1);
+
+        for(let i = 0; i < this.tiles.length; ++i) {
+            const tileViscosity = this.tiles[i].viscosity;
+            if(tileViscosity != 0 && tileViscosity != 1) {
+                this.viscous.push(i);
+            }
+        }
+        console.log(this.viscous);
     }
 }
