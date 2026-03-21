@@ -16,9 +16,10 @@ import { TileGlass } from "./TileGlass.js";
 import { TileCarpet } from "./TileCarpet.js";
 import { TileMusic } from "./TileMusic.js";
 import { TileData } from "./TileData.js";
+import { TileBush } from "./TileBush.js";
 
 export class TileRegisterer {
-    tileAmount = 26;
+    tileAmount = 27;
     tiles = [];
 
     void = 0;
@@ -47,6 +48,7 @@ export class TileRegisterer {
     carpet = 23;
     music = 24;
     data = 25;
+    bush = 26;
 
     // REMOVE CONSTRUCTOR?
     constructor() {
@@ -76,5 +78,6 @@ export class TileRegisterer {
         this.tiles[this.carpet] = new TileCarpet(23, 1);
         this.tiles[this.music] = new TileMusic([25, 25, 24, 25, 25, 25], 5);
         this.tiles[this.data] = new TileData(25, 5);
+        this.tiles[this.bush] = new TileBush(27, 0);
     }
 }

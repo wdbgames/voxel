@@ -9,8 +9,8 @@ export class Player extends Entity {
 	mouseOnce = [];
 	cameraHeight = 1.5;
 
-	inventory = [0, 1, 2, 3, 4];
-	selectedTile = 0;
+	inventory = [1, 1, 2, 3, 4];
+	selectedSlot = 0;
 
 	jumpCooldown = 0;
 	sensitivity = 0.004;
@@ -34,6 +34,7 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
+		// SWITCH
 		if(this.keys["f"]) {
 			// debug
 			if(this.keysOnce["1"]) {
@@ -55,14 +56,39 @@ export class Player extends Entity {
 			}
 		}
 
-		if(this.keysOnce["ArrowLeft"]) {
-			this.keysOnce["ArrowLeft"] = false;
+		if(this.keysOnce["ArrowDown"]) {
+			this.keysOnce["ArrowDown"] = false;
 			this.updateSelectedTile(-1);
 		}
 
-		if(this.keysOnce["ArrowRight"]) {
-			this.keysOnce["ArrowRight"] = false;
+		if(this.keysOnce["ArrowUp"]) {
+			this.keysOnce["ArrowUp"] = false;
 			this.updateSelectedTile(1);
+		}
+
+		if(this.keysOnce["1"]) {
+			this.keysOnce["1"] = false;
+			this.updateSelectedSlot(0);
+		}
+
+		if(this.keysOnce["2"]) {
+			this.keysOnce["2"] = false;
+			this.updateSelectedSlot(1);
+		}
+	
+		if(this.keysOnce["3"]) {
+			this.keysOnce["3"] = false;
+			this.updateSelectedSlot(2);
+		}
+
+		if(this.keysOnce["4"]) {
+			this.keysOnce["4"] = false;
+			this.updateSelectedSlot(3);
+		}
+
+		if(this.keysOnce["5"]) {
+			this.keysOnce["5"] = false;
+			this.updateSelectedSlot(4);
 		}
 
 		if (this.keys["w"]) {
@@ -118,7 +144,7 @@ export class Player extends Entity {
 			);
 			if(rayTrace != -1) {
 				console.log(global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]));
-				this.selectedTile = global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]);
+				this.inventory[this.selectedSlot] = global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]);
 				global.renderer.updateUITile();
 			}
 		}
@@ -135,17 +161,17 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				if(this.selectedTile == global.tile.void) {
+				if(this.#getSelectedTile() == global.tile.void) {
 					global.tile.tiles[global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2])].interact(rayTrace[0], rayTrace[1], rayTrace[2]);
 				} else {
 					const x = rayTrace[3];
 					const y = rayTrace[4];
 					const z = rayTrace[5];
-					const bb = global.tile.tiles[this.selectedTile].hasCustomBoundingBox ? global.tile.tiles[this.selectedTile].customBoundingBox : [0, 0, 0, 1, 1, 1];
+					const bb = global.tile.tiles[this.#getSelectedTile()].hasCustomBoundingBox ? global.tile.tiles[this.#getSelectedTile()].customBoundingBox : [0, 0, 0, 1, 1, 1];
 					const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
 					if(this.noclip || !tileAABB.intersect(this.box)) {
-						global.level.setTileWithUpdate(x, y, z, this.selectedTile);
-						global.level.playSound(x, y, z, global.tile.tiles[this.selectedTile].audio);
+						global.level.setTileWithUpdate(x, y, z, this.#getSelectedTile());
+						global.level.playSound(x, y, z, global.tile.tiles[this.#getSelectedTile()].audio);
 					}
 				}
 			}
@@ -213,17 +239,28 @@ export class Player extends Entity {
 		this.rotationX -= movementY * this.sensitivity * (global.DT.delta / 14);
 	}
 
+	updateSelectedSlot(x) {
+		this.selectedSlot = x;
+		
+		global.renderer.updateUITile();
+	}
+
 	updateSelectedTile(x) {
-		this.selectedTile += x;
+		this.inventory[this.selectedSlot] += x;
 
-		if(this.selectedTile < 0) {
-			this.selectedTile = global.tile.tileAmount - 1;
+		if(this.inventory[this.selectedSlot] < 0) {
+			this.inventory[this.selectedSlot] = global.tile.tileAmount - 1;
 		}
+		console.log(this.inventory[this.selectedSlot]);
 
-		if(this.selectedTile > global.tile.tileAmount - 1) {
-			this.selectedTile = 0;
+		if(this.inventory[this.selectedSlot] > global.tile.tileAmount - 1) {
+			this.inventory[this.selectedSlot] = 0;
 		}
 
 		global.renderer.updateUITile();
+	}
+
+	#getSelectedTile() {
+		return this.inventory[this.selectedSlot];
 	}
 }

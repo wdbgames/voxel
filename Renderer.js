@@ -57,13 +57,13 @@ export class Renderer {
     }
 
     update(dt) {
-        /*
+        
         this.#tileRotation += 0.01 * dt;
         for(let i = 0; i < this.tiles.length; ++i) {
-            this.tiles[i].rotation.x = this.#tileRotation;
+            //this.tiles[i].rotation.x = this.#tileRotation;
             this.tiles[i].rotation.y = this.#tileRotation;
         }
-        */
+        
 
         this.ctx.clearRect(0, 0, 256, 128)
 
@@ -141,9 +141,7 @@ export class Renderer {
         this.ctx.fillRect(x0, y0, x1, y1);
     }
 
-    updateUITile() {
-        global.player.inventory[0] = global.player.selectedTile;
-        
+    updateUITile() { 
         for(let i = 0; i < this.tiles.length; ++i) {
             if (this.tiles[i]) {
                 this.scene.remove(this.tiles[i]);
@@ -169,6 +167,7 @@ export class Renderer {
                 0, 0, 1, 0, 1, 1, 0, 1, // left
             ]);
 
+            const isSelected = i == global.player.selectedSlot;
             const tileSize = 32;
 
             const geometry = new THREE.BufferGeometry();
@@ -185,12 +184,16 @@ export class Renderer {
             const material = new THREE.MeshBasicMaterial({
                 color: 0x000000,
                 wireframe: true
-        });
+            });
 
             let vertexOffset = 0;
             for (let f = 0; f < 6; ++f) {
                 for(let j = 0; j < 4; ++j) {
-                    colors.push(1, 1, 1);
+                    if(isSelected) {
+                        colors.push(2, 2, 2);
+                    } else {
+                        colors.push(1, 1, 1);
+                    }
                 }
 
                 for (let j = f * 12; j < (f * 12) + 12; j += 3) {

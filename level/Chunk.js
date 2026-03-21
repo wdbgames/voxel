@@ -286,7 +286,9 @@ export class Chunk {
         for (let i = 0; i < indicesByTexture.length; i++) {
             const array = indicesByTexture[i];
 
-            if (array.length === 0) continue;
+            if(array.length === 0) {
+                continue;
+            }
 
             geometry.addGroup(start, array.length, i);
             indices.push(...array);

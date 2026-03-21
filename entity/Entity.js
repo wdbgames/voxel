@@ -106,6 +106,7 @@ export class Entity {
             this.#handleViscous(tiles, AABBs, global.tile.water);
             this.#handleViscous(tiles, AABBs, global.tile.lava);
             this.#handleViscous(tiles, AABBs, global.tile.leaves);
+            this.#handleViscous(tiles, AABBs, global.tile.bush);
         
             if(xa != x) {
                 this.velocityX = 0;
