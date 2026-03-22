@@ -28,6 +28,8 @@ export class Renderer {
     #axesHelper = new THREE.AxesHelper(64);
     #crosshair = null;
 
+    #temp = null;
+
     start() {
         this.cameraUI.position.z = 16;
         const canvas = document.createElement("canvas");
@@ -56,6 +58,7 @@ export class Renderer {
         global.gui.createElement("tileUpdates", "info", "h", 2, 2 + textHeight * 10);
         global.gui.createElement("nearDistance", "info", "i", 2, 2 + textHeight * 12);
         global.gui.createElement("farDistance", "info", "j", 2, 2 + textHeight * 13);
+        global.gui.createElement("temp", "info", "k", 2, 2 + textHeight * 15);
         
         const light = new THREE.AmbientLight(0xffffff, 4);
         this.sceneUI.add(light); 
@@ -87,6 +90,7 @@ export class Renderer {
                 global.gui.showElement("tileUpdates");
                 global.gui.showElement("nearDistance");
                 global.gui.showElement("farDistance");
+                global.gui.showElement("temp");
             } else {
                 this.#axesHelper.visible = false;
 
@@ -99,6 +103,7 @@ export class Renderer {
                 global.gui.hideElement("tileUpdates");
                 global.gui.hideElement("nearDistance");
                 global.gui.hideElement("farDistance");
+                global.gui.hideElement("temp");
             }
         }
 
@@ -112,6 +117,8 @@ export class Renderer {
             global.gui.updateTextContent("tileUpdates", `tileUpdates: ${global.level.tileUpdates}`);
             global.gui.updateTextContent("nearDistance", `nearDistance: ${this.nearDistance}`);
             global.gui.updateTextContent("farDistance", `farDistance: ${this.farDistance}`);
+            // global.gui.updateTextContent("temp", `temp: ${this.#temp}`);
+            global.gui.updateTextContent("temp", `temp: ${global.player.rotationX}`);
         }
 
         for(const chunk of global.level.chunks) {

@@ -3,12 +3,14 @@ import { Entity } from "./Entity.js";
 import { AABB } from "../AABB.js";
 
 export class Player extends Entity {
+	// MOVE TO INPUT.JS
     keys = [];
 	keysOnce = [];
 	mouse = [];
 	mouseOnce = [];
 
 	cameraHeight = 1.5;
+	cameraIn = [];
 	cameraInWater = false;
 	cameraInLava = false;
 
@@ -36,6 +38,18 @@ export class Player extends Entity {
 
 	#clamp(value, min, max) {
 		return Math.max(min, Math.min(max, value));
+	}
+
+	#handleOverlay(cameraY, tileID, materialID) {
+		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == tileID) {
+			if(!this.cameraIn[tileID]) {
+				this.cameraIn[tileID] = true;
+				global.renderer.overlay[materialID].visible = true;
+			}
+		} else if(this.cameraIn[tileID]) {
+			this.cameraIn[tileID] = false;
+			global.renderer.overlay[materialID].visible = false;
+		}
 	}
 
 	update(dt) {
@@ -233,30 +247,16 @@ export class Player extends Entity {
 		this.velocityX = this.#clamp(this.velocityX, -this.maxSpeed, this.maxSpeed);
 		this.velocityZ = this.#clamp(this.velocityZ, -this.maxSpeed, this.maxSpeed);
 
+		this.rotationX = Math.min(this.rotationX, Math.PI / 2);
+		this.rotationX = Math.max(this.rotationX, -Math.PI / 2);
+
 		this.move(this.velocityX * dt, this.velocityY * dt, this.velocityZ * dt);
 
 		const cameraY = this.positionY - this.sizeY / 2 + this.cameraHeight;
 
-		// COMBINE
-		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == global.tile.water) {
-			if(!this.cameraInWater) {
-				this.cameraInWater = true;
-				global.renderer.overlay[10].visible = true;
-			}
-		} else if(this.cameraInWater) {
-			this.cameraInWater = false;
-			global.renderer.overlay[10].visible = false;
-		}
-
-		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == global.tile.lava) {
-			if(!this.cameraInLava) {
-				this.cameraInLava = true;
-				global.renderer.overlay[16].visible = true;
-			}
-		} else if(this.cameraInLava) {
-			this.cameraInLava = false;
-			global.renderer.overlay[16].visible = false;
-		}
+		// ROOM FOR IMPROVEMENT
+		this.#handleOverlay(cameraY, global.tile.water, 10);
+		this.#handleOverlay(cameraY, global.tile.lava, 16);
 		
 		global.renderer.camera.position.x = this.positionX;
 		global.renderer.camera.position.y = cameraY;

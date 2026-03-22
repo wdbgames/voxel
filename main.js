@@ -39,9 +39,10 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 1
+		patch: 2
 	},
 
+	// MEH
 	DT: {
 		delta: 0,
 		deltaTemp: performance.now(),
@@ -60,7 +61,6 @@ function addEventListeners() {
 		global.player.keys[event.key] = false;
 	});
 
-	// FIX MOUSE
 	document.addEventListener('mousedown', (event) => {
 		if(document.pointerLockElement) {
 			global.player.mouse[event.button] = global.player.mouseOnce[event.button] = true;
