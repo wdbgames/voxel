@@ -107,6 +107,9 @@ export class Renderer {
             }
         }
 
+        // !!!
+        this.#temp = null;
+
         if(global.debug) {
             global.gui.updateTextContent("positionX", `positionX: ${global.player.positionX.toFixed(3)}`);
             global.gui.updateTextContent("positionY", `positionY: ${global.player.positionY.toFixed(3)}`);
@@ -117,8 +120,7 @@ export class Renderer {
             global.gui.updateTextContent("tileUpdates", `tileUpdates: ${global.level.tileUpdates}`);
             global.gui.updateTextContent("nearDistance", `nearDistance: ${this.nearDistance}`);
             global.gui.updateTextContent("farDistance", `farDistance: ${this.farDistance}`);
-            // global.gui.updateTextContent("temp", `temp: ${this.#temp}`);
-            global.gui.updateTextContent("temp", `temp: ${global.player.rotationX}`);
+            global.gui.updateTextContent("temp", `temp: ${this.#temp}`);
         }
 
         for(const chunk of global.level.chunks) {

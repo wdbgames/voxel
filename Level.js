@@ -127,11 +127,12 @@ export class Level {
             const houseX =  Math.floor(this.width / 2 - 3);
             const houseZ =  Math.floor(this.depth / 2 - 3);
 
+            // OPTIMIZE FOR TYPE
             let houseY = 0;
-            if(global.level.type == 2) {
+            if(this.type == 2) {
                 houseY = Math.floor(this.height / 2);
             } else {
-                let i = Math.floor(global.level.height / 2);
+                let i = Math.floor(this.height / 2);
                 while(this.getTile(houseX, i, houseZ) != 0) {
                     ++i;
                 }
@@ -144,19 +145,24 @@ export class Level {
 
             console.log(houseY);
 
-            for (let x = 0; x < 7; ++x) {
+            let platformWidth = 7;
+            if(this.type == 4) {
+                platformWidth = global.tile.tileAmount;
+                ++houseY;
+            }
+            for (let x = 0; x < platformWidth; ++x) {
                 for (let z = 0; z < 7; ++z) {
                     this.setTile(houseX + x, houseY, houseZ + z, stone);
                 }
             }
 
-            for (let x = 0; x < 7; ++x) {
-                for (let z = 0; z < 7; ++z) {
-                    this.setTile(houseX + x, houseY + 4, houseZ + z, global.tile.step);
+            if(this.type != 2 && this.type != 4) {
+                for (let x = 0; x < 7; ++x) {
+                    for (let z = 0; z < 7; ++z) {
+                        this.setTile(houseX + x, houseY + 4, houseZ + z, global.tile.step);
+                    }
                 }
-            }
 
-            if(global.level.type != 2) {
                 for (let x = 0; x < 7; ++x) {
                     for (let y = 0; y < 3; ++y) {
                         for (let z = 0; z < 7; ++z) {
@@ -165,6 +171,24 @@ export class Level {
                     }
                 }
 
+                // IMPROVE (HELPER?)
+                this.setTile(houseX + 3, houseY + 1, houseZ, global.tile.void);
+                this.setTile(houseX + 3, houseY + 2, houseZ, global.tile.void);
+
+                this.setTile(houseX + 2, houseY + 2, houseZ + 6, global.tile.glass);
+                this.setTile(houseX + 3, houseY + 2, houseZ + 6, global.tile.glass);
+                this.setTile(houseX + 4, houseY + 2, houseZ + 6, global.tile.glass);
+
+                this.setTile(houseX, houseY + 2, houseZ + 2, global.tile.glass);
+                this.setTile(houseX, houseY + 2, houseZ + 3, global.tile.glass);
+                this.setTile(houseX, houseY + 2, houseZ + 4, global.tile.glass);
+
+                this.setTile(houseX + 6, houseY + 2, houseZ + 2, global.tile.glass);
+                this.setTile(houseX + 6, houseY + 2, houseZ + 3, global.tile.glass);
+                this.setTile(houseX + 6, houseY + 2, houseZ + 4, global.tile.glass);
+            }
+
+            if(this.type != 2) {
                 for (let x = 0; x < 5; ++x) {
                     for (let y = 0; y < 3; ++y) {
                         for (let z = 0; z < 5; ++z) {
@@ -174,20 +198,6 @@ export class Level {
                 }
             }
 
-            this.setTile(houseX + 3, houseY + 1, houseZ, global.tile.void);
-            this.setTile(houseX + 3, houseY + 2, houseZ, global.tile.void);
-
-            this.setTile(houseX + 2, houseY + 2, houseZ + 6, global.tile.glass);
-            this.setTile(houseX + 3, houseY + 2, houseZ + 6, global.tile.glass);
-            this.setTile(houseX + 4, houseY + 2, houseZ + 6, global.tile.glass);
-
-            this.setTile(houseX, houseY + 2, houseZ + 2, global.tile.glass);
-            this.setTile(houseX, houseY + 2, houseZ + 3, global.tile.glass);
-            this.setTile(houseX, houseY + 2, houseZ + 4, global.tile.glass);
-
-            this.setTile(houseX + 6, houseY + 2, houseZ + 2, global.tile.glass);
-            this.setTile(houseX + 6, houseY + 2, houseZ + 3, global.tile.glass);
-            this.setTile(houseX + 6, houseY + 2, houseZ + 4, global.tile.glass);
         } else {
             this.spawnX = this.width / 2;
             this.spawnZ = this.depth / 2;
@@ -215,7 +225,7 @@ export class Level {
 
         // trees
         // FIX CUTOFF
-        if(global.level.type != 2) {
+        if(this.type != 2) {
             if(global.debug) {
                 console.log("Tree amount: " + Math.floor(this.width * this.depth / 128));
             }
@@ -249,6 +259,16 @@ export class Level {
                         }
                     }
                 }
+            }
+        }
+
+        if(this.type == 4) { 
+            const debugX = Math.floor(this.width / 2 - 3);
+            const debugZ = Math.floor(this.depth / 2);
+            const debugY = Math.floor(this.height / 2 + 2);
+
+            for(let x = 0; x < global.tile.tileAmount; ++x) {
+                this.setTile(debugX + x, debugY, debugZ, x);
             }
         }
         
@@ -495,7 +515,7 @@ export class Level {
 		}
 
 		for(let i = 0; i < limit * 3; ++i) {
-            const tileId = global.level.getTile(floorX, floorY, floorZ);
+            const tileId = this.getTile(floorX, floorY, floorZ);
             const tile = global.tile.tiles[tileId];
 
             if (tile.breakable) {

@@ -11,8 +11,6 @@ export class Player extends Entity {
 
 	cameraHeight = 1.5;
 	cameraIn = [];
-	cameraInWater = false;
-	cameraInLava = false;
 
 	inventory = [0, 1, 2, 3, 4];
 	selectedSlot = 0;

@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 2
+		patch: 3
 	},
 
 	// MEH
@@ -147,9 +147,9 @@ function newLevelSettings() {
 }
 
 function updateType() {
-	const types = ["Default", "Flat", "Void", "Floating"];
+	const types = ["Default", "Flat", "Void", "Floating", "Debug"];
 	++global.selectedType;
-	if(global.selectedType >= 4) {
+	if(global.selectedType >= 5) {
 		global.selectedType = 0;
 	}
 	global.gui.updateTextContent("type", `Type: ${types[global.selectedType]}`);
@@ -208,36 +208,27 @@ function settings() {
 }
 
 async function loadAssets() {
-	// MOVE TO TILE
+	// MOVE TO TILE, maybe materials class
 	const alphaTest = [11, 22];
 	const transparent = [10, 24];
-	const doubleSide = [26, 27];
+	const doubleSide = [10, 26, 27];
 
 	const loader = new THREE.TextureLoader();
 	const promises = [];
 	
-	// SIMPLIFY A BIT
 	for(let i = 0; i < global.materialCount; ++i) {
-		global.materials[i] = new THREE.MeshStandardMaterial();
 		promises.push(new Promise((resolve, reject) => {
 			loader.load(`./assets/tile/${i}.png`, (texture) => {
 				texture.colorSpace = THREE.SRGBColorSpace;
 				texture.magFilter = THREE.NearestFilter;
-				global.materials[i].map = texture;
-				global.materials[i].needsUpdate = true;
-				global.materials[i].vertexColors = true;
-				if(alphaTest.includes(i)) {
-					global.materials[i].alphaTest = 0.5;
-				}
-
-				if(transparent.includes(i)) {
-					global.materials[i].transparent = true;
-				}
-
-				if(doubleSide.includes(i)) {
-					global.materials[i].side =  THREE.DoubleSide;
-				}
-
+				global.materials[i] = new THREE.MeshStandardMaterial({
+					map: texture,
+					needsUpdate: true,
+					vertexColors: true,
+					alphaTest: alphaTest.includes(i) ? 0.5 : null,
+					transparent: transparent.includes(i) ? true : null,
+					side: doubleSide.includes(i) ? THREE.DoubleSide : null
+				});
 				resolve();
 			}, undefined, reject);
 		}));

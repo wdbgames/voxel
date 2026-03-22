@@ -95,8 +95,8 @@ export class Chunk {
 
                     let height = levelHeight >> 1;
                     let minHeight = 0;
-                    if(global.level.type == 1) {
-                        height += noise.perlin2(offsetX / 48, offsetZ / 48);
+                    if(global.level.type == 1 || global.level.type == 4) {
+                        height += Math.ceil(noise.perlin2(offsetX / 48, offsetZ / 48));
                     } else {
                         const island = Math.cos(Math.sqrt(Math.pow(x - (levelWidth >> 1), 2) + Math.pow(z - (levelDepth >> 1), 2)) / levelWidth * Math.PI)
                         height += Math.floor(island * 4);
