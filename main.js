@@ -23,9 +23,9 @@ export const global = {
 	selectedTheme: 0,
 	selectedSize: 1,
 
-	materialCount: 30,
+	materialCount: 31,
 	materials: [],
-	audioCount: 10,
+	audioCount: 14,
 	audio: [],
 	
 	debug: false,
@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 3
+		patch: 4
 	},
 
 	// MEH
@@ -100,6 +100,7 @@ function update(dt) {
 }
 
 function tick() {
+	// FIX
 	global.level.tick();
 }
 

@@ -19,7 +19,7 @@ import { TileData } from "./TileData.js";
 import { TileBush } from "./TileBush.js";
 
 export class TileRegisterer {
-    tileAmount = 29;
+    tileAmount = 30;
     tiles = [];
     viscous = [];
 
@@ -52,6 +52,7 @@ export class TileRegisterer {
     bush = 26;
     bushBerry = 27;
     stepDouble = 28;
+    diamond = 29;
 
     constructor() {
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -60,7 +61,7 @@ export class TileRegisterer {
         this.tiles[this.grass] = new TileGrass([6, 6, 3, 2, 6, 6], 3);
         this.tiles[this.wood] = new Tile(4, 2);
         this.tiles[this.stoneDeep] = new TileStoneDeep(1, 1);
-        this.tiles[this.sand] = new TileGravity(7, 3, this.sand);
+        this.tiles[this.sand] = new TileGravity(7, 10, this.sand);
         this.tiles[this.mud] = new Tile(8, 4);
         this.tiles[this.stoneDeepDeep] = new TileStoneDeepDeep(9, 1);
         this.tiles[this.water] = new TileLiquid(10, 7, 0.8, this.water);
@@ -70,19 +71,20 @@ export class TileRegisterer {
         this.tiles[this.metal] = new Tile(15, 5);
         this.tiles[this.voidWall] = new TileVoidWall(0, 1);
         this.tiles[this.lava] = new TileLiquid(16, 9, 0.4, this.lava);
-        this.tiles[this.rock] = new TileGravity(17, 3, this.rock);
+        this.tiles[this.rock] = new TileGravity(17, 12, this.rock);
         this.tiles[this.roots] = new TileDirt(18, 3);
         this.tiles[this.step] = new TileStep([29, 29, 28, 28, 29, 29], 1);
         this.tiles[this.leafPile] = new TileLeafPile(11, 0);
-        this.tiles[this.sponge] = new TileSponge(20, 3, this.water);
+        this.tiles[this.sponge] = new TileSponge(20, 12, this.water);
         this.tiles[this.pumice] = new TileSponge(21, 1, this.lava);
         this.tiles[this.glass] = new TileGlass(22, 1);
         this.tiles[this.carpet] = new TileCarpet(23, 1);
-        this.tiles[this.steam] = new TileSteam(24, 5);
+        this.tiles[this.steam] = new TileSteam(24, 11);
         this.tiles[this.data] = new TileData(25, 5);
-        this.tiles[this.bush] = new TileBush(26, 0, false);
-        this.tiles[this.bushBerry] = new TileBush(27, 0, true);
+        this.tiles[this.bush] = new TileBush(26, 13, false);
+        this.tiles[this.bushBerry] = new TileBush(27, 13, true);
         this.tiles[this.stepDouble] = new Tile(28, 1);
+        this.tiles[this.diamond] = new Tile(30, 5);
 
         for(let i = 0; i < this.tiles.length; ++i) {
             const tileViscosity = this.tiles[i].viscosity;

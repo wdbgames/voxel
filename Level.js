@@ -129,7 +129,7 @@ export class Level {
 
             // OPTIMIZE FOR TYPE
             let houseY = 0;
-            if(this.type == 2) {
+            if(this.type == 2 || this.type == 4) {
                 houseY = Math.floor(this.height / 2);
             } else {
                 let i = Math.floor(this.height / 2);
@@ -143,12 +143,10 @@ export class Level {
             this.spawnY = houseY + 3.5;
             this.spawnZ = houseZ + 3.5;
 
-            console.log(houseY);
-
             let platformWidth = 7;
             if(this.type == 4) {
                 platformWidth = global.tile.tileAmount;
-                ++houseY;
+                ++houseY
             }
             for (let x = 0; x < platformWidth; ++x) {
                 for (let z = 0; z < 7; ++z) {
