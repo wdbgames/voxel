@@ -7,9 +7,7 @@ import { Gui } from "./Gui.js";
 import { Input } from "./Input.js";
 
 export const global = {
-	scene: new THREE.Scene(),
-	camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
-
+	// IMPLEMENT
 	canvasWidth: window.innerWidth,
 	canvasHeight: window.innerHeight,
 
@@ -41,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 0
+		patch: 1
 	},
 
 	DT: {

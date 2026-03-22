@@ -55,6 +55,16 @@ export class Player extends Entity {
 				this.keysOnce["3"] = false;
 				this.noclip = !this.noclip;
 			}
+
+			if(this.keysOnce["4"]) {
+				this.keysOnce["4"] = false;
+				global.renderer.incrementNearDistance(10, 0.001, 0.1);
+			}
+
+			if(this.keysOnce["5"]) {
+				this.keysOnce["5"] = false;
+				global.renderer.incrementFarDistance(2, 16, 256);
+			}
 		} else {
 			if(this.keysOnce["1"]) {
 				this.keysOnce["1"] = false;
