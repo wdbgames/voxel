@@ -40,8 +40,8 @@ export const global = {
 
 	version: {
 		major: 0,
-		minor: 3,
-		patch: 16
+		minor: 4,
+		patch: 0
 	},
 
 	DT: {
@@ -187,14 +187,16 @@ function createNewLevel() {
 function quickNewLevel() {
 	global.gui.showElement("canvas");
 
+	global.renderer = new Renderer();
+
 	global.level = new Level(64 << global.selectedSize, 64, 64 << global.selectedSize, global.selectedType, global.selectedTheme);
 	global.level.generate();
 
 	global.player = new Player(global.level.spawnX, global.level.spawnY, global.level.spawnZ);
 	
-	addEventListeners()
+	global.renderer.start();
 
-	global.renderer = new Renderer();
+	addEventListeners()
 
 	loop();
 }

@@ -296,20 +296,18 @@ export class Chunk {
             start += array.length;
         }
 
-
-        // CHANGE
         geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
         geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
         geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(colors), 3));
         geometry.setIndex(indices);
         geometry.computeVertexNormals();
         this.mesh = new THREE.Mesh(geometry, global.materials);
-        global.scene.add(this.mesh);
+        global.renderer.scene.add(this.mesh);
     }
 
     updateGeometry() {
         if (this.mesh) {
-            global.scene.remove(this.mesh);
+            global.renderer.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
             this.mesh = null;
         }

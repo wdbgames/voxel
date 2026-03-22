@@ -90,6 +90,5 @@ export class TileRegisterer {
                 this.viscous.push(i);
             }
         }
-        console.log(this.viscous);
     }
 }

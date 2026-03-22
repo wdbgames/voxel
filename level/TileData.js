@@ -13,6 +13,5 @@ export class TileData extends Tile {
         }
         
         global.level.setTileData(x, y, z, data);
-        console.log(data);
     }
 }

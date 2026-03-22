@@ -7,7 +7,10 @@ export class Player extends Entity {
 	keysOnce = [];
 	mouse = [];
 	mouseOnce = [];
+
 	cameraHeight = 1.5;
+	cameraInWater = false;
+	cameraInLava = false;
 
 	inventory = [0, 1, 2, 3, 4];
 	selectedSlot = 0;
@@ -22,7 +25,9 @@ export class Player extends Entity {
 
 	constructor(x, y, z) {
 		super(x, y, z);
-		// console.log("Spawned player at: " + x + ", " + y + ", " + z);
+		if(true || global.debug) {
+			console.log("Spawned player at: " + x + ", " + y + ", " + z);
+		}
 		this.sizeX = 0.75;
 		this.sizeY = 1.75;
 		this.sizeZ = 0.75;
@@ -34,25 +39,46 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
-		// SWITCH
 		if(this.keys["f"]) {
-			// debug
 			if(this.keysOnce["1"]) {
 				this.keysOnce["1"] = false;
 				global.debug = !global.debug;
 				global.debugUpdate = true;
 			}
 
-			// fly
 			if(this.keysOnce["2"]) {
 				this.keysOnce["2"] = false;
 				this.fly = !this.fly;
 			}
 
-			// noclip
 			if(this.keysOnce["3"]) {
 				this.keysOnce["3"] = false;
 				this.noclip = !this.noclip;
+			}
+		} else {
+			if(this.keysOnce["1"]) {
+				this.keysOnce["1"] = false;
+				this.updateSelectedSlot(0);
+			}
+
+			if(this.keysOnce["2"]) {
+				this.keysOnce["2"] = false;
+				this.updateSelectedSlot(1);
+			}
+		
+			if(this.keysOnce["3"]) {
+				this.keysOnce["3"] = false;
+				this.updateSelectedSlot(2);
+			}
+
+			if(this.keysOnce["4"]) {
+				this.keysOnce["4"] = false;
+				this.updateSelectedSlot(3);
+			}
+
+			if(this.keysOnce["5"]) {
+				this.keysOnce["5"] = false;
+				this.updateSelectedSlot(4);
 			}
 		}
 
@@ -64,31 +90,6 @@ export class Player extends Entity {
 		if(this.keysOnce["ArrowUp"]) {
 			this.keysOnce["ArrowUp"] = false;
 			this.updateSelectedTile(1);
-		}
-
-		if(this.keysOnce["1"]) {
-			this.keysOnce["1"] = false;
-			this.updateSelectedSlot(0);
-		}
-
-		if(this.keysOnce["2"]) {
-			this.keysOnce["2"] = false;
-			this.updateSelectedSlot(1);
-		}
-	
-		if(this.keysOnce["3"]) {
-			this.keysOnce["3"] = false;
-			this.updateSelectedSlot(2);
-		}
-
-		if(this.keysOnce["4"]) {
-			this.keysOnce["4"] = false;
-			this.updateSelectedSlot(3);
-		}
-
-		if(this.keysOnce["5"]) {
-			this.keysOnce["5"] = false;
-			this.updateSelectedSlot(4);
 		}
 
 		if (this.keys["w"]) {
@@ -143,7 +144,6 @@ export class Player extends Entity {
 						this.reach
 			);
 			if(rayTrace != -1) {
-				console.log(global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]));
 				this.inventory[this.selectedSlot] = global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2]);
 				global.renderer.updateUITile();
 			}
@@ -196,17 +196,12 @@ export class Player extends Entity {
 				this.jumpCooldown -= dt;
 			}
 
-			// MAKE PROPERTY IN TILE... (MAYBE)
 			if (this.keys[" "]) {
 				if((this.inViscous[global.tile.water])) {
 					if(this.jumpCooldown <= 0) {
 						this.velocityY += 0.01;
 					}	
-				} /*else if(this.inViscous[global.tile.lava]) {
-					if(this.jumpCooldown <= 0) {
-						this.velocityY += 0.01;
-					}
-				}*/ else if(this.onGround) {
+				} else if(this.onGround) {
 					this.velocityY += 0.1;
 				} else {
 					this.jumpCooldown = 4;
@@ -214,7 +209,7 @@ export class Player extends Entity {
 			}
 
 			this.velocityY -= 0.004;
-			if(global.level.getTile(Math.floor(this.positionX), Math.floor(this.positionY - 1), Math.floor(this.positionZ)) == 0) {
+			if(global.level.getTile(Math.floor(this.positionX), Math.ceil(this.positionY - this.sizeY / 2 + this.cameraHeight) - 1, Math.floor(this.positionZ)) == 0) {
 				this.velocityX *= 0.6;
 				this.velocityZ *= 0.6;
 			} else {
@@ -230,12 +225,35 @@ export class Player extends Entity {
 
 		this.move(this.velocityX * dt, this.velocityY * dt, this.velocityZ * dt);
 
-		global.camera.position.x = this.positionX;
-		global.camera.position.y = this.positionY - this.sizeY / 2 + this.cameraHeight;
-		global.camera.position.z = this.positionZ;
+		const cameraY = this.positionY - this.sizeY / 2 + this.cameraHeight;
 
-		global.camera.rotation.x = this.rotationX;
-		global.camera.rotation.y = this.rotationY;
+		// COMBINE
+		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == global.tile.water) {
+			if(!this.cameraInWater) {
+				this.cameraInWater = true;
+				global.renderer.overlay[10].visible = true;
+			}
+		} else if(this.cameraInWater) {
+			this.cameraInWater = false;
+			global.renderer.overlay[10].visible = false;
+		}
+
+		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == global.tile.lava) {
+			if(!this.cameraInLava) {
+				this.cameraInLava = true;
+				global.renderer.overlay[16].visible = true;
+			}
+		} else if(this.cameraInLava) {
+			this.cameraInLava = false;
+			global.renderer.overlay[16].visible = false;
+		}
+		
+		global.renderer.camera.position.x = this.positionX;
+		global.renderer.camera.position.y = cameraY;
+		global.renderer.camera.position.z = this.positionZ;
+
+		global.renderer.camera.rotation.x = this.rotationX;
+		global.renderer.camera.rotation.y = this.rotationY;
 	}
 
 	updateRotation(movementX, movementY) {
@@ -255,7 +273,6 @@ export class Player extends Entity {
 		if(this.inventory[this.selectedSlot] < 0) {
 			this.inventory[this.selectedSlot] = global.tile.tileAmount - 1;
 		}
-		console.log(this.inventory[this.selectedSlot]);
 
 		if(this.inventory[this.selectedSlot] > global.tile.tileAmount - 1) {
 			this.inventory[this.selectedSlot] = 0;

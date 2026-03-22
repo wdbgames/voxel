@@ -28,9 +28,6 @@ export class Entity {
     update() {
     }
 
-    render() {
-    }
-
     updateBox() {
         this.box.x0 = this.positionX - this.sizeX / 2;
         this.box.y0 = this.positionY - this.sizeY / 2;
@@ -39,23 +36,6 @@ export class Entity {
         this.box.x1 = this.positionX + this.sizeX / 2;
         this.box.y1 = this.positionY + this.sizeY / 2;
         this.box.z1 = this.positionZ + this.sizeZ / 2;
-    }
-
-    #handleViscous(tiles, AABBs, tile) {
-        this.inViscous[tile] = false;
-        for (let i = 0; i < tiles.length; ++i) {
-            if (tiles[i] == tile && AABBs[i].intersect(this.box)) {
-                this.inViscous[tile] = true;
-                break;
-            }
-        }
-
-        if(this.inViscous[tile]) {
-            const viscosity = global.tile.tiles[tile].viscosity;
-            this.velocityX *= viscosity;
-            this.velocityY *= viscosity;
-            this.velocityZ *= viscosity;
-        }
     }
 
     move(x, y, z) {

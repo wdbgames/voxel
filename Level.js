@@ -58,8 +58,10 @@ export class Level {
         const r = 0x87 / 255 * brightness;
         const g = 0xCE / 255 * brightness;
         const b = 0xEB / 255 * brightness;
-        global.scene.background.setRGB(r, g, b);
+        global.renderer.scene.background.setRGB(r, g, b);
+        global.renderer.scene.fog.color.setRGB(r, g, b);
 
+        // SKYLIGHT
         // global.renderer.ambientLight.intensity = (brightness + 0.08) * 2;
 
         ++this.time;
@@ -67,7 +69,6 @@ export class Level {
             this.time = 0;
         }
 
-        // ticking
         for(let i = this.tickQueue.length - 1; i >= 0; --i) {
             const tick = this.tickQueue[i];
             if (!tick) continue;
@@ -140,6 +141,8 @@ export class Level {
             this.spawnX = houseX + 3.5;
             this.spawnY = houseY + 3.5;
             this.spawnZ = houseZ + 3.5;
+
+            console.log(houseY);
 
             for (let x = 0; x < 7; ++x) {
                 for (let z = 0; z < 7; ++z) {

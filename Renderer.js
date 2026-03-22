@@ -3,47 +3,61 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161/build/three.mod
 import { global } from "./main.js";
 
 export class Renderer {
-    renderer = new THREE.WebGLRenderer({canvas: document.getElementById("canvas")});
+    renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById("canvas")
+    });
+
     ambientLight = new THREE.AmbientLight(0xffffff, 2);
-    // waterOverlay;
-    // lavaOverlay;
+    overlay = [];
+    waterOverlay = null;
+    lavaOverlay = null;
 
     scene = new THREE.Scene();
-    camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    sceneUI = new THREE.Scene();
+    cameraUI = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000);
+    
+    // MORE PRIVATE
     ctx = null;
-    texture = null;
-    tiles = new Array(5);
+    #tiles = new Array(5);
     #tileRotation = 0;
-    #canvasWidth = 0;
-    #canvasHeight = 0;
-    #mesh = null;
-    #material = null;
 
     axesHelper = new THREE.AxesHelper(64);
 
-    constructor() {
-        this.start();
-        this.renderUI();
-        this.updateUITile();
+    createOverlay(tile) {
+        let material = global.materials[tile];
+        material.vertexColors = false;
+        this.overlay[tile] = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), material);
+        this.sceneUI.add(this.overlay[tile]);
+        this.overlay[tile].visible = false;
     }
 
     start() {
-        this.camera.position.z = 10;
+        this.cameraUI.position.z = 10;
         const canvas = document.createElement("canvas");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         this.ctx = canvas.getContext("2d");
-        this.texture = new THREE.CanvasTexture(canvas);
-        const material = new THREE.MeshBasicMaterial({ map: this.texture, transparent: true });
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), material);
-        this.scene.add(mesh);
+
+        // MAKE TILE ID INPUT AND TEXTURE DYNAMIC
+        this.createOverlay(10);
+        this.createOverlay(16);
 
         this.renderer.autoClear = false;
-        global.camera.rotation.order = 'YXZ';
+        this.camera.rotation.order = 'YXZ';
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        global.scene.background = new THREE.Color();
-        global.scene.add(this.ambientLight);
+        const renderDistance = 64;
+
+        this.scene.background = new THREE.Color();
+        this.scene.fog = new THREE.Fog(0x000000, renderDistance - 8, renderDistance - 4);
+        this.scene.add(this.ambientLight);
+
+        // MAKE SETTING
+        this.camera.near = 0.01;
+        this.camera.far = renderDistance;
+        this.camera.updateProjectionMatrix();
     
         const textHeight = 16;
         global.gui.createElement("version", "info", `Voxel ${global.version.major}.${global.version.minor}.${global.version.patch}`, 2, 2);
@@ -54,23 +68,23 @@ export class Renderer {
         global.gui.createElement("noclip", "info", "f", 2, 2 + textHeight * 7);
         global.gui.createElement("chunkUpdates", "info", "g", 2, 2 + textHeight * 9);
         global.gui.createElement("tileUpdates", "info", "h", 2, 2 + textHeight * 10);
+        
+        this.renderUI();
+        this.updateUITile();
     }
 
     update(dt) {
-        
         this.#tileRotation += 0.01 * dt;
-        for(let i = 0; i < this.tiles.length; ++i) {
-            //this.tiles[i].rotation.x = this.#tileRotation;
-            this.tiles[i].rotation.y = this.#tileRotation;
+        for(let i = 0; i < this.#tiles.length; ++i) {
+            this.#tiles[i].rotation.y = this.#tileRotation;
         }
-        
 
         this.ctx.clearRect(0, 0, 256, 128)
 
         if(global.debugUpdate) {
             if(global.debug) {
                 this.axesHelper = new THREE.AxesHelper(512);
-                this.scene.add(this.axesHelper);
+                this.sceneUI.add(this.axesHelper);
 
                 global.gui.showElement("positionX");
                 global.gui.showElement("positionY");
@@ -81,7 +95,7 @@ export class Renderer {
                 global.gui.showElement("tileUpdates");
             } else {
                 if (this.axesHelper) {
-                    this.scene.remove(this.axesHelper);
+                    this.sceneUI.remove(this.axesHelper);
                     this.axesHelper.geometry.dispose();
                     this.axesHelper = null;
                 }
@@ -106,8 +120,6 @@ export class Renderer {
             global.gui.updateTextContent("tileUpdates", `tileUpdates: ${global.level.tileUpdates}`);
         }
 
-        this.texture.needsUpdate = false;
-
         for(const chunk of global.level.chunks) {
             if(chunk.needsUpdate) {
                 chunk.needsUpdate = false;
@@ -122,15 +134,15 @@ export class Renderer {
 
     render() {
         this.renderer.clear();
-        this.renderer.render(global.scene, global.camera);
+        this.renderer.render(this.scene, this.camera);
 
         this.renderer.clearDepth();
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.sceneUI, this.cameraUI);
     }
 
     renderUI() {
         const light = new THREE.AmbientLight(0xffffff, 4);
-        this.scene.add(light); 
+        this.sceneUI.add(light); 
 
         // crosshair
         const size = 9;
@@ -142,11 +154,11 @@ export class Renderer {
     }
 
     updateUITile() { 
-        for(let i = 0; i < this.tiles.length; ++i) {
-            if (this.tiles[i]) {
-                this.scene.remove(this.tiles[i]);
-                this.tiles[i].geometry.dispose();
-                this.tiles[i] = null;
+        for(let i = 0; i < this.#tiles.length; ++i) {
+            if (this.#tiles[i]) {
+                this.sceneUI.remove(this.#tiles[i]);
+                this.#tiles[i].geometry.dispose();
+                this.#tiles[i] = null;
             }
 
             const defaultFaceVertices = new Float32Array([
@@ -209,7 +221,6 @@ export class Renderer {
                 vertexOffset += 4;
             }
 
-            // CHANGE TO THREE.Float32BufferAttribute
             geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
             geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
             geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(colors), 3));
@@ -217,16 +228,15 @@ export class Renderer {
             geometry.computeVertexNormals();
 
             if(global.player.inventory[i] == global.tile.void || global.player.inventory[i] == global.tile.voidWall) {
-                this.tiles[i] = new THREE.Mesh(geometry, material);
+                this.#tiles[i] = new THREE.Mesh(geometry, material);
             } else {
-                this.tiles[i] = new THREE.Mesh(geometry, global.materials);
+                this.#tiles[i] = new THREE.Mesh(geometry, global.materials);
             }
             
-            //this.tile.position.set(window.innerWidth / 2 - tileSize / 2 - 16, window.innerHeight / 2 - tileSize / 2 - 16, -64);
-            this.tiles[i].position.set((i - 2) * tileSize * 2, -window.innerHeight / 2 + tileSize + 16, -64);
-            this.tiles[i].rotation.x = 0.5;
-            this.tiles[i].rotation.y = 0.5;
-            this.scene.add(this.tiles[i]);
+            this.#tiles[i].position.set((i - 2) * tileSize * 2, -window.innerHeight / 2 + tileSize + 16, -64);
+            this.#tiles[i].rotation.x = 0.5;
+            this.#tiles[i].rotation.y = 0.5;
+            this.sceneUI.add(this.#tiles[i]);
         }
     }
 }
