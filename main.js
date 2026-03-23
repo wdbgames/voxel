@@ -6,6 +6,11 @@ import { Renderer } from "./Renderer.js";
 import { Gui } from "./Gui.js";
 import { Input } from "./Input.js";
 
+window.onerror = (a, b, c, d, e) => {
+	document.body.innerHTML = `<p>message: ${a}, source: ${b}, ineno: ${c}, colno: ${d}, error: ${e}</p>`
+	return true;
+};
+
 export const global = {
 	// IMPLEMENT
 	canvasWidth: window.innerWidth,
