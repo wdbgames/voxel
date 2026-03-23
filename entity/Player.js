@@ -181,12 +181,14 @@ export class Player extends Entity {
 				if(this.#getSelectedTile() == global.tile.void) {
 					global.tile.tiles[global.level.getTile(rayTrace[0], rayTrace[1], rayTrace[2])].interact(rayTrace[0], rayTrace[1], rayTrace[2]);
 				} else {
+					// FIX CLIPPING IN BLOCKS
 					const x = rayTrace[3];
 					const y = rayTrace[4];
 					const z = rayTrace[5];
 					const bb = global.tile.tiles[this.#getSelectedTile()].hasCustomBoundingBox ? global.tile.tiles[this.#getSelectedTile()].customBoundingBox : [0, 0, 0, 1, 1, 1];
 					const tileAABB = new AABB(x + bb[0], y + bb[1], z + bb[2], x + bb[3], y + bb[4], z + bb[5]);
-					if(this.noclip || !tileAABB.intersect(this.box)) {
+					const epsilon = 1 / 32;
+					if(this.noclip || global.tile.tiles[this.#getSelectedTile()].viscosity != 1 || !tileAABB.intersect(this.box.grow(-epsilon, -epsilon, -epsilon))) {
 						global.level.setTileWithUpdate(x, y, z, this.#getSelectedTile());
 						global.level.playSound(x, y, z, global.tile.tiles[this.#getSelectedTile()].audio);
 					}

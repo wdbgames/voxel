@@ -56,6 +56,8 @@ export class Chunk {
             for(let z = this.z; z < this.z + global.level.chunkSize; ++z) {
                     for(let y = this.y; y < this.y + global.level.chunkSize; ++y) {
                         this.tileData[i] = 0;
+                        this.tileLight[i] = 8;
+                        this.tileSkylight[i] = 8;
                         ++i;
                     }
             }
@@ -216,9 +218,10 @@ export class Chunk {
                     const faceVertices = tile.hasCustomFaceVertices ? tile.customFaceVertices : defaultFaceVertices;
                     const faceUVs = tile.hasCustomFaceUVs ? tile.customFaceUVs : defaultFaceUVs;
                     if(this.tiles[i] != global.tile.void && this.tiles[i] != global.tile.voidWall) {
+                        const light = Math.max(this.tileLight[i], this.tileSkylight[i]) / 8;
                         for (let f = 0; f < 6; ++f) {
-                            for(let j = 0; j < 3; ++j) {
-                                colors.push(1, 1, 1);
+                            for(let j = 0; j < 4; ++j) {
+                                colors.push(light, light, light);
                             }
 
                             if(tile.culling) {

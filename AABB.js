@@ -47,6 +47,17 @@ export class AABB {
         return new AABB(_x0, _y0, _z0, _x1, _y1, _z1);
     }
 
+    grow(x, y, z) {
+        let _x0 = this.x0 - x;
+        let _x1 = this.x1 + x;
+        let _y0 = this.y0 - y;
+        let _y1 = this.y1 + y;
+        let _z0 = this.z0 - z;
+        let _z1 = this.z1 + z;
+
+        return new AABB(_x0, _y0, _z0, _x1, _y1, _z1);
+    }
+
     clipXCollide(box, x) {
         if(box.y1 <= this.y0 || box.y0 >= this.y1 || box.z1 <= this.z0 || box.z0 >= this.z1) {
             return x;

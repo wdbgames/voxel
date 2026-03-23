@@ -1,5 +1,6 @@
 import { global } from "../main.js";
 
+// ADD SOLID PROPERTY
 export class Tile {
     tileMaterials = [0, 0, 0, 0, 0, 0];
     culling = true;

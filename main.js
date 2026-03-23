@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 5
+		patch: 6
 	},
 
 	// MEH

@@ -9,7 +9,6 @@ export class TileSteam extends Tile {
         this.breakable = false;
     }
 
-    
     tick(x, y, z) {
         if(global.level.getTile(x, y + 1, z) == global.tile.void) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
@@ -25,5 +24,4 @@ export class TileSteam extends Tile {
     added(x, y, z) { 
         this.update(x, y, z);
     }
-    
 }

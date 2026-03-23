@@ -42,6 +42,7 @@ export class TileBush extends Tile {
         }
     }
 
+    // USE TICKING
     update(x, y, z) {
         const tile = global.level.getTile(x, y - 1, z);
         if(tile != global.tile.grass &&
@@ -51,5 +52,9 @@ export class TileBush extends Tile {
            tile != global.tile.bushBerry) {
             global.level.setTileWithUpdate(x, y, z, global.tile.void);
         }
+    }
+
+    added(x, y, z) {
+        this.update(x, y, z);
     }
 }
