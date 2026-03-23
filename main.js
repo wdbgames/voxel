@@ -23,7 +23,7 @@ export const global = {
 	selectedTheme: 0,
 	selectedSize: 1,
 
-	materialCount: 31,
+	materialCount: 32,
 	materials: [],
 	audioCount: 14,
 	audio: [],
@@ -39,7 +39,7 @@ export const global = {
 	version: {
 		major: 0,
 		minor: 4,
-		patch: 4
+		patch: 5
 	},
 
 	// MEH
@@ -47,45 +47,6 @@ export const global = {
 		delta: 0,
 		deltaTemp: performance.now(),
 	}
-}
-
-function addEventListeners() {
-	document.addEventListener("keydown", function(event) {
-		global.player.keys[event.key] = true; 
-		if(!event.repeat) {
-			global.player.keysOnce[event.key] = true;
-		}
-	});
-
-	document.addEventListener("keyup", function(event) {
-		global.player.keys[event.key] = false;
-	});
-
-	document.addEventListener('mousedown', (event) => {
-		if(document.pointerLockElement) {
-			global.player.mouse[event.button] = global.player.mouseOnce[event.button] = true;
-		}
-	});
-
-	document.addEventListener('mouseup', (event) => {
-		global.player.mouse[event.button] = global.player.mouseOnce[event.button] = false;
-	});
-
-	document.addEventListener("mousemove", function(event) {
-		if (document.pointerLockElement) {
-			global.player.updateRotation(event.movementX, event.movementY);
-		}
-	});
-
-	document.addEventListener("wheel", function(event) {
-		global.player.updateSelectedTile(Math.floor(event.deltaY / 100));
-	});
-
-	canvas.addEventListener("click", async () => {
-		if(!document.pointerLockElement) {
-			await canvas.requestPointerLock();
-		}
-	});
 }
 
 function update(dt) {
@@ -195,8 +156,6 @@ function quickNewLevel() {
 	
 	global.renderer.start();
 
-	addEventListeners()
-
 	loop();
 }
 
@@ -208,6 +167,7 @@ function settings() {
 	// TODO
 }
 
+// UPDATE FOR UNLOADED TEXTURES
 async function loadAssets() {
 	// MOVE TO TILE, maybe materials class
 	const alphaTest = [11, 22];
@@ -224,7 +184,6 @@ async function loadAssets() {
 				texture.magFilter = THREE.NearestFilter;
 				global.materials[i] = new THREE.MeshStandardMaterial({
 					map: texture,
-					needsUpdate: true,
 					vertexColors: true,
 					alphaTest: alphaTest.includes(i) ? 0.5 : null,
 					transparent: transparent.includes(i) ? true : null,

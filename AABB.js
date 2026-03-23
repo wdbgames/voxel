@@ -36,39 +36,16 @@ export class AABB {
         this.z1 += za;
     }
 
-	expand(x, y, z) {
-		let _x0 = this.x0;
-		let _y0 = this.y0;
-		let _z0 = this.z0;
-		let _x1 = this.x1;
-		let _y1 = this.y1;
-		let _z1 = this.z1;
-		if(x < 0) {
-			_x0 += x;
-		}
+    expand(x, y, z) {
+        let _x0 = this.x0 + Math.min(x, 0);
+        let _x1 = this.x1 + Math.max(x, 0);
+        let _y0 = this.y0 + Math.min(y, 0);
+        let _y1 = this.y1 + Math.max(y, 0);
+        let _z0 = this.z0 + Math.min(z, 0);
+        let _z1 = this.z1 + Math.max(z, 0);
 
-		if(x > 0) {
-			_x1 += x;
-		}
-
-		if(y < 0) {
-			_y0 += y;
-		}
-
-		if(y > 0) {
-			_y1 += y;
-		}
-
-		if(z < 0) {
-			_z0 += z;
-		}
-
-		if(z > 0) {
-			_z1 += z;
-		}
-
-		return new AABB(_x0, _y0, _z0, _x1, _y1, _z1);
-	}
+        return new AABB(_x0, _y0, _z0, _x1, _y1, _z1);
+    }
 
     clipXCollide(box, x) {
         if(box.y1 <= this.y0 || box.y0 >= this.y1 || box.z1 <= this.z0 || box.z0 >= this.z1) {

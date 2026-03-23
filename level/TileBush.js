@@ -41,4 +41,15 @@ export class TileBush extends Tile {
             global.level.setTileWithUpdate(x, y, z, global.tile.bush)
         }
     }
+
+    update(x, y, z) {
+        const tile = global.level.getTile(x, y - 1, z);
+        if(tile != global.tile.grass &&
+           tile != global.tile.dirt &&
+           tile != global.tile.roots &&
+           tile != global.tile.bush &&
+           tile != global.tile.bushBerry) {
+            global.level.setTileWithUpdate(x, y, z, global.tile.void);
+        }
+    }
 }

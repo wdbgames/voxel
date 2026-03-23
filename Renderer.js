@@ -245,6 +245,7 @@ export class Renderer {
         material.vertexColors = false;
         this.overlay[materialID] = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight), material);
         this.sceneUI.add(this.overlay[materialID]);
+        this.overlay[materialID].position.set(0, 0, -128);
         this.overlay[materialID].visible = false;
     }
 

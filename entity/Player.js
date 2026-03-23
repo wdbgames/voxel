@@ -3,13 +3,8 @@ import { Entity } from "./Entity.js";
 import { AABB } from "../AABB.js";
 
 export class Player extends Entity {
-	// MOVE TO INPUT.JS
-    keys = [];
-	keysOnce = [];
-	mouse = [];
-	mouseOnce = [];
-
 	cameraHeight = 1.5;
+	cameraY = 0;
 	cameraIn = [];
 
 	inventory = [0, 1, 2, 3, 4];
@@ -38,8 +33,8 @@ export class Player extends Entity {
 		return Math.max(min, Math.min(max, value));
 	}
 
-	#handleOverlay(cameraY, tileID, materialID) {
-		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(cameraY) - 1, Math.floor(this.positionZ)) == tileID) {
+	#handleOverlay(tileID, materialID) {
+		if(global.level.getTile(Math.floor(this.positionX), Math.ceil(this.cameraY) - 1, Math.floor(this.positionZ)) == tileID) {
 			if(!this.cameraIn[tileID]) {
 				this.cameraIn[tileID] = true;
 				global.renderer.overlay[materialID].visible = true;
@@ -51,91 +46,91 @@ export class Player extends Entity {
 	}
 
 	update(dt) {
-		if(this.keys["f"]) {
-			if(this.keysOnce["1"]) {
-				this.keysOnce["1"] = false;
+		if(global.input.keys["f"]) {
+			if(global.input.keysOnce["1"]) {
+				global.input.keysOnce["1"] = false;
 				global.debug = !global.debug;
 				global.debugUpdate = true;
 			}
 
-			if(this.keysOnce["2"]) {
-				this.keysOnce["2"] = false;
+			if(global.input.keysOnce["2"]) {
+				global.input.keysOnce["2"] = false;
 				this.fly = !this.fly;
 			}
 
-			if(this.keysOnce["3"]) {
-				this.keysOnce["3"] = false;
+			if(global.input.keysOnce["3"]) {
+				global.input.keysOnce["3"] = false;
 				this.noclip = !this.noclip;
 			}
 
-			if(this.keysOnce["4"]) {
-				this.keysOnce["4"] = false;
+			if(global.input.keysOnce["4"]) {
+				global.input.keysOnce["4"] = false;
 				global.renderer.incrementNearDistance(10, 0.001, 0.1);
 			}
 
-			if(this.keysOnce["5"]) {
-				this.keysOnce["5"] = false;
+			if(global.input.keysOnce["5"]) {
+				global.input.keysOnce["5"] = false;
 				global.renderer.incrementFarDistance(2, 16, 256);
 			}
 		} else {
-			if(this.keysOnce["1"]) {
-				this.keysOnce["1"] = false;
+			if(global.input.keysOnce["1"]) {
+				global.input.keysOnce["1"] = false;
 				this.updateSelectedSlot(0);
 			}
 
-			if(this.keysOnce["2"]) {
-				this.keysOnce["2"] = false;
+			if(global.input.keysOnce["2"]) {
+				global.input.keysOnce["2"] = false;
 				this.updateSelectedSlot(1);
 			}
 		
-			if(this.keysOnce["3"]) {
-				this.keysOnce["3"] = false;
+			if(global.input.keysOnce["3"]) {
+				global.input.keysOnce["3"] = false;
 				this.updateSelectedSlot(2);
 			}
 
-			if(this.keysOnce["4"]) {
-				this.keysOnce["4"] = false;
+			if(global.input.keysOnce["4"]) {
+				global.input.keysOnce["4"] = false;
 				this.updateSelectedSlot(3);
 			}
 
-			if(this.keysOnce["5"]) {
-				this.keysOnce["5"] = false;
+			if(global.input.keysOnce["5"]) {
+				global.input.keysOnce["5"] = false;
 				this.updateSelectedSlot(4);
 			}
 		}
 
-		if(this.keysOnce["ArrowDown"]) {
-			this.keysOnce["ArrowDown"] = false;
+		if(global.input.keysOnce["ArrowDown"]) {
+			global.input.keysOnce["ArrowDown"] = false;
 			this.updateSelectedTile(-1);
 		}
 
-		if(this.keysOnce["ArrowUp"]) {
-			this.keysOnce["ArrowUp"] = false;
+		if(global.input.keysOnce["ArrowUp"]) {
+			global.input.keysOnce["ArrowUp"] = false;
 			this.updateSelectedTile(1);
 		}
 
-		if (this.keys["w"]) {
+		if (global.input.keys["w"]) {
 			this.velocityX += -Math.sin(this.rotationY) * this.acceleration;
 			this.velocityZ += -Math.cos(this.rotationY) * this.acceleration;
 		}
 
-		if (this.keys["s"]) {
+		if (global.input.keys["s"]) {
 			this.velocityX += Math.sin(this.rotationY) * this.acceleration;
 			this.velocityZ += Math.cos(this.rotationY) * this.acceleration;
 		}
 
-		if (this.keys["a"]) {
+		if (global.input.keys["a"]) {
 			this.velocityX += -Math.cos(this.rotationY) * this.acceleration;
 			this.velocityZ += Math.sin(this.rotationY) * this.acceleration;
 		}
 
-		if (this.keys["d"]) {
+		if (global.input.keys["d"]) {
 			this.velocityX += Math.cos(this.rotationY) * this.acceleration;
 			this.velocityZ += -Math.sin(this.rotationY) * this.acceleration;
 		}
 
-		if(this.mouseOnce[0]) {
-			this.mouseOnce[0] = false;
+		if(global.input.mouseOnce[0]) {
+			global.input.mouseOnce[0] = false;
 			this.click = false;
 			const rayTrace = global.level.rayTraceTiles(this.positionX,
 						this.positionY - this.sizeY / 2 + this.cameraHeight,
@@ -154,8 +149,8 @@ export class Player extends Entity {
 			}
 		}
 
-		if(this.mouseOnce[1]) {
-			this.mouseOnce[1] = false;
+		if(global.input.mouseOnce[1]) {
+			global.input.mouseOnce[1] = false;
 			this.click = false;
 			const rayTrace = global.level.rayTraceTiles(this.positionX,
 						this.positionY - this.sizeY / 2 + this.cameraHeight,
@@ -171,8 +166,8 @@ export class Player extends Entity {
 			}
 		}
 
-		if(this.mouseOnce[2]) {
-			this.mouseOnce[2] = false;
+		if(global.input.mouseOnce[2]) {
+			global.input.mouseOnce[2] = false;
 			this.click = false;
 			const rayTrace = global.level.rayTraceTiles(this.positionX,
 						this.positionY - this.sizeY / 2 + this.cameraHeight,
@@ -200,11 +195,11 @@ export class Player extends Entity {
 		}
 
 		if(this.fly) {
-			if (this.keys["q"]) {
+			if (global.input.keys["q"]) {
 				this.velocityY -= this.acceleration;
 			}
 
-			if (this.keys["e"]) {
+			if (global.input.keys["e"]) {
 				this.velocityY += this.acceleration;
 			}
 
@@ -218,7 +213,7 @@ export class Player extends Entity {
 				this.jumpCooldown -= dt;
 			}
 
-			if (this.keys[" "]) {
+			if (global.input.keys[" "]) {
 				if((this.inViscous[global.tile.water])) {
 					if(this.jumpCooldown <= 0) {
 						this.velocityY += 0.01;
@@ -250,14 +245,13 @@ export class Player extends Entity {
 
 		this.move(this.velocityX * dt, this.velocityY * dt, this.velocityZ * dt);
 
-		const cameraY = this.positionY - this.sizeY / 2 + this.cameraHeight;
+		this.cameraY = this.positionY - this.sizeY / 2 + this.cameraHeight;
 
-		// ROOM FOR IMPROVEMENT
-		this.#handleOverlay(cameraY, global.tile.water, 10);
-		this.#handleOverlay(cameraY, global.tile.lava, 16);
+		this.#handleOverlay(global.tile.water, 10);
+		this.#handleOverlay(global.tile.lava, 16);
 		
 		global.renderer.camera.position.x = this.positionX;
-		global.renderer.camera.position.y = cameraY;
+		global.renderer.camera.position.y = this.cameraY;
 		global.renderer.camera.position.z = this.positionZ;
 
 		global.renderer.camera.rotation.x = this.rotationX;

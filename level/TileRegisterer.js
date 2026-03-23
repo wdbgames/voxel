@@ -19,7 +19,7 @@ import { TileData } from "./TileData.js";
 import { TileBush } from "./TileBush.js";
 
 export class TileRegisterer {
-    tileAmount = 30;
+    tileAmount;
     tiles = [];
     viscous = [];
 
@@ -53,6 +53,8 @@ export class TileRegisterer {
     bushBerry = 27;
     stepDouble = 28;
     diamond = 29;
+    ruby = 30;
+    wool = 31;
 
     constructor() {
         this.tiles[this.void] = new TileVoid(0, 0);
@@ -85,8 +87,11 @@ export class TileRegisterer {
         this.tiles[this.bushBerry] = new TileBush(27, 13, true);
         this.tiles[this.stepDouble] = new Tile(28, 1);
         this.tiles[this.diamond] = new Tile(30, 5);
+        this.tiles[this.ruby] = new Tile(31, 5);
+        this.tiles[this.wool] = new Tile(23, 1);
 
-        for(let i = 0; i < this.tiles.length; ++i) {
+        this.tileAmount = this.tiles.length;
+        for(let i = 0; i < this.tileAmount; ++i) {
             const tileViscosity = this.tiles[i].viscosity;
             if(tileViscosity != 0 && tileViscosity != 1) {
                 this.viscous.push(i);

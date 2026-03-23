@@ -204,6 +204,7 @@ export class Chunk {
         }
 
         // UPDATE FOR DATA BASED MATERIAL
+        // UPDTATE FOR MISSIBLE TEXTURES
         let i = 0;
         for(let x = 0; x < global.level.chunkSize; ++x) {
             for(let z = 0; z < global.level.chunkSize; ++z) {

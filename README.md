@@ -15,6 +15,5 @@
 
 ## TODO
 * lighting system
-* debug level type
 * foliage
 * entites
