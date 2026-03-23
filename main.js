@@ -3,7 +3,7 @@ import { Player } from "./entity/Player.js";
 import { Level } from "./Level.js";
 import { TileRegisterer } from "./level/TileRegisterer.js";
 import { Renderer } from "./Renderer.js";
-import { Gui } from "./gui/Gui.js";
+import { Gui } from "./Gui.js";
 import { Input } from "./Input.js";
 
 window.onerror = (a, b, c, d, e) => {

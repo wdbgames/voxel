@@ -1,4 +1,4 @@
-import { global } from "../main.js";
+import { global } from "./main.js";
 
 export class Input {
     keys = [];
